@@ -1,0 +1,47 @@
+{
+  "format": 1,
+  "date": "2026-11-18",
+  "timezone": "Asia/Singapore",
+  "passed": true,
+  "node": "26.3.0",
+  "npm": "11.16.0",
+  "rootInstall": "npm ci using repository lockfile; portable workspace-relative links; no original project node_modules",
+  "unit": {
+    "passed": 30,
+    "failed": 0
+  },
+  "pack": {
+    "modules": 5,
+    "licenseIncluded": true
+  },
+  "browser": {
+    "passed": 28,
+    "failed": 0,
+    "catalogTags": 40,
+    "version": "157.0.8103.79",
+    "freshTarballInstall": true,
+    "strictTypes": true,
+    "negativeTypeAssertions": 32,
+    "nodePathRemoved": true
+  },
+  "source": {
+    "runtimeFilesUnchanged": 49,
+    "declarationBodiesUnchanged": 12,
+    "generatedPortCommandHeaderUpdated": 3
+  },
+  "ci": {
+    "configured": true,
+    "executedOnGitHub": false,
+    "nodeVersions": [
+      24,
+      26
+    ],
+    "browser": "Chrome via installed Playwright CLI"
+  },
+  "limitations": [
+    "camera remains hidden; no host capture or permissions",
+    "video properties only; no media decoding",
+    "keyboard uses injected host geometry; no physical soft keyboard; editor portal remains parked without a custom block",
+    "no navigation or external asset requests"
+  ]
+}

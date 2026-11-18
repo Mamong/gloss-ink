@@ -1,0 +1,33 @@
+{
+  "name": "gloss-ink",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Independent component engine, browser components and compiler toolchain",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mamong/gloss-ink.git"
+  },
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "check": "node scripts/check-component-engine.js",
+    "types:component-ports": "node scripts/build-component-ports.cjs",
+    "types:check": "node scripts/build-component-ports.cjs --check",
+    "test": "npm run check && node --test test/*.test.js",
+    "test:component-engine": "npm test",
+    "test:component-standalone": "node scripts/check-standalone-components.cjs",
+    "test:browser": "npm run test:component-standalone",
+    "pack:modules": "node scripts/pack-modules.cjs"
+  },
+  "devDependencies": {
+    "acorn": "^8.19.0",
+    "jsdom": "31.0.0",
+    "typescript": "5.9.3",
+    "playwright-core": "1.62.1"
+  }
+}

@@ -1,0 +1,152 @@
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const http = require('node:http');
+const {chromium} = require('playwright-core');
+(async () => {
+  const directory = path.join(__dirname, 'dist');
+  const server = http.createServer((request, response) => {
+    const pathname = new URL(request.url, 'http://localhost').pathname;
+    const name = pathname === '/' ? 'index.html' : pathname.slice(1);
+    if (!['index.html', 'app.js', 'app.js.map', 'components.css'].includes(name)) { response.writeHead(404).end(); return; }
+    response.setHeader('content-type', name.endsWith('.html') ? 'text/html' : name.endsWith('.css') ? 'text/css' : 'text/javascript');
+    response.end(fs.readFileSync(path.join(directory, name)));
+  });
+  let browser;
+  const checks = [];
+  try {
+    await new Promise((resolve, reject) => {server.once('error', reject); server.listen(0, '127.0.0.1', resolve);});
+    browser = await chromium.launch({channel: 'chrome', headless: true});
+    const page = await browser.newPage();
+    const errors = [], csp = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.addInitScript(() => {window.cspViolations = []; document.addEventListener('securitypolicyviolation', event => window.cspViolations.push(event.violatedDirective));});
+    await page.goto('http://127.0.0.1:' + server.address().port);
+    await page.waitForFunction(() => window.acceptance?.view.isIdle());
+    assert.deepEqual(errors, []);
+    await page.waitForFunction(() => document.querySelector('#counter').shadowRoot.querySelector('#child-label').textContent.includes('Independent'));
+    checks.push('parent-child properties');
+    assert.equal(await page.locator('#summary').textContent(), 'Template Independent');
+    checks.push('compiled named template expansion');
+    const button = page.locator('#activation'), bounds = await button.boundingBox();
+    await page.evaluate(() => {window.pressedButton = document.querySelector('#activation');});
+    await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+    await page.mouse.down();
+    await page.evaluate(async () => {const receipt = acceptance.update({banner: false}); await receipt?.done;});
+    await page.mouse.up();
+    await page.waitForFunction(() => acceptance.page.activations === 1);
+    assert.equal(await page.evaluate(() => document.querySelector('#activation') === pressedButton && !document.querySelector('#banner')), true);
+    checks.push('conditional sibling removal preserves in-flight native click');
+    const slots = await page.evaluate(() => [...document.querySelector('#counter').shadowRoot.querySelectorAll('slot')].map(slot => ({name: slot.name, ids: slot.assignedElements().map(element => element.id)})));
+    assert.deepEqual(slots, [{name: 'heading', ids: ['named']}, {name: '', ids: ['default']}]);
+    checks.push('named and default slots');
+    const colors = await page.evaluate(() => [getComputedStyle(document.querySelector('#page-label')).color, getComputedStyle(document.querySelector('#counter').shadowRoot.querySelector('#child-label')).color]);
+    assert.deepEqual(colors, ['rgb(190, 35, 55)', 'rgb(17, 99, 155)']);
+    checks.push('stylesheet compilation and Shadow DOM isolation');
+    await page.locator('#counter').locator('#entry').fill('typed independently');
+    await page.waitForFunction(() => acceptance.child().data.text === 'typed independently');
+    checks.push('native input updates component state');
+    await page.locator('#counter').locator('#submit').click();
+    await page.waitForFunction(() => acceptance.page.data.output === '{"submitted":"typed independently"}' && acceptance.view.isIdle());
+    checks.push('form submission and child event');
+    await page.locator('#counter').locator('#increment').click();
+    await page.waitForFunction(() => acceptance.commits.length === 1 && acceptance.view.isIdle());
+    assert.deepEqual(await page.evaluate(() => ({commits: acceptance.commits, text: document.querySelector('#counter').shadowRoot.querySelector('#child-label').textContent})), {commits: [1], text: 'Child Independent / 1'});
+    checks.push('setData callback after commit');
+    await page.evaluate(() => {window.oldRows = [...document.querySelector('#rows').children]; window.oldComponents = oldRows.map(element => acceptance.registry.select(acceptance.descriptor.id, '#' + element.id, false));});
+    await page.locator('#reverse').click();
+    await page.waitForFunction(() => acceptance.view.isIdle() && document.querySelector('#rows').firstElementChild.id === 'row-b');
+    assert.equal(await page.evaluate(() => {const rows = [...document.querySelector('#rows').children]; return rows[0] === oldRows[1] && rows[1] === oldRows[0] && acceptance.registry.select(acceptance.descriptor.id, '#row-a', false) === oldComponents[0];}), true);
+    checks.push('keyed reorder preserves DOM and component identity');
+    await page.evaluate(async () => {const receipt = acceptance.update({title: 'Updated'}); await receipt.done;});
+    await page.waitForFunction(() => document.querySelector('#counter').shadowRoot.querySelector('#child-label').textContent === 'Child Updated / 1');
+    assert.equal(await page.locator('#summary').textContent(), 'Template Updated');
+    checks.push('parent property update preserves child data');
+    assert.equal(await page.locator('#wxs-label').textContent(), 'UPDATED');
+    checks.push('packaged WXS interpreter runs without SDK or dynamic code generation');
+    await page.locator('#choice').click();
+    await page.locator('[data-now-picker-input]').selectOption('1');
+    await page.locator('[data-now-picker-confirm]').click();
+    await page.waitForFunction(() => acceptance.page.data.choice === 1 && !document.querySelector('[data-now-picker]'));
+    checks.push('packaged picker dialog selection and change event');
+    await page.locator('#rich-editor [contenteditable="true"]').fill('Independent rich text');
+    await page.waitForFunction(() => acceptance.page.data.editorText.includes('Independent rich text'));
+    const editorText = await page.evaluate(() => new Promise((resolve, reject) => document.querySelector('#rich-editor').weappEditorContext.getContents({success: result => resolve(result.text), fail: reject})));
+    assert.ok(editorText.includes('Independent rich text'));
+    checks.push('packaged editor native input and context query');
+    assert.equal(await page.evaluate(() => document.querySelector('#virtual').querySelectorAll('[id^="virtual-item-"]').length < 60), true);
+    await page.evaluate(async () => {const receipt = acceptance.update({scrollInto: 'virtual-item-40'}); await receipt?.done;});
+    await page.waitForFunction(() => document.querySelector('#virtual-item-40') && document.querySelector('#virtual').scrollTop > 0 && acceptance.view.isIdle());
+    checks.push('packaged scroll controller and bounded virtual-list window');
+    await page.locator('#demo-map [data-marker-id="1"]').click();
+    await page.waitForFunction(() => acceptance.page.selectedMarker === 1);
+    assert.deepEqual(await page.evaluate(() => {acceptance.view.map('moveToLocation', {mapId: 'demo-map', longitude: 23, latitude: 11}); return acceptance.view.map('getCenterLocation', {mapId: 'demo-map'});}), {longitude: 23, latitude: 11});
+    checks.push('packaged map marker events and context state');
+    assert.deepEqual(await page.evaluate(() => {acceptance.view.video('playbackRate', {videoId: 'demo-video', rate: 1.5}); acceptance.view.video('hideStatusBar', {videoId: 'demo-video'}); const video = document.querySelector('#demo-video'); return {rate: video.playbackRate, controls: video.controls};}), {rate: 1.5, controls: false});
+    checks.push('packaged native video context properties');
+    const hidden = await page.evaluate(async () => {
+      acceptance.view.video('sendDanmu', {videoId: 'demo-video', danmu: {text: 'temporary overlay', duration: 15000}});
+      const overlay = [...document.querySelectorAll('span')].find(element => element.textContent === 'temporary overlay');
+      acceptance.view.hide(); let code;
+      try { acceptance.view.video('pause', {videoId: 'demo-video'}); } catch (error) {code = error.code;}
+      const removed = !overlay.isConnected;
+      const receipt = acceptance.view.show(); await receipt?.done;
+      return {removed, code};
+    });
+    assert.deepEqual(hidden, {removed: true, code: 'PAGE_NOT_READY'});
+    checks.push('video visibility releases overlays and guards hidden operations');
+    // Hold a submission receipt to check callback timing independently of browser speed.
+    const timing = await page.evaluate(async () => {
+      const child = acceptance.child(), view = acceptance.registry.scope(child).view();
+      const original = view.render;
+      let release, called = false, renders = 0;
+      const held = new Promise(resolve => {release = resolve;});
+      view.render = () => {renders++; return {settled: false, done: held};};
+      child.setData({count: 2}, () => {called = true;});
+      await Promise.resolve();
+      const before = called;
+      release(); await held; await Promise.resolve();
+      view.render = original;
+      const receipt = original(); await receipt?.done;
+      return {before, after: called, renders};
+    });
+    assert.deepEqual(timing, {before: false, after: true, renders: 1});
+    checks.push('held receipt delays callback until acknowledgement');
+    await page.locator('#choice').click();
+    await page.waitForFunction(() => !!document.querySelector('[data-now-picker]'));
+    // Destruction must cancel callbacks and release active controller resources.
+
+    const cleanup = await page.evaluate(async () => {
+      const app = acceptance, child = app.child();
+      const editorElement = document.querySelector('#rich-editor'), oldContext = editorElement.weappEditorContext;
+      const mapElement = document.querySelector('#demo-map');
+      app.view.video('sendDanmu', {videoId: 'demo-video', danmu: {text: 'destroyed overlay', duration: 15000}});
+      const overlay = [...document.querySelectorAll('span')].find(element => element.textContent === 'destroyed overlay');
+      let release, late = false, renders = 0;
+      const held = new Promise(resolve => {release = resolve;});
+      app.registry.scope(child).view().render = () => {renders++; return {settled: false, done: held};};
+      child.setData({count: 9}, () => {late = true;});
+      await Promise.resolve();
+      app.destroy(); release(); await held; await Promise.resolve();
+      const editorFailure = await new Promise(resolve => oldContext.getContents({fail: result => resolve(result.errCode)}));
+      let videoFailure, mapFailure;
+      try {app.view.video('pause', {videoId: 'demo-video'});} catch (error) {videoFailure = error.code;}
+      try {app.view.map('getCenterLocation', {mapId: 'demo-map'});} catch (error) {mapFailure = error.code;}
+      window.controllerCleanup = {editorFailure, videoFailure, mapFailure, editorReleased: !editorElement.weappEditorContext, mapReleased: !mapElement.__nowMapState, overlayReleased: !overlay.isConnected, dialogs: document.querySelectorAll('[data-now-picker]').length, scrollContexts: window.__nowScrollContexts?.size || 0, backToTop: window.__nowBackToTop?.inspect().count || 0};
+      return {late, renders, instances: app.registry.inspect(), detached: app.detached.length, children: document.querySelector('#weapp-root').childElementCount};
+    });
+    assert.deepEqual(cleanup, {late: false, renders: 1, instances: {instances: 0, components: 0, placements: 0}, detached: 3, children: 0});
+    checks.push('destroy releases tree and suppresses late callbacks');
+    assert.deepEqual(await page.evaluate(() => window.controllerCleanup), {editorFailure: 'PAGE_UNLOADED', videoFailure: 'PAGE_UNLOADED', mapFailure: 'PAGE_UNLOADED', editorReleased: true, mapReleased: true, overlayReleased: true, dialogs: 0, scrollContexts: 0, backToTop: 0});
+    checks.push('destroy releases picker editor media and scroll resources');
+    csp.push(...await page.evaluate(() => window.cspViolations));
+    assert.deepEqual(errors, []); assert.deepEqual(csp, []);
+    checks.push('original CSP without inline scripts or eval');
+    const catalog = await require('./verify-catalog.cjs')(browser, 'http://127.0.0.1:' + server.address().port);
+    checks.push(...catalog.checks);
+    const report = {passed: true, catalog, checks, browser: await browser.version(), packages: Object.fromEntries(['component-engine','builtin-components','component-backend-dom','template-compiler','stylesheet-compiler'].map(name => [name, require('@tingtalk/' + name + '/package.json').version]))};
+    fs.writeFileSync(path.join(directory, 'acceptance.json'), JSON.stringify(report, null, 2) + '\n');
+    console.log(JSON.stringify(report, null, 2));
+  } finally {await browser?.close(); await new Promise(resolve => server.close(resolve));}
+})().catch(error => {console.error(error); process.exitCode = 1;});

@@ -1,0 +1,542 @@
+{
+  "passed": true,
+  "catalog": {
+    "checks": [
+      "all 40 public tags compile and create with explicit physical or structural observations",
+      "all 40 tags update without replacing observations and native control state follows authored properties",
+      "packaged Canvas selector node exposes a working native 2D context",
+      "native textarea label switch checkbox radio slider and form submit/reset compose through installed controllers",
+      "page-container and root-portal release top-layer locks and match-media responds to actual viewport resize",
+      "all 40 observations detach and active layers editor map scroll camera and page metadata release resources",
+      "all 40 tags recreate and page destruction releases registry resources under the original CSP"
+    ],
+    "tags": [
+      "camera",
+      "keyboard-accessory",
+      "editor",
+      "editor-portal",
+      "page-meta",
+      "navigation-bar",
+      "view",
+      "text",
+      "button",
+      "input",
+      "textarea",
+      "image",
+      "scroll-view",
+      "label",
+      "switch",
+      "checkbox",
+      "navigator",
+      "form",
+      "radio",
+      "radio-group",
+      "checkbox-group",
+      "slider",
+      "picker",
+      "swiper",
+      "swiper-item",
+      "rich-text",
+      "icon",
+      "progress",
+      "picker-view",
+      "picker-view-column",
+      "movable-area",
+      "movable-view",
+      "selection",
+      "page-container",
+      "root-portal",
+      "canvas",
+      "video",
+      "map",
+      "block",
+      "match-media"
+    ],
+    "coverage": {
+      "camera": {
+        "selector": "#catalog-camera",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "keyboard-accessory": {
+        "selector": "#catalog-keyboard-accessory",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "editor": {
+        "selector": "#catalog-editor",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "editor-portal": {
+        "selector": "#catalog-editor-portal",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "page-meta": {
+        "selector": "#catalog-page-meta",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "navigation-bar": {
+        "selector": "#catalog-navigation-bar",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "view": {
+        "selector": "#catalog-view",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "text": {
+        "selector": "#catalog-text",
+        "nodeName": "span",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "button": {
+        "selector": "#catalog-button",
+        "nodeName": "button",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "input": {
+        "selector": "#catalog-input",
+        "nodeName": "input",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "textarea": {
+        "selector": "#catalog-textarea",
+        "nodeName": "textarea",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "image": {
+        "selector": "#catalog-image",
+        "nodeName": "img",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "scroll-view": {
+        "selector": "#catalog-scroll-view",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "label": {
+        "selector": "#catalog-label",
+        "nodeName": "label",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "switch": {
+        "selector": "#catalog-switch",
+        "nodeName": "input",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "checkbox": {
+        "selector": "#catalog-checkbox",
+        "nodeName": "input",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "navigator": {
+        "selector": "#catalog-navigator",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "form": {
+        "selector": "#catalog-form",
+        "nodeName": "form",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "radio": {
+        "selector": "#catalog-radio",
+        "nodeName": "input",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "radio-group": {
+        "selector": "#catalog-radio-group",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "checkbox-group": {
+        "selector": "#catalog-checkbox-group",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "slider": {
+        "selector": "#catalog-slider",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "picker": {
+        "selector": "#catalog-picker",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "swiper": {
+        "selector": "#catalog-swiper",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "swiper-item": {
+        "selector": "#catalog-swiper-item",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "rich-text": {
+        "selector": "#catalog-rich-text",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "icon": {
+        "selector": "#catalog-icon",
+        "nodeName": "span",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "progress": {
+        "selector": "#catalog-progress",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "picker-view": {
+        "selector": "#catalog-picker-view",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "picker-view-column": {
+        "selector": "#catalog-picker-view-column",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "movable-area": {
+        "selector": "#catalog-movable-area",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "movable-view": {
+        "selector": "#catalog-movable-view",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "selection": {
+        "selector": "#catalog-selection",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "page-container": {
+        "selector": "#catalog-page-container",
+        "nodeName": "dialog",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "root-portal": {
+        "selector": "#catalog-root-portal",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "canvas": {
+        "selector": "#catalog-canvas",
+        "nodeName": "canvas",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "video": {
+        "selector": "#catalog-video",
+        "nodeName": "video",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "map": {
+        "selector": "#catalog-map",
+        "nodeName": "div",
+        "physical": true,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "block": {
+        "selector": "#catalog-block-child",
+        "nodeName": "span",
+        "physical": false,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      },
+      "match-media": {
+        "selector": "#catalog-match-child",
+        "nodeName": "span",
+        "physical": false,
+        "stages": [
+          "create",
+          "update",
+          "remove",
+          "recreate"
+        ]
+      }
+    },
+    "limitations": [
+      "camera remains hidden; no host capture or permissions",
+      "video properties only; no media decoding",
+      "keyboard uses injected host geometry; no physical soft keyboard; editor portal remains parked without a custom block",
+      "no navigation or external asset requests"
+    ]
+  },
+  "checks": [
+    "parent-child properties",
+    "compiled named template expansion",
+    "conditional sibling removal preserves in-flight native click",
+    "named and default slots",
+    "stylesheet compilation and Shadow DOM isolation",
+    "native input updates component state",
+    "form submission and child event",
+    "setData callback after commit",
+    "keyed reorder preserves DOM and component identity",
+    "parent property update preserves child data",
+    "packaged WXS interpreter runs without SDK or dynamic code generation",
+    "packaged picker dialog selection and change event",
+    "packaged editor native input and context query",
+    "packaged scroll controller and bounded virtual-list window",
+    "packaged map marker events and context state",
+    "packaged native video context properties",
+    "video visibility releases overlays and guards hidden operations",
+    "held receipt delays callback until acknowledgement",
+    "destroy releases tree and suppresses late callbacks",
+    "destroy releases picker editor media and scroll resources",
+    "original CSP without inline scripts or eval",
+    "all 40 public tags compile and create with explicit physical or structural observations",
+    "all 40 tags update without replacing observations and native control state follows authored properties",
+    "packaged Canvas selector node exposes a working native 2D context",
+    "native textarea label switch checkbox radio slider and form submit/reset compose through installed controllers",
+    "page-container and root-portal release top-layer locks and match-media responds to actual viewport resize",
+    "all 40 observations detach and active layers editor map scroll camera and page metadata release resources",
+    "all 40 tags recreate and page destruction releases registry resources under the original CSP"
+  ],
+  "browser": "157.0.8103.79",
+  "packages": {
+    "component-engine": "0.1.0",
+    "builtin-components": "0.1.0",
+    "component-backend-dom": "0.1.0",
+    "template-compiler": "0.1.0",
+    "stylesheet-compiler": "0.1.0"
+  }
+}

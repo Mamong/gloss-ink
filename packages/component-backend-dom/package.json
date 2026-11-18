@@ -1,0 +1,27 @@
+{
+  "name": "@tingtalk/component-backend-dom",
+  "version": "0.1.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "ISC",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "driver.js",
+    "events.js",
+    "README.md",
+    "protocol.js",
+    "selector-query.js",
+    "ports/engine.d.ts",
+    "ports/builtin.d.ts",
+    "ports/wxs.d.ts",
+    "view-types.d.ts",
+    "query-types.d.ts",
+    "canvas-types.d.ts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mamong/gloss-ink.git",
+    "directory": "packages/component-backend-dom"
+  }
+}

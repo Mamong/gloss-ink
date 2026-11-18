@@ -1,0 +1,22 @@
+{
+  "name": "component-system-standalone-acceptance",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.cjs",
+    "test": "node verify.cjs",
+    "typecheck": "tsc --strict --noEmit --target ES2020 --module commonjs --moduleResolution node --lib ES2020,DOM contracts.ts"
+  },
+  "dependencies": {
+    "@tingtalk/component-engine": "file:packages/tingtalk-component-engine-0.1.0.tgz",
+    "@tingtalk/builtin-components": "file:packages/tingtalk-builtin-components-0.1.0.tgz",
+    "@tingtalk/component-backend-dom": "file:packages/tingtalk-component-backend-dom-0.1.0.tgz",
+    "@tingtalk/template-compiler": "file:packages/tingtalk-template-compiler-0.1.0.tgz",
+    "@tingtalk/stylesheet-compiler": "file:packages/tingtalk-stylesheet-compiler-0.1.0.tgz"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "playwright-core": "1.62.1",
+    "typescript": "5.9.3"
+  }
+}

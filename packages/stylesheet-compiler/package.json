@@ -1,0 +1,26 @@
+{
+  "name": "@tingtalk/stylesheet-compiler",
+  "version": "0.1.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "ISC",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "styles.js",
+    "less.js",
+    "less-worker.js",
+    "README.md"
+  ],
+  "dependencies": {
+    "postcss": "^8.5.32",
+    "postcss-selector-parser": "^7.2.0",
+    "postcss-value-parser": "^4.2.0",
+    "less": "4.9.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mamong/gloss-ink.git",
+    "directory": "packages/stylesheet-compiler"
+  }
+}

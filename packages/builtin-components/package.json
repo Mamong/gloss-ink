@@ -1,0 +1,41 @@
+{
+  "name": "@tingtalk/builtin-components",
+  "version": "0.1.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "ISC",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "catalog.js",
+    "registry.js",
+    "progress.js",
+    "attributes.js",
+    "browser.js",
+    "source.js",
+    "README.md",
+    "text-input.js",
+    "interactions.js",
+    "forms.js",
+    "picker.js",
+    "editor.js",
+    "native-components.js",
+    "interactive-components.js",
+    "layer-components.js",
+    "virtual-list.js",
+    "camera.js",
+    "keyboard-accessory.js",
+    "page-meta.js",
+    "match-media.js",
+    "back-to-top.js",
+    "video.js",
+    "map.js",
+    "accessibility.js",
+    "styles.css"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mamong/gloss-ink.git",
+    "directory": "packages/builtin-components"
+  }
+}

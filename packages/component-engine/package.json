@@ -1,0 +1,30 @@
+{
+  "name": "@tingtalk/component-engine",
+  "version": "0.1.0",
+  "description": "Platform-independent component state, behavior and instance-tree engine",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "ISC",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "error.js",
+    "data.js",
+    "behaviors.js",
+    "selectors.js",
+    "components.js",
+    "instances.js",
+    "source.js",
+    "README.md",
+    "events.js",
+    "projection.js",
+    "view-connection.js",
+    "reconciliation.js",
+    "template.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mamong/gloss-ink.git",
+    "directory": "packages/component-engine"
+  }
+}
