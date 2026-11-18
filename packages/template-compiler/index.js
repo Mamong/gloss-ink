@@ -209,6 +209,7 @@ function compile(source, file, diagnostic, settings = {}) {
       return '{kind:"template",owner:'+literal(node.file||file)+',name:'+(attrs.is?value(attrs.is,true):'scope=>""')+',data:'+data+'}';
     }
     if (!tags.has(node.tag) && !(settings.components || []).includes(node.tag) && !(settings.component && node.tag === 'slot')) issue('WXML_COMPONENT', node.offset, '尚未支持组件 '+node.tag+'；迁移建议：检查当前页面/组件JSON的usingComponents声明，或改用平台已实现的组件。');
+    if(node.tag==='web-view'&&node.children.some(child=>!Object.hasOwn(child,'text')||child.text.trim()))issue('WXML_WEB_VIEW',node.offset,'web-view不支持子节点');
     if(node.tag==='camera'&&node.children.some(child=>!Object.hasOwn(child,'text')||child.text.trim()))issue('WXML_CAMERA',node.offset,'camera暂不支持子节点或覆盖层，请使用外部布局');
     if(node.tag==='rich-text'&&node.children.length)issue('WXML_COMPONENT',node.offset,'rich-text请通过nodes提供内容');
     if(node.tag==='slot'&&Object.keys(attrs).some(key=>!['name','slot'].includes(key)))issue('WXML_SLOT',node.offset,'slot 仅支持 name 和用于转发的 slot');
@@ -217,7 +218,7 @@ function compile(source, file, diagnostic, settings = {}) {
       const event = /^(?:(capture)-(bind|catch):|(bind|catch|mut-bind):?)([A-Za-z][\w-]*)$/.exec(name);
       if (event) {
         if(event[3]==='mut-bind'&&!name.startsWith('mut-bind:'))issue('WXML_EVENT',attr.offset,'mut-bind需要mut-bind:事件名语法');
-        if (!(node.tag==='camera'&&event[4]==='error') && !(node.tag==='page-meta'&&['resize','scrolldone'].includes(event[4])) && !(node.tag==='image'&&['load','error'].includes(event[4])) && !(node.tag==='picker'&&(event[4]==='cancel'||event[4]==='columnchange'&&(attrs.mode?.value==='multiSelector'||String(attrs.mode?.value||'').includes('{{')))) && !events.has(event[4]) && !(settings.customEvents || []).includes(event[4]) && !(settings.components || []).includes(node.tag)){const hint={opensetting:'迁移到NowApp.permissions.has和宿主设置流程。',getuserinfo:'迁移到NowApp.getUserProfile或NowApp.chat.getContext。'}[event[4]];issue('WXML_EVENT',attr.offset,'尚未支持事件 '+event[4]+(hint?'；迁移建议：'+hint:''));}
+        if (!(node.tag==='web-view'&&['load','error','message'].includes(event[4])) && !(node.tag==='camera'&&event[4]==='error') && !(node.tag==='page-meta'&&['resize','scrolldone'].includes(event[4])) && !(node.tag==='image'&&['load','error'].includes(event[4])) && !(node.tag==='picker'&&(event[4]==='cancel'||event[4]==='columnchange'&&(attrs.mode?.value==='multiSelector'||String(attrs.mode?.value||'').includes('{{')))) && !events.has(event[4]) && !(settings.customEvents || []).includes(event[4]) && !(settings.components || []).includes(node.tag)){const hint={opensetting:'迁移到NowApp.permissions.has和宿主设置流程。',getuserinfo:'迁移到NowApp.getUserProfile或NowApp.chat.getContext。'}[event[4]];issue('WXML_EVENT',attr.offset,'尚未支持事件 '+event[4]+(hint?'；迁移建议：'+hint:''));}
         handlers.push('{name:' + literal(event[4]) + ',capture:' + !!event[1] + ',stop:' + ((event[2] || event[3]) === 'catch') + ',mut:'+(event[3]==='mut-bind')+',value:' + value(attr) + '}');
       } else {
         if (!(settings.components || []).includes(node.tag) && !common.has(name) && !(properties[node.tag] || []).includes(name) && !/^(?:data-|aria-)[\w-]+$/.test(name)) issue('WXML_ATTRIBUTE', attr.offset, '尚未支持 ' + node.tag + '.' + name);

@@ -1,0 +1,25 @@
+{
+  "format": "gloss-ink-web-view-verification-v1",
+  "verifiedOn": "2026-11-18",
+  "node": "v26.3.0",
+  "sourceCapture": "source-capture.json",
+  "unit": {
+    "total": 202,
+    "passed": 202,
+    "failed": 0,
+    "skipped": 0,
+    "added": 9
+  },
+  "browser": {
+    "passed": true,
+    "checks": 29,
+    "tags": 41,
+    "isolatedInstall": true,
+    "strictTypes": true,
+    "firstAttempt": "Owner service probe lacked release cleanup; fixed in standalone app without runtime changes",
+    "scope": "hidden web-view placeholder + real controller + explicit injected host-service probe; no webpage container or bridge"
+  },
+  "runtimeVersions": "0.1.0 unreleased packages, no npm publish",
+  "referenceEnginesExecuted": false,
+  "remoteCIConfirmed": false
+}

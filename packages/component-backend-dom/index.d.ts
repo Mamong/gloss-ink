@@ -40,6 +40,7 @@ export interface DomBackendFactories {
   wxsRuntime?: WxsFactory;
   regionData?: Builtin.RegionEntry[];
   accessibility?: typeof Builtin.createAccessibility;
+  webViewRuntime?: typeof Builtin.createWebViewRuntime;
   cameraRuntime?: typeof Builtin.createCameraRuntime;
   videoRuntime?: typeof Builtin.createVideoRuntime;
   mapRuntime?: typeof Builtin.createMapRuntime;

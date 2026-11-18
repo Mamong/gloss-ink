@@ -2,7 +2,7 @@
 // Every public catalog tag has an explicit browser observation. Structural tags
 // are checked through their children because they do not own a physical node.
 const nodes = {
-  camera: 'div', 'keyboard-accessory': 'div', editor: 'div', 'editor-portal': 'div',
+  'web-view': 'div', camera: 'div', 'keyboard-accessory': 'div', editor: 'div', 'editor-portal': 'div',
   'page-meta': 'div', 'navigation-bar': 'div', view: 'div', text: 'span',
   button: 'button', input: 'input', textarea: 'textarea', image: 'img',
   'scroll-view': 'div', label: 'label', switch: 'input', checkbox: 'input',
@@ -47,6 +47,7 @@ let template = `<page-meta id="catalog-page-meta" wx:if="{{catalogEnabled}}" roo
   <video id="catalog-video" controls="{{controls}}"/>
   <map id="catalog-map" longitude="{{longitude}}" latitude="{{latitude}}"/>
   <editor id="catalog-editor" placeholder="Editor {{phase}}" style="height:60px"><editor-portal id="catalog-editor-portal" key="catalog-block"><text>Editor portal {{phase}}</text></editor-portal></editor>
+  <web-view id="catalog-web-view" hidden src="{{webViewUrl}}"/>
   <camera id="catalog-camera" hidden device-position="{{cameraPosition}}"/>
 </block>`;
 // Exercise common attribute updates on every physical tag as well as each
@@ -58,5 +59,5 @@ module.exports = {template, observations, data: {
   entry: 'initial entry', memo: 'initial memo', checked: false, amount: 20,
   choices: ['First', 'Second'], choice: 0, richText: '<b>Initial rich text</b>',
   icon: 'success', wheel: [0], position: 0, modal: false, portal: false,
-  canvasSize: 40, controls: true, longitude: 20, latitude: 10, cameraPosition: 'back'
+  webViewUrl: 'https://example.invalid/initial', canvasSize: 40, controls: true, longitude: 20, latitude: 10, cameraPosition: 'back'
 }};

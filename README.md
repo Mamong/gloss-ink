@@ -9,7 +9,7 @@
 | 包 | 目录 | 职责 |
 | --- | --- | --- |
 | `@tingtalk/component-engine` | [packages/component-engine](packages/component-engine) | 数据、Behavior、实例树、逻辑事件、模板求值和节点协调 |
-| `@tingtalk/builtin-components` | [packages/builtin-components](packages/builtin-components) | 40 个公开标签的目录、真实浏览器控制器及基础样式 |
+| `@tingtalk/builtin-components` | [packages/builtin-components](packages/builtin-components) | 41 个公开标签的目录、真实浏览器控制器及基础样式 |
 | `@tingtalk/component-backend-dom` | [packages/component-backend-dom](packages/component-backend-dom) | DOM 投影、事件、布局、查询、Canvas 和提交协议 |
 | `@tingtalk/template-compiler` | [packages/template-compiler](packages/template-compiler) | 构建期 WXML/受限 WXS 编译；纯浏览器 WXS runtime 子入口 |
 | `@tingtalk/stylesheet-compiler` | [packages/stylesheet-compiler](packages/stylesheet-compiler) | WXSS、标签选择器、rpx 与 LESS 编译 |
@@ -52,9 +52,9 @@ npm run test:browser
 node scripts/check-standalone-components.cjs artifacts/standalone
 ```
 
-目录页逐项验证 40 个公开标签的创建、更新、移除和重建；组合页验证 slot、Shadow DOM 样式、原生输入/表单、keyed 重排及提交回调。扩展行为包含 Canvas 真实像素、弹层滚动锁、视口响应和页面字体/标题恢复。
+目录页逐项验证 41 个公开标签的创建、更新、移除和重建；组合页验证 slot、Shadow DOM 样式、原生输入/表单、keyed 重排及提交回调。扩展行为包含 Canvas 真实像素、弹层滚动锁、视口响应和页面字体/标题恢复。
 
-40 标签覆盖是生命周期基线。相机保持隐藏；键盘附件使用显式注入的宿主几何信息；editor-portal 检查停放节点；视频没有真实解码检查。没有声称全属性/事件、全部原生设备或 GlassEasel ABI 互换通过。详细边界见 [验收应用说明](examples/standalone/README.md)。
+41 标签覆盖是生命周期基线。web-view 保持隐藏，通过显式注入的服务记录器验收控制器委托和生命周期，未加载网页容器。相机保持隐藏；键盘附件使用显式注入的宿主几何信息；editor-portal 检查停放节点；视频没有真实解码检查。没有声称全属性/事件、全部原生设备或 GlassEasel ABI 互换通过。详细边界见 [验收应用说明](examples/standalone/README.md)。
 
 ## 声明与 CI
 

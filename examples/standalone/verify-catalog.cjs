@@ -24,6 +24,9 @@ module.exports = async function verifyCatalog(browser, origin) {
     })));
     const expected = await page.evaluate(() => acceptance.observations);
     const initial = await snapshot();
+    assert.deepEqual(await page.evaluate(() => ({count: acceptance.webViews.size, src: [...acceptance.webViews.values()][0]?.src, placeholderSrc: document.querySelector('#catalog-web-view').getAttribute('src')})), {count: 1, src: 'https://example.invalid/initial', placeholderSrc: null});
+    await page.evaluate(async () => {await acceptance.update({webViewUrl: 'https://example.invalid/updated'}).done;});
+    assert.equal(await page.evaluate(() => [...acceptance.webViews.values()][0]?.src), 'https://example.invalid/updated');
     for (const [tag, observation] of Object.entries(expected)) {
       assert.ok(initial[tag], tag + ' creates its declared observation');
       assert.equal(initial[tag].nodeName, observation.nodeName, tag + ' native node');
@@ -31,7 +34,7 @@ module.exports = async function verifyCatalog(browser, origin) {
     }
     assert.equal(await page.locator('#catalog-block').count(), 0);
     assert.equal(await page.locator('#catalog-match-media').count(), 0);
-    checks.push('all 40 public tags compile and create with explicit physical or structural observations');
+    checks.push('all 41 public tags compile and create with explicit physical or structural observations');
     await page.evaluate(() => {window.catalogNodes = Object.fromEntries(Object.entries(acceptance.observations).map(([tag, item]) => [tag, document.querySelector(item.selector)]));});
     await page.evaluate(async () => {
       const receipt = acceptance.update({phase: 'updated', fontSize: 18, entry: 'updated entry', memo: 'updated memo', checked: true, amount: 65, choice: 1,
@@ -56,7 +59,7 @@ module.exports = async function verifyCatalog(browser, origin) {
     });
     assert.equal(await page.title(), 'Catalog updated');
     assert.equal(await page.evaluate(() => acceptance.hostMessages.at(-1).window.navigationBarTitleText), 'Catalog updated');
-    checks.push('all 40 tags update without replacing observations and native control state follows authored properties');
+    checks.push('all 41 tags update without replacing observations and native control state follows authored properties');
     const canvasPixel = await page.evaluate(async () => {
       const [{node}] = await acceptance.view.query([{selector: '#catalog-canvas', all: false, viewport: false, node: true}]);
       const context = node.getContext('2d');
@@ -96,13 +99,15 @@ module.exports = async function verifyCatalog(browser, origin) {
       scroll: window.__nowScrollContexts?.size || 0, cameraImages: catalogNodes.camera.querySelectorAll('img').length,
       topLayers: document.querySelectorAll(':modal, :popover-open').length}));
     assert.deepEqual(removed, {connected: [], remaining: [], locked: '', font: '', editor: false, map: false, scroll: 0, cameraImages: 0, topLayers: 0});
+    assert.equal(await page.evaluate(() => acceptance.webViews.size), 0);
     assert.equal(await page.title(), 'Independent component system');
     assert.equal(await page.evaluate(() => new Promise(resolve => oldCatalogEditor.getContents({fail: value => resolve(value.errCode)}))), 'PAGE_UNLOADED');
-    checks.push('all 40 observations detach and active layers editor map scroll camera and page metadata release resources');
+    checks.push('all 41 observations detach and active layers editor map scroll camera and page metadata release resources');
     await page.evaluate(async () => {await acceptance.update({catalogEnabled: true, modal: false, portal: false, minimumWidth: 0, phase: 'recreated'}).done;});
     await page.locator('#catalog-input').focus();
     await page.waitForFunction(() => !!document.querySelector('#catalog-keyboard-accessory'));
     const recreated = await snapshot();
+    assert.equal(await page.evaluate(() => acceptance.webViews.size), 1);
     const fresh = await page.evaluate(() => Object.fromEntries(Object.entries(acceptance.observations).map(([tag, item]) => [tag, document.querySelector(item.selector) !== catalogNodes[tag]])));
     for (const [tag, observation] of Object.entries(expected)) {
       assert.ok(recreated[tag], tag + ' recreates after removal');
@@ -116,7 +121,9 @@ module.exports = async function verifyCatalog(browser, origin) {
     });
     assert.deepEqual(errors, []);
     assert.deepEqual(await page.evaluate(() => cspViolations), []);
-    checks.push('all 40 tags recreate and page destruction releases registry resources under the original CSP');
-    return {checks, tags: Object.keys(expected), coverage: Object.fromEntries(Object.entries(expected).map(([tag, observation]) => [tag, {...observation, stages: ['create', 'update', 'remove', 'recreate']} ])), limitations: ['camera remains hidden; no host capture or permissions', 'video properties only; no media decoding', 'keyboard uses injected host geometry; no physical soft keyboard; editor portal remains parked without a custom block', 'no navigation or external asset requests']};
+    assert.equal(await page.evaluate(() => acceptance.webViews.size), 0);
+    checks.push('web-view uses the real controller and awaits injected host requests across update removal and recreation');
+    checks.push('all 41 tags recreate and page destruction releases registry resources under the original CSP');
+    return {checks, tags: Object.keys(expected), coverage: Object.fromEntries(Object.entries(expected).map(([tag, observation]) => [tag, {...observation, stages: ['create', 'update', 'remove', 'recreate']} ])), limitations: ['web-view stays hidden and delegates to an injected service probe; no iframe native container navigation bridge or remote page is tested', 'camera remains hidden; no host capture or permissions', 'video properties only; no media decoding', 'keyboard uses injected host geometry; no physical soft keyboard; editor portal remains parked without a custom block', 'no navigation or external asset requests']};
   } finally {await page.close();}
 };

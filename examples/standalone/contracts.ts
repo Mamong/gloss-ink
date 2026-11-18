@@ -22,7 +22,7 @@ const config: dom.DomBackendConfig = {
   pickerRuntime: builtin.createPickerRuntime, editorRuntime: builtin.createEditorRuntime,
   nativeComponents: builtin.createNativeComponents, interactiveComponents: builtin.createInteractiveComponents,
   layerComponents: builtin.createLayerComponents, virtualList: builtin.createVirtualLists,
-  cameraRuntime: builtin.createCameraRuntime, keyboardAccessory: builtin.createKeyboardAccessoryRuntime,
+  webViewRuntime: builtin.createWebViewRuntime, cameraRuntime: builtin.createCameraRuntime, keyboardAccessory: builtin.createKeyboardAccessoryRuntime,
   pageMeta: builtin.createPageMeta, backToTop: builtin.createBackToTop, matchMedia: builtin.matchesViewport,
   videoRuntime: builtin.createVideoRuntime, mapRuntime: builtin.createMapRuntime, accessibility: builtin.createAccessibility, wxsRuntime: createWxsRuntime
 };

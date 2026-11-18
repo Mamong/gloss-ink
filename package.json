@@ -25,7 +25,8 @@
     "pack:modules": "node scripts/pack-modules.cjs",
     "check:semantics": "node scripts/check-component-semantics.cjs --check",
     "test:semantics": "node --test test/component-semantics.test.js",
-    "test:worker": "node --test test/component-worker.test.js"
+    "test:worker": "node --test test/component-worker.test.js",
+    "test:web-view": "node --test test/component-web-view.test.js"
   },
   "devDependencies": {
     "acorn": "^8.19.0",

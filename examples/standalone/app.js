@@ -46,8 +46,17 @@ if (catalogMode) {
   page.catalogChange = event => {page.events.push({id: event.target.id, detail: event.detail});};
 }
 const usingComponents = {page: {counter: 'counter'}, counter: {}, catalog: {}};
-const hostMessages = [];
-const browserPlatform = {request(owner, method, value) {
+const hostMessages = [], webViewRequests = [], webViews = new Map();
+const browserPlatform = {release(ownerId) {
+  for (const key of webViews.keys()) if (key.startsWith(ownerId + ':')) webViews.delete(key);
+}, request(owner, method, value) {
+  if (method === 'webview.update' || method === 'webview.remove') {
+    // Explicit service probe; this catalog does not create an embedded browser.
+    webViewRequests.push({ownerId: owner.id, method, value});
+    const key = owner.id + ':' + value.nodeId;
+    if (method === 'webview.update') webViews.set(key, value); else webViews.delete(key);
+    return Promise.resolve({});
+  }
   if (method === 'page.meta') {
     hostMessages.push(value);
     const title = value.window?.navigationBarTitleText;
@@ -72,13 +81,13 @@ const backend = dom.createDomBackend({root: window, Error: core.ComponentError, 
     pickerRuntime: builtin.createPickerRuntime, editorRuntime: builtin.createEditorRuntime,
     nativeComponents: builtin.createNativeComponents, interactiveComponents: builtin.createInteractiveComponents,
     layerComponents: builtin.createLayerComponents, virtualList: builtin.createVirtualLists,
-    cameraRuntime: builtin.createCameraRuntime, keyboardAccessory: builtin.createKeyboardAccessoryRuntime,
+    webViewRuntime: builtin.createWebViewRuntime, cameraRuntime: builtin.createCameraRuntime, keyboardAccessory: builtin.createKeyboardAccessoryRuntime,
     pageMeta: builtin.createPageMeta, backToTop: builtin.createBackToTop, matchMedia: builtin.matchesViewport,
     videoRuntime: builtin.createVideoRuntime, mapRuntime: builtin.createMapRuntime, accessibility: builtin.createAccessibility, wxsRuntime: createWxsRuntime
   }});
 view = backend(descriptor.id, route);
 const first = view.show();
-window.acceptance = {hostMessages, observations: catalogMode ? catalogFixture.observations : undefined, page, registry, descriptor, view, commits, detached, first,
+window.acceptance = {hostMessages, webViewRequests, webViews, observations: catalogMode ? catalogFixture.observations : undefined, page, registry, descriptor, view, commits, detached, first,
   child: () => registry.select(descriptor.id, '#counter', false),
   update(patch) { Object.assign(page.data, patch); view.markChanges(patch); return view.render(); },
   destroy() { registry.destroy(descriptor.id); document.getElementById('weapp-root').replaceChildren(); }

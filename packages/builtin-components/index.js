@@ -10,6 +10,7 @@ module.exports=Object.freeze({
   createLayerComponents:require('./layer-components'),
   createVirtualLists:require('./virtual-list'),
   createCameraRuntime:require('./camera'),
+  createWebViewRuntime:require('./web-view'),
   createKeyboardAccessoryRuntime:require('./keyboard-accessory'),
   createPageMeta:require('./page-meta'),
   matchesViewport:require('./match-media'),

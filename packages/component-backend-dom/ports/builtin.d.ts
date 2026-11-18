@@ -1,4 +1,4 @@
-// Generated from builtin-components/index.d.ts; SHA-256 f57baa5fec0ab2be86a974174ae508e668747a9b46a0545e1b319f9d2b8dbedc
+// Generated from builtin-components/index.d.ts; SHA-256 9e56207c4c6a713f330d90c82c03b6fdd638bea7a6b156c5288e4be13e06575a
 // Regenerate with npm run types:component-ports
 export interface BuiltinCatalog {
   readonly tags: readonly string[];
@@ -236,4 +236,15 @@ export function createAccessibility(root: BrowserRoot, options: {Error: ErrorCon
     patch(element: HTMLElement, node: ControllerNode): void;
     flush(): void; remove(element: HTMLElement): void; visibility(visible: boolean): void; dispose(): void;
   };
+};
+
+export function createWebViewRuntime(root: BrowserRoot, options: {
+  Error: ErrorConstructor;
+  request(method: string, value: Record<string, unknown>): unknown;
+}): {
+  create(element: HTMLElement, tag: string): void;
+  patch(element: HTMLElement, node: Parameters<BrowserController['patch']>[1]): unknown;
+  remove(element: HTMLElement): unknown;
+  visibility(value: boolean): unknown;
+  dispose(): void;
 };

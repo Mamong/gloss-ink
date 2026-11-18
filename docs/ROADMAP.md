@@ -4,9 +4,9 @@
 
 ## 已完成基线
 
-五包独立仓库、公开工厂/声明端口、全新目录五包安装与浏览器 28 场景/40 标签生命周期基线、SDK 完整提交锁与离线漂移检查均已完成。独立通用语义首批 55 场景在两种加载方式下验证；Node Worker 新增 14 场景 × 2 加载方式。当前独立 Node 测试 193 项。已完成的拆分和 SDK 同步机制继续沿用。
+五包独立仓库、公开工厂/声明端口、全新目录五包安装与浏览器 28 场景/40 标签生命周期基线、SDK 完整提交锁与离线漂移检查均已完成。独立通用语义首批 55 场景在两种加载方式下验证；Node Worker 新增 14 场景 × 2 加载方式。独立 Node 测试从193项扩展至web-view首批202项，独立目录从40扩展至41标签。已完成的拆分和 SDK 同步机制继续沿用。
 
-本批收尾发现 Now 工作区新增并行 `web-view` 开发，直接修改了已锁定快照中的 builtin-components/component-backend-dom/template-compiler 等文件；`components:check` 当前首先报告 `builtin-components/catalog.js` 漂移。独立仓库五包保持原内容。这些并行修改尚未迁入 Gloss Ink，本批没有覆盖或回退它们。
+本批收尾发现 Now 工作区新增并行 `web-view` 开发，直接修改了已锁定快照中的 builtin-components/component-backend-dom/template-compiler 等文件；`components:check` 当前首先报告 `builtin-components/catalog.js` 漂移。独立仓库五包保持原内容。通用部分已按捕获的逐文件哈希迁入Gloss Ink候选，宿主实现留在Now；独立202项与Chrome29场景/41标签已通过。SDK完整提交同步状态以最新交接和来源锁为准。
 
 本轮语义/Worker/CI/文档归入独立回归提交，具体提交与推送状态以 Git 记录为准；本地 Node 26 通过不等于远端 Node 24/26/Chrome 已通过。GitHub Actions 最近一次只读访问为未认证 404，状态仍未确认。
 
@@ -14,7 +14,7 @@
 
 | 优先级 | 工作 | 完成条件 |
 | --- | --- | --- |
-| P0 | 消费者改动归属与固定来源一致性 | 审阅并行 web-view 改动，把可复用组件实现放入 Gloss Ink，宿主服务留在 Now；先独立提交/验证，再按完整 SHA 同步 SDK 并重建，恢复漂移门禁。保留并行改动，不用重算锁哈希或覆盖快照掩盖差异。 |
+| P0 | 消费者改动归属与固定来源一致性 | web-view通用部分已完成独立候选及验收；先上游提交，再在干净检出显式同步完整SHA，核对共享目录未发生后续变化后应用。以SDK来源锁和离线检查通过作为收尾。 |
 | P0 | 当前改动交付与远端 CI 核实 | 审阅、提交并推送当前独立仓库改动；通过有权限的登录态/API 核对确切提交的 Node 24、Node 26、Chrome job 及证据，不用配置文件推断成功。测试/文档变更不要求重置 SDK 运行快照。 |
 | P1 | 浏览器 Worker + 真实 DOM 的重连闭环 | 通过公开模块装配独立应用，验证完整恢复树提交后释放回调、旧 generation/乱序/重复 ack、恢复期间追加更新、卸载和错误传播；明确 transport/adapter/core 各自责任。再测 Worker 退出/重新创建及待处理请求处理。 |
 | P1 | 基础组件属性与事件覆盖矩阵 | 从 40 标签生命周期基线扩到关键属性、默认值、事件 detail、catch/bind、disabled/hidden、表单 reset 和组合使用；优先输入/焦点/表单、picker、scroll/swiper，再 editor/canvas、map/video。每项记录实际浏览器行为与服务注入边界。 |

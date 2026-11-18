@@ -50,3 +50,9 @@ video 控制器在隐藏、移除和销毁时清理自己创建的弹幕节点�
 事件交互、文本输入、浏览器属性和键盘附件的声明保留节点泛型，便于装配层传递具体的逻辑事件节点。后端分发包通过生成本地声明快照引用这些服务选项，快照一致性由构建检查维护，不新增运行期依赖。
 
 控制器元数据还声明虚拟宿主的最小物理标记与文本子节点，使逻辑父链和投影内容可保持类型；实际操作原生控件的方法仍接收对应DOM元素。类型不要求基础组件包导入某个DOM backend。
+
+## web-view 服务委托
+
+`createWebViewRuntime(root, {Error, request})` 导出 web-view 控制器。DOM backend 通过 `webViewRuntime` 工厂注入，向实例所属平台服务发出 `webview.update` / `webview.remove`；update 包含 scoped nodeId、src、visible、元素 id/dataset 及 load/error/message 绑定。src 不走图片资源解析。
+
+控制器维护 DOM 占位与请求委托，不创建嵌入浏览器。网页容器、URL策略、消息交付、前后台和页面卸载时的服务资源释放由宿主拥有；controller.dispose 清除本地记录，不向已卸载实例发出RPC。41标签独立目录应用使用显式服务记录器验证这一边界。

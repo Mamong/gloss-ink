@@ -17,3 +17,5 @@ Gloss Ink 于 2026-11-18 从 `Mamong/ting-talk-now` 的组件系统工作区提�
 2026-11-18 继续迁入通用数据、Behavior、relations/generics 与逻辑事件语义用例及已冻结双参考观察记录，来源 Now 提交 `e77e240`。场景定义和参考 JSON 原样复制，适配器改用本仓库公开工厂；无 SDK、DOM 或跨仓库路径。逐文件来源哈希见 [语义来源清单](docs/semantics-origin.json)，覆盖边界见 [语义说明](docs/component-semantics.md)。引擎运行文件及五包内容均未改变。
 
 同日新增独立编写的 Node Worker/MessagePort 验收用例，直接使用公开 component-engine 工厂，覆盖两种加载方式的 14 个场景（28 项测试）。测试后端和 RPC 只属于验收 fixture，没有作为生产传输实现加入任何运行包；运行包仍保持相同内容。说明与边界见 [Worker 验收](docs/component-worker.md)。
+
+web-view通用组件、DOM backend装配和模板校验从Now并行工作区按逐文件哈希提取，来源基准提交e77e240不包含这些未提交修改；捕获记录见`docs/web-view-2026-11-18/source-capture.json`。原生WKWebView、Web iframe、路由及网页JS桥继续由Now维护。

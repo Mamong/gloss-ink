@@ -235,3 +235,14 @@ export function createAccessibility(root: BrowserRoot, options: {Error: ErrorCon
     flush(): void; remove(element: HTMLElement): void; visibility(visible: boolean): void; dispose(): void;
   };
 };
+
+export function createWebViewRuntime(root: BrowserRoot, options: {
+  Error: ErrorConstructor;
+  request(method: string, value: Record<string, unknown>): unknown;
+}): {
+  create(element: HTMLElement, tag: string): void;
+  patch(element: HTMLElement, node: Parameters<BrowserController['patch']>[1]): unknown;
+  remove(element: HTMLElement): unknown;
+  visibility(value: boolean): unknown;
+  dispose(): void;
+};

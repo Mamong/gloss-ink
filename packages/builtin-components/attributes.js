@@ -8,6 +8,7 @@ function createBrowserAttributes(options){
     if(owner!==undefined)element.setAttribute('data-weapp-owner',owner);
     element.className = 'weapp-' + node.tag + (next.class ? ' ' + classNames(next.class) : '');
     for (let name of new Set([...Object.keys(old || {}), ...Object.keys(next)])) {
+      if(node.tag==='web-view'&&name==='src')continue;
       const value = next[name];if(accessibility&&(name.startsWith('aria-')||name==='tabindex'))continue;if(node.tag==='picker'&&['mode','range','range-key','value','start','end','fields','disabled'].includes(name))continue; if (name === 'animation') continue; if (name === 'class' || Object.is(old?.[name], value) && !(name==='src'&&/^(?:(?:nowfile|nowsaved):|https:)\/\//.test(String(value))) && !node.forced?.includes(name)) continue;
       if(node.tag==='switch'&&name==='type'){if(!['switch','checkbox'].includes(value))throw new ErrorType('switch.type只支持switch/checkbox',{code:'INVALID_ARGUMENT'});element.setAttribute('data-weapp-switch-type',String(value));continue;}
       if(node.tag==='swiper-item'&&name==='skip-hidden-item-layout'){if(typeof value!=='boolean')throw new ErrorType('swiper-item.skip-hidden-item-layout需要boolean',{code:'INVALID_ARGUMENT'});element.setAttribute('data-now-skip-hidden',String(value));continue;}

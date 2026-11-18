@@ -31,7 +31,8 @@
     "video.js",
     "map.js",
     "accessibility.js",
-    "styles.css"
+    "styles.css",
+    "web-view.js"
   ],
   "repository": {
     "type": "git",
