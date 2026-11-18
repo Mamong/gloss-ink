@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "capturedOn": "2026-11-17",
+  "engines": {
+    "exparser": {
+      "package": "miniprogram-exparser",
+      "version": "2.29.1",
+      "license": "MIT",
+      "tarball": "https://registry.npmjs.org/miniprogram-exparser/-/miniprogram-exparser-2.29.1.tgz",
+      "integrity": "sha512-f2LUVYcQ5O664nOHhrEbtR//hlqln88dRY0mIwuRncJfuXMCdK9FBk0vzNDG6EgaaeTt3iGLeFQLRHlhYktkXw==",
+      "entry": "exparser.min.js",
+      "entrySha256": "83f00cd17493b41ed8c8525f071aad2b3a178197c5751ab001cf62ee23acb482"
+    },
+    "glass": {
+      "package": "glass-easel",
+      "version": "1.2.1",
+      "license": "MIT",
+      "tarball": "https://registry.npmjs.org/glass-easel/-/glass-easel-1.2.1.tgz",
+      "integrity": "sha512-N40kOgKD3Tw45R0e1TEOYrhepxNAXmGsanv+ZXpl+92/GjSCuMGd9xOb0e45d5BXccU5MKjabFSCp/rlRtQ3QQ==",
+      "entry": "dist/glass_easel.all.js",
+      "entrySha256": "9012585a20584f035fc7ec40637fa331da3274a9a1c9642239e2bb0b9a152787"
+    }
+  },
+  "sourceReview": {
+    "repository": "https://github.com/wechat-miniprogram/glass-easel",
+    "commit": "1143544a6cc62306b1effc6c2a302ec7b2913469",
+    "files": [
+      "glass-easel/guide/zh_CN/data_management/property_early_init.md",
+      "glass-easel/guide/zh_CN/data_management/data_observer.md",
+      "glass-easel/src/component.ts",
+      "glass-easel/src/data_proxy.ts",
+      "glass-easel/tests/legacy/component.test.js",
+      "glass-easel/guide/zh_CN/basic/event.md",
+      "glass-easel/guide/zh_CN/interaction/slot.md",
+      "glass-easel/guide/zh_CN/tree/node_tree.md",
+      "glass-easel/guide/zh_CN/tree/node_tree_modification.md",
+      "glass-easel/src/event.ts",
+      "glass-easel/src/element.ts",
+      "glass-easel/tests/legacy/event.test.js",
+      "glass-easel/guide/zh_CN/basic/lifetime.md",
+      "glass-easel/tests/legacy/virtual.test.js",
+      "glass-easel/tests/legacy/external.test.js"
+    ],
+    "note": "Source review commit is separate from the npm release; do not infer identical builds.",
+    "fileSha256": {
+      "glass-easel/guide/zh_CN/data_management/property_early_init.md": "99cc4753385dd24cf9b418cc96b3fe78cfd971a416f009cd40c70c7a95737c80",
+      "glass-easel/guide/zh_CN/data_management/data_observer.md": "017c5049b68f01b2a588e1a7b5fe94e36598f1013a31691b42302906a4478607",
+      "glass-easel/src/component.ts": "781f66b44c9719b109deb54718609fdc1b08c64045a4d1c5aab2eb9d1e289be5",
+      "glass-easel/src/data_proxy.ts": "fa2e0cf355a635b83d9fa66d4d869002267c49628162d658f3c07756956779f7",
+      "glass-easel/tests/legacy/component.test.js": "6106076eeb1be40f38e7147b0393998e6c1115cd2c3bb04f347e17ab8c25f09d",
+      "glass-easel/guide/zh_CN/basic/event.md": "d442a7a034189aec8aad36af2b48ad6d259673e01f211ef2d840dcffe44de82b",
+      "glass-easel/guide/zh_CN/interaction/slot.md": "519cc335cfda0e30f6c4d3f0d13c5febad75d809ec31ad94641a47273adf3347",
+      "glass-easel/guide/zh_CN/tree/node_tree.md": "3361b07b6c87398188334dfe799856ad75be23138f8fb7cad13d148509aa7cd8",
+      "glass-easel/guide/zh_CN/tree/node_tree_modification.md": "37ee28d490afd3d2108c59dbc8915ebcd12d8cd250c968520e69134a64773f4f",
+      "glass-easel/src/event.ts": "0919f2340d5922f99c08f77b7d54322338a5549b0be3d6ad3b5ded3ac382810b",
+      "glass-easel/src/element.ts": "f2a47eeea3a5ff5995d1ba0ac081cfd3af8de5d30ac272bc96787258ac521885",
+      "glass-easel/tests/legacy/event.test.js": "6e73b14ce4cd43fa594bf1969a067be50823961a38a15a7c5ffbc707dc3a057a",
+      "glass-easel/guide/zh_CN/basic/lifetime.md": "d73cc89efbda727c77f9fa649650796e1c0f0760173d6cee0f0bc654b41472e6",
+      "glass-easel/tests/legacy/virtual.test.js": "df57c2cfb75516f3f6b048b311dff843ab8823e5b88e9e6d51bc23506f055347",
+      "glass-easel/tests/legacy/external.test.js": "42faaaef1e0a4672946bb09daab92bc8adc05c47a63e849c6ea8508096bd6f76"
+    }
+  },
+  "decisions": {
+    "numeric-dot-path": {
+      "policy": "keep-current-explicit-difference",
+      "reason": "Both references replace the array with an object for items.0.count; their observer traces also differ. Current SDK preserves an existing array for numeric path tokens. No automatic path/storage compatibility change in this stage.",
+      "test": "test/component-semantics.test.js"
+    }
+  },
+  "treeEventDecisions": {},
+  "lifecycleDecisions": {},
+  "integrationPolicies": {
+    "workerSiblingInitialization": {
+      "policy": "preserve-independent-view-interleaving",
+      "reason": "The compiled Worker renderer can construct independent sibling views concurrently. Compare lifecycle membership, per-instance created-before-attached, parent-before-descendant attachment and stable identities; do not require the total initialization order from a manually scheduled reference tree. Subsequent keyed-operation traces remain exact.",
+      "test": "test/weapp-keyed-lifecycles.test.js"
+    }
+  },
+  "extensionDecisions": {
+    "behavior-array-merge": {
+      "policy": "keep-current-explicit-difference",
+      "reason": "exparser converts the behavior array merge to an object while GlassEasel and current SDK preserve array storage. Keep current SDK array behavior.",
+      "test": "test/component-extensions-semantics.test.js"
+    }
+  }
+}

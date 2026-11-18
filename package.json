@@ -22,7 +22,10 @@
     "test:component-engine": "npm test",
     "test:component-standalone": "node scripts/check-standalone-components.cjs",
     "test:browser": "npm run test:component-standalone",
-    "pack:modules": "node scripts/pack-modules.cjs"
+    "pack:modules": "node scripts/pack-modules.cjs",
+    "check:semantics": "node scripts/check-component-semantics.cjs --check",
+    "test:semantics": "node --test test/component-semantics.test.js",
+    "test:worker": "node --test test/component-worker.test.js"
   },
   "devDependencies": {
     "acorn": "^8.19.0",

@@ -1,0 +1,36 @@
+✔ CommonJS real Worker: ready waits for a receipt from the parent thread (29.376541ms)
+✔ CommonJS real Worker: data and render payloads cross structured clone without sharing state (13.960167ms)
+✔ CommonJS real Worker: same-turn updates coalesce into one render and preserve callback order (13.712167ms)
+✔ CommonJS real Worker: independent outstanding receipts release only their own callbacks (13.982958ms)
+✔ CommonJS real Worker: destroy before initial acknowledgment suppresses ready and cleans the backend (12.4365ms)
+✔ CommonJS real Worker: destroy cancels pending setData and callback tokens without late delivery (13.679958ms)
+✔ CommonJS real Worker: reconnect claims the same instance with a new node and preserves private identity (13.282416ms)
+✔ CommonJS real Worker: an in-flight callback survives a claimed reconnect and still waits for its receipt (13.058959ms)
+✔ CommonJS real Worker: unclaimed components are pruned on connected and their receipts are cancelled (13.401375ms)
+✔ CommonJS real Worker: callback tokens are scoped, cancellable and single use (12.7025ms)
+✔ CommonJS real Worker: stale topology revisions and malformed protocol commands retain error codes (12.871ms)
+✔ CommonJS real Worker: triggerEvent crosses the Worker port with isolated detail and the owner scope (12.651375ms)
+✔ CommonJS real Worker: snapshot restoration restores component data through a deferred backend render (13.072291ms)
+✔ CommonJS real Worker: page teardown cancels pending work and releases every instance and placement (12.956875ms)
+✔ embedded real Worker: ready waits for a receipt from the parent thread (13.742584ms)
+✔ embedded real Worker: data and render payloads cross structured clone without sharing state (14.359792ms)
+✔ embedded real Worker: same-turn updates coalesce into one render and preserve callback order (13.715625ms)
+✔ embedded real Worker: independent outstanding receipts release only their own callbacks (13.99575ms)
+✔ embedded real Worker: destroy before initial acknowledgment suppresses ready and cleans the backend (13.352917ms)
+✔ embedded real Worker: destroy cancels pending setData and callback tokens without late delivery (13.616375ms)
+✔ embedded real Worker: reconnect claims the same instance with a new node and preserves private identity (14.363292ms)
+✔ embedded real Worker: an in-flight callback survives a claimed reconnect and still waits for its receipt (14.54425ms)
+✔ embedded real Worker: unclaimed components are pruned on connected and their receipts are cancelled (17.39775ms)
+✔ embedded real Worker: callback tokens are scoped, cancellable and single use (13.52275ms)
+✔ embedded real Worker: stale topology revisions and malformed protocol commands retain error codes (13.653125ms)
+✔ embedded real Worker: triggerEvent crosses the Worker port with isolated detail and the owner scope (13.485375ms)
+✔ embedded real Worker: snapshot restoration restores component data through a deferred backend render (13.584458ms)
+✔ embedded real Worker: page teardown cancels pending work and releases every instance and placement (14.622208ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 444.360833

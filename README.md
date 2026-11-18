@@ -28,7 +28,7 @@ npm test
 npm run pack:modules
 ```
 
-`npm test` 检查包依赖/声明闭包和生成声明漂移，并运行独立的 Node 单元测试，包括无 DOM 核心、模板协调、实例重连、实际控制器清理和严格类型正反例。测试使用本仓库安装的 jsdom，不加载 Now SDK 或原项目测试 helper。
+`npm test` 检查包依赖/声明闭包和生成声明漂移，并运行独立的 Node 单元测试，包括无 DOM 核心、模板协调、实例重连、实际控制器清理和严格类型正反例。测试使用本仓库安装的 jsdom，不加载 Now SDK 或原项目测试 helper。通用语义回归同时覆盖 CommonJS 和无 DOM 的内嵌表达式：55 个场景各运行两次，包含数据观察器、Behavior、relations/generics 和逻辑事件；两处已知差异也逐项固定预期。详见 [语义回归说明](docs/component-semantics.md)。另外使用真实 Node Worker 与 MessagePort 验证重连身份、回执等待、回调取消和资源清理，见 [Worker 验收说明](docs/component-worker.md)。后续优先级与验收条件见 [路线图](docs/ROADMAP.md)。
 
 `npm run pack:modules` 在 `artifacts/packages` 输出五个 tarball 和包含 SHA-256、integrity 与文件清单的 manifest。消费者可安装这些本地 tarball；不需要把整个 workspace 作为依赖。
 
@@ -65,7 +65,7 @@ npm run types:component-ports
 npm run types:check
 ```
 
-GitHub Actions 配置 Node 24/26 的单元/打包检查，以及安装 Chrome 后的独立应用验收。CI 不发布 npm 包、不部署站点。迁移来源和输入哈希见 [ORIGIN.md](ORIGIN.md)。
+GitHub Actions 配置 Node 24/26 的单元/打包检查，以及安装 Chrome 后的独立应用验收。每个 Node job 同时保存离线语义报告、单元日志及五包 manifest；`npm test` 已包含语义测试。CI 不发布 npm 包、不部署站点。迁移来源和输入哈希见 [ORIGIN.md](ORIGIN.md)。
 
 ## License
 

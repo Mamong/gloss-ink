@@ -1,0 +1,5 @@
+
+> gloss-ink@0.1.0 check:semantics
+> node scripts/check-component-semantics.cjs --check --out /Users/marco/Documents/gloss-ink/docs/worker-2026-11-18/semantics.json
+
+Component semantics: 55 scenarios per runtime, 53 agreed, 2 reviewed differences; CommonJS / embedded passed

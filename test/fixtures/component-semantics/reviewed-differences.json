@@ -1,0 +1,31 @@
+{
+  "data": {
+    "numeric-dot-path": {
+      "trace": [
+        [
+          "subtree",
+          [
+            {
+              "count": 2
+            }
+          ]
+        ]
+      ],
+      "data": {
+        "items": [
+          {
+            "count": 2
+          }
+        ]
+      }
+    }
+  },
+  "extensions": {
+    "behavior-array-merge": {
+      "items": [
+        3
+      ]
+    }
+  },
+  "treeEvents": {}
+}

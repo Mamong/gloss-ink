@@ -1,0 +1,83 @@
+{
+  "format": "gloss-ink-worker-verification-v1",
+  "verifiedOn": "2026-11-18",
+  "timezone": "Asia/Singapore",
+  "runtimeCommit": "032daf1d0a494fc3abbd31580db70a2083a72fcc",
+  "node": "v26.3.0",
+  "unit": {
+    "total": 193,
+    "passed": 193,
+    "failed": 0,
+    "skipped": 0,
+    "previous": 165,
+    "added": 28
+  },
+  "worker": {
+    "implementation": "node:worker_threads.Worker + transferred MessagePort",
+    "uniqueScenarios": 14,
+    "runtimeModes": [
+      "CommonJS",
+      "embedded"
+    ],
+    "testCount": 28,
+    "realSeparateThread": true,
+    "browserWorker": false,
+    "realDOMRenderer": false,
+    "newWorkerRecovery": false,
+    "transport": "test fixture with explicit deferred-receipt backend"
+  },
+  "packageDirectoriesUnchanged": true,
+  "tarballsMatchPreviousManifest": true,
+  "sdkSynced": false,
+  "remoteCIConfirmed": false,
+  "remoteCIRecheckedThisBatch": false,
+  "committed": false,
+  "pushed": false,
+  "deployed": false,
+  "checks": [
+    {
+      "name": "unit",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exitCode": 0,
+      "log": "unit.txt"
+    },
+    {
+      "name": "semantics",
+      "command": [
+        "npm",
+        "run",
+        "check:semantics",
+        "--",
+        "--out",
+        "/Users/marco/Documents/gloss-ink/docs/worker-2026-11-18/semantics.json"
+      ],
+      "exitCode": 0,
+      "log": "semantics.txt"
+    },
+    {
+      "name": "pack",
+      "command": [
+        "npm",
+        "run",
+        "pack:modules"
+      ],
+      "exitCode": 0,
+      "log": "pack.txt"
+    }
+  ],
+  "changedFileHashes": {
+    "CONTRIBUTING.md": "5ef3fbbc920d23b5182dc111ba30d7033a5fb1c103a2da249ea68b1d966fd38e",
+    "ORIGIN.md": "58a7923c944b499776318cc5c3a2c49fa26c1e91dadd177aca3b68598b7ccf28",
+    "README.md": "f21732a5a14221d8c9604d4da60d9ae9bd3bef1aa5d348dab2b4b31997e37ce4",
+    "docs/ROADMAP.md": "c6b8e5a6252978dc4157ad9b55bf7070082063a03d7aef16544be8b68d481847",
+    "docs/component-semantics.md": "dd71006b7cf714608142a25051a01ee0e42a59c371f37564579997364a8a621c",
+    "docs/component-worker.md": "d8e4a92e15e9f34ba86235cd576cd9e03390aefce1c9766b677c11ec63571360",
+    "package.json": "f207c01c7bc552e373c4799cba071a078e60d429ad644335d25f5041d2a4586b",
+    "test/component-worker.test.js": "0a2dbf073ec164b88872e0cec9ba78b9f4613bd977c1aa8640077ce8212a5d15",
+    "test/helpers/component-worker-runtime.cjs": "df8871a41445c81504898894f1f759d3c7b6a81d8c608a0041d622ac19e9d95b",
+    "test/helpers/component-worker.cjs": "89260154e6fc229918c24efa1adcbecaaca27708b792d2e4d7df6ce9ecad327f"
+  }
+}

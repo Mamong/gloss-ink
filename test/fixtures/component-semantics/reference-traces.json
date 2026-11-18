@@ -1,0 +1,290 @@
+{
+  "exparser": {
+    "initial-properties": {
+      "trace": [
+        [
+          "created",
+          0
+        ],
+        [
+          "data",
+          7
+        ],
+        [
+          "multi",
+          7,
+          0
+        ],
+        [
+          "property",
+          7,
+          0
+        ]
+      ],
+      "data": {
+        "other": 0,
+        "value": 7
+      }
+    },
+    "same-value-data-observer": {
+      "trace": [
+        [
+          "data",
+          7
+        ],
+        [
+          "multi",
+          7,
+          0
+        ]
+      ],
+      "data": {
+        "other": 0,
+        "value": 7
+      }
+    },
+    "batched-field-observer": {
+      "trace": [
+        [
+          "data",
+          8
+        ],
+        [
+          "multi",
+          8,
+          2
+        ],
+        [
+          "property",
+          8,
+          7
+        ]
+      ],
+      "data": {
+        "other": 2,
+        "value": 8
+      }
+    },
+    "bracket-nested-observer": {
+      "trace": [
+        [
+          "nested",
+          2
+        ],
+        [
+          "subtree",
+          [
+            {
+              "count": 2
+            }
+          ]
+        ]
+      ],
+      "data": {
+        "items": [
+          {
+            "count": 2
+          }
+        ]
+      }
+    },
+    "numeric-dot-path": {
+      "trace": [
+        [
+          "subtree",
+          {
+            "0": {
+              "count": 2
+            }
+          }
+        ]
+      ],
+      "data": {
+        "items": {
+          "0": {
+            "count": 2
+          }
+        }
+      }
+    },
+    "observer-cascade": {
+      "trace": [
+        [
+          "data",
+          3
+        ],
+        [
+          "twice",
+          6
+        ],
+        [
+          "property",
+          3,
+          0
+        ]
+      ],
+      "data": {
+        "twice": 6,
+        "value": 3
+      }
+    },
+    "instance-default-isolation": {
+      "trace": [],
+      "data": {
+        "local": {
+          "count": 0
+        },
+        "object": {
+          "count": 0
+        },
+        "array": []
+      }
+    }
+  },
+  "glass": {
+    "initial-properties": {
+      "trace": [
+        [
+          "created",
+          0
+        ],
+        [
+          "data",
+          7
+        ],
+        [
+          "multi",
+          7,
+          0
+        ],
+        [
+          "property",
+          7,
+          0
+        ]
+      ],
+      "data": {
+        "other": 0,
+        "value": 7
+      }
+    },
+    "same-value-data-observer": {
+      "trace": [
+        [
+          "data",
+          7
+        ],
+        [
+          "multi",
+          7,
+          0
+        ]
+      ],
+      "data": {
+        "other": 0,
+        "value": 7
+      }
+    },
+    "batched-field-observer": {
+      "trace": [
+        [
+          "data",
+          8
+        ],
+        [
+          "multi",
+          8,
+          2
+        ],
+        [
+          "property",
+          8,
+          7
+        ]
+      ],
+      "data": {
+        "other": 2,
+        "value": 8
+      }
+    },
+    "bracket-nested-observer": {
+      "trace": [
+        [
+          "nested",
+          2
+        ],
+        [
+          "subtree",
+          [
+            {
+              "count": 2
+            }
+          ]
+        ]
+      ],
+      "data": {
+        "items": [
+          {
+            "count": 2
+          }
+        ]
+      }
+    },
+    "numeric-dot-path": {
+      "trace": [
+        [
+          "nested",
+          2
+        ],
+        [
+          "subtree",
+          {
+            "0": {
+              "count": 2
+            }
+          }
+        ]
+      ],
+      "data": {
+        "items": {
+          "0": {
+            "count": 2
+          }
+        }
+      }
+    },
+    "observer-cascade": {
+      "trace": [
+        [
+          "data",
+          3
+        ],
+        [
+          "twice",
+          6
+        ],
+        [
+          "property",
+          3,
+          0
+        ]
+      ],
+      "data": {
+        "twice": 6,
+        "value": 3
+      }
+    },
+    "instance-default-isolation": {
+      "trace": [],
+      "data": {
+        "local": {
+          "count": 0
+        },
+        "object": {
+          "count": 0
+        },
+        "array": []
+      }
+    }
+  }
+}

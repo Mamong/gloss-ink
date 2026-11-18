@@ -6,3 +6,7 @@
 - 改动浏览器行为或编译产物时运行 `npm run test:browser`。保留每个标签的生命周期观察和原 CSP，不用空控制器替代实际实现。
 - `npm run pack:modules` 生成可安装 tarball；默认不提交 `artifacts/`、`node_modules/`、编译结果或 npm 缓存。
 - `docs/extraction-manifest.json` 和 `docs/initial-verification.json` 是初次迁移的冻结记录。后续行为修改应记录新验证结果，不覆盖历史输入。
+
+- 引擎语义修改先跑 `npm run test:semantics` 和 `npm run check:semantics`。参考记录及已审阅差异都是只读验收输入；不要在测试命令中自动重写它们。修改需说明来源、原因及实际消费者影响，见 [语义回归说明](docs/component-semantics.md)。
+
+- 修改实例连接、回调或提交回执时执行 `npm run test:worker`。用例使用真实 Node 线程和可控测试后端，不代表浏览器 Worker/真实 DOM 或新 Worker 进程恢复已经通过。

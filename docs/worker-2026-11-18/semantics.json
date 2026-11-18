@@ -1,0 +1,174 @@
+{
+  "format": "gloss-ink-component-semantics-v1",
+  "mode": "offline-captured-references",
+  "referenceCaptureDate": "2026-11-17",
+  "executedReferenceEngines": false,
+  "versions": {
+    "exparser": "2.29.1",
+    "glass": "1.2.1"
+  },
+  "scenarioCount": 55,
+  "differenceCount": 2,
+  "runtimeModes": {
+    "CommonJS": {
+      "data": {
+        "agreed": [
+          "batched-field-observer",
+          "bracket-nested-observer",
+          "initial-properties",
+          "instance-default-isolation",
+          "observer-cascade",
+          "same-value-data-observer"
+        ],
+        "differences": [
+          {
+            "case": "numeric-dot-path",
+            "reason": "Both references replace the array with an object for items.0.count; their observer traces also differ. Current SDK preserves an existing array for numeric path tokens. No automatic path/storage compatibility change in this stage."
+          }
+        ]
+      },
+      "extensions": {
+        "agreed": [
+          "behavior-diamond",
+          "behavior-instance-isolation",
+          "behavior-object-merge",
+          "behavior-observer-chain",
+          "behavior-property-method-precedence",
+          "behavior-shared-callback",
+          "generic-default",
+          "generic-forward-default",
+          "generic-forward-override",
+          "generic-override",
+          "relation-ancestor-through-component",
+          "relation-behavior-target",
+          "relation-missing-reciprocal",
+          "relation-nearest-ancestor",
+          "relation-parent-child",
+          "relation-parent-component-boundary",
+          "relation-prepend",
+          "relation-remove",
+          "relation-reparent",
+          "relation-rotate"
+        ],
+        "differences": [
+          {
+            "case": "behavior-array-merge",
+            "reason": "exparser converts the behavior array merge to an object while GlassEasel and current SDK preserve array storage. Keep current SDK array behavior."
+          }
+        ]
+      },
+      "treeEvents": {
+        "agreed": [
+          "capture-without-bubbling",
+          "catch-ancestor-capture",
+          "catch-internal-bubble",
+          "catch-projected-capture",
+          "internal-capture-and-bubble",
+          "internal-composed-retarget",
+          "internal-local-bubble",
+          "named-slot-composed",
+          "named-slot-local-owner",
+          "slot-reassignment-alternate-path",
+          "slot-reassignment-restored-path",
+          "slot-removal-composed",
+          "slot-removal-local",
+          "slot-restoration-composed",
+          "slotted-capture-retarget",
+          "slotted-composed-slot-path",
+          "slotted-local-owner-path",
+          "target-only-default",
+          "unmatched-capture-isolated",
+          "unmatched-composed-isolated",
+          "unmatched-descendant-composed",
+          "unmatched-descendant-local",
+          "unmatched-local-owner",
+          "virtual-host-composed-retarget",
+          "virtual-host-local-owner",
+          "virtual-unmatched-composed",
+          "virtual-unmatched-local"
+        ],
+        "differences": []
+      }
+    },
+    "embedded": {
+      "data": {
+        "agreed": [
+          "batched-field-observer",
+          "bracket-nested-observer",
+          "initial-properties",
+          "instance-default-isolation",
+          "observer-cascade",
+          "same-value-data-observer"
+        ],
+        "differences": [
+          {
+            "case": "numeric-dot-path",
+            "reason": "Both references replace the array with an object for items.0.count; their observer traces also differ. Current SDK preserves an existing array for numeric path tokens. No automatic path/storage compatibility change in this stage."
+          }
+        ]
+      },
+      "extensions": {
+        "agreed": [
+          "behavior-diamond",
+          "behavior-instance-isolation",
+          "behavior-object-merge",
+          "behavior-observer-chain",
+          "behavior-property-method-precedence",
+          "behavior-shared-callback",
+          "generic-default",
+          "generic-forward-default",
+          "generic-forward-override",
+          "generic-override",
+          "relation-ancestor-through-component",
+          "relation-behavior-target",
+          "relation-missing-reciprocal",
+          "relation-nearest-ancestor",
+          "relation-parent-child",
+          "relation-parent-component-boundary",
+          "relation-prepend",
+          "relation-remove",
+          "relation-reparent",
+          "relation-rotate"
+        ],
+        "differences": [
+          {
+            "case": "behavior-array-merge",
+            "reason": "exparser converts the behavior array merge to an object while GlassEasel and current SDK preserve array storage. Keep current SDK array behavior."
+          }
+        ]
+      },
+      "treeEvents": {
+        "agreed": [
+          "capture-without-bubbling",
+          "catch-ancestor-capture",
+          "catch-internal-bubble",
+          "catch-projected-capture",
+          "internal-capture-and-bubble",
+          "internal-composed-retarget",
+          "internal-local-bubble",
+          "named-slot-composed",
+          "named-slot-local-owner",
+          "slot-reassignment-alternate-path",
+          "slot-reassignment-restored-path",
+          "slot-removal-composed",
+          "slot-removal-local",
+          "slot-restoration-composed",
+          "slotted-capture-retarget",
+          "slotted-composed-slot-path",
+          "slotted-local-owner-path",
+          "target-only-default",
+          "unmatched-capture-isolated",
+          "unmatched-composed-isolated",
+          "unmatched-descendant-composed",
+          "unmatched-descendant-local",
+          "unmatched-local-owner",
+          "virtual-host-composed-retarget",
+          "virtual-host-local-owner",
+          "virtual-unmatched-composed",
+          "virtual-unmatched-local"
+        ],
+        "differences": []
+      }
+    }
+  }
+}

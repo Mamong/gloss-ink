@@ -1,0 +1,1683 @@
+{
+  "exparser": {
+    "relation-parent-child": {
+      "trace": [
+        [
+          "linked",
+          "p",
+          "a"
+        ],
+        [
+          "linked",
+          "a",
+          "p"
+        ],
+        [
+          "linked",
+          "p",
+          "b"
+        ],
+        [
+          "linked",
+          "b",
+          "p"
+        ],
+        [
+          "linked",
+          "p",
+          "c"
+        ],
+        [
+          "linked",
+          "c",
+          "p"
+        ]
+      ],
+      "nodes": {
+        "p": [
+          "a",
+          "b",
+          "c"
+        ],
+        "a": [
+          "p"
+        ],
+        "b": [
+          "p"
+        ],
+        "c": [
+          "p"
+        ]
+      }
+    },
+    "relation-rotate": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "b"
+          ],
+          [
+            "linked",
+            "b",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "c"
+          ],
+          [
+            "linked",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a",
+            "b",
+            "c"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "linkChanged",
+            "p",
+            "c"
+          ],
+          [
+            "linkChanged",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "c",
+            "a",
+            "b"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      }
+    },
+    "relation-prepend": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "b"
+          ],
+          [
+            "linked",
+            "b",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "c"
+          ],
+          [
+            "linked",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a",
+            "b",
+            "c"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "x"
+          ],
+          [
+            "linked",
+            "x",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "x",
+            "a",
+            "b",
+            "c"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ],
+          "x": [
+            "p"
+          ]
+        }
+      }
+    },
+    "relation-remove": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "b"
+          ],
+          [
+            "linked",
+            "b",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "c"
+          ],
+          [
+            "linked",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a",
+            "b",
+            "c"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "unlinked",
+            "p",
+            "a"
+          ],
+          [
+            "unlinked",
+            "a",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "b",
+            "c"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      }
+    },
+    "relation-reparent": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a"
+          ],
+          "q": [],
+          "a": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "unlinked",
+            "p",
+            "a"
+          ],
+          [
+            "unlinked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "q",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "q"
+          ]
+        ],
+        "nodes": {
+          "p": [],
+          "q": [
+            "a"
+          ],
+          "a": [
+            "q"
+          ]
+        }
+      }
+    },
+    "relation-nearest-ancestor": {
+      "trace": [
+        [
+          "linked",
+          "q",
+          "a"
+        ],
+        [
+          "linked",
+          "a",
+          "q"
+        ]
+      ],
+      "nodes": {
+        "p": [],
+        "q": [
+          "a"
+        ],
+        "a": [
+          "q"
+        ]
+      }
+    },
+    "relation-ancestor-through-component": {
+      "trace": [
+        [
+          "linked",
+          "p",
+          "a"
+        ],
+        [
+          "linked",
+          "a",
+          "p"
+        ]
+      ],
+      "nodes": {
+        "p": [
+          "a"
+        ],
+        "a": [
+          "p"
+        ]
+      }
+    },
+    "relation-parent-component-boundary": {
+      "trace": [],
+      "nodes": {
+        "p": [],
+        "a": []
+      }
+    },
+    "relation-missing-reciprocal": {
+      "trace": [],
+      "nodes": {
+        "p": []
+      }
+    },
+    "relation-behavior-target": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "b"
+          ],
+          [
+            "linked",
+            "b",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "c"
+          ],
+          [
+            "linked",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a",
+            "b",
+            "c"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "linkChanged",
+            "p",
+            "c"
+          ],
+          [
+            "linkChanged",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "c",
+            "a",
+            "b"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      }
+    },
+    "behavior-object-merge": {
+      "nested": {
+        "a": 1,
+        "shared": "b",
+        "b": 2,
+        "own": 3
+      }
+    },
+    "behavior-array-merge": {
+      "items": {
+        "0": 3,
+        "1": 2
+      }
+    },
+    "behavior-property-method-precedence": {
+      "data": {
+        "value": 3
+      },
+      "method": "component"
+    },
+    "behavior-diamond": {
+      "trace": [
+        "base",
+        "left",
+        "right",
+        "component"
+      ],
+      "has": [
+        true,
+        true,
+        true
+      ]
+    },
+    "behavior-shared-callback": [
+      "same",
+      "same",
+      "same",
+      "same"
+    ],
+    "behavior-observer-chain": [
+      [
+        "a",
+        2
+      ],
+      [
+        "b",
+        2
+      ],
+      [
+        "component",
+        2
+      ]
+    ],
+    "behavior-instance-isolation": {
+      "nested": {
+        "count": 1
+      },
+      "items": [
+        1
+      ]
+    },
+    "generic-default": "red",
+    "generic-override": "blue",
+    "generic-forward-default": "red",
+    "generic-forward-override": "blue"
+  },
+  "glass": {
+    "relation-parent-child": {
+      "trace": [
+        [
+          "linked",
+          "p",
+          "a"
+        ],
+        [
+          "linked",
+          "a",
+          "p"
+        ],
+        [
+          "linked",
+          "p",
+          "b"
+        ],
+        [
+          "linked",
+          "b",
+          "p"
+        ],
+        [
+          "linked",
+          "p",
+          "c"
+        ],
+        [
+          "linked",
+          "c",
+          "p"
+        ]
+      ],
+      "nodes": {
+        "p": [
+          "a",
+          "b",
+          "c"
+        ],
+        "a": [
+          "p"
+        ],
+        "b": [
+          "p"
+        ],
+        "c": [
+          "p"
+        ]
+      }
+    },
+    "relation-rotate": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "b"
+          ],
+          [
+            "linked",
+            "b",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "c"
+          ],
+          [
+            "linked",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a",
+            "b",
+            "c"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "linkChanged",
+            "p",
+            "c"
+          ],
+          [
+            "linkChanged",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "c",
+            "a",
+            "b"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      }
+    },
+    "relation-prepend": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "b"
+          ],
+          [
+            "linked",
+            "b",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "c"
+          ],
+          [
+            "linked",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a",
+            "b",
+            "c"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "x"
+          ],
+          [
+            "linked",
+            "x",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "x",
+            "a",
+            "b",
+            "c"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ],
+          "x": [
+            "p"
+          ]
+        }
+      }
+    },
+    "relation-remove": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "b"
+          ],
+          [
+            "linked",
+            "b",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "c"
+          ],
+          [
+            "linked",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a",
+            "b",
+            "c"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "unlinked",
+            "p",
+            "a"
+          ],
+          [
+            "unlinked",
+            "a",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "b",
+            "c"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      }
+    },
+    "relation-reparent": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a"
+          ],
+          "q": [],
+          "a": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "unlinked",
+            "p",
+            "a"
+          ],
+          [
+            "unlinked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "q",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "q"
+          ]
+        ],
+        "nodes": {
+          "p": [],
+          "q": [
+            "a"
+          ],
+          "a": [
+            "q"
+          ]
+        }
+      }
+    },
+    "relation-nearest-ancestor": {
+      "trace": [
+        [
+          "linked",
+          "q",
+          "a"
+        ],
+        [
+          "linked",
+          "a",
+          "q"
+        ]
+      ],
+      "nodes": {
+        "p": [],
+        "q": [
+          "a"
+        ],
+        "a": [
+          "q"
+        ]
+      }
+    },
+    "relation-ancestor-through-component": {
+      "trace": [
+        [
+          "linked",
+          "p",
+          "a"
+        ],
+        [
+          "linked",
+          "a",
+          "p"
+        ]
+      ],
+      "nodes": {
+        "p": [
+          "a"
+        ],
+        "a": [
+          "p"
+        ]
+      }
+    },
+    "relation-parent-component-boundary": {
+      "trace": [],
+      "nodes": {
+        "p": [],
+        "a": []
+      }
+    },
+    "relation-missing-reciprocal": {
+      "trace": [],
+      "nodes": {
+        "p": []
+      }
+    },
+    "relation-behavior-target": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "b"
+          ],
+          [
+            "linked",
+            "b",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "c"
+          ],
+          [
+            "linked",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a",
+            "b",
+            "c"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "linkChanged",
+            "p",
+            "c"
+          ],
+          [
+            "linkChanged",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "c",
+            "a",
+            "b"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      }
+    },
+    "behavior-object-merge": {
+      "nested": {
+        "a": 1,
+        "shared": "b",
+        "b": 2,
+        "own": 3
+      }
+    },
+    "behavior-array-merge": {
+      "items": [
+        3
+      ]
+    },
+    "behavior-property-method-precedence": {
+      "data": {
+        "value": 3
+      },
+      "method": "component"
+    },
+    "behavior-diamond": {
+      "trace": [
+        "base",
+        "left",
+        "right",
+        "component"
+      ],
+      "has": [
+        true,
+        true,
+        true
+      ]
+    },
+    "behavior-shared-callback": [
+      "same",
+      "same",
+      "same",
+      "same"
+    ],
+    "behavior-observer-chain": [
+      [
+        "a",
+        2
+      ],
+      [
+        "b",
+        2
+      ],
+      [
+        "component",
+        2
+      ]
+    ],
+    "behavior-instance-isolation": {
+      "nested": {
+        "count": 1
+      },
+      "items": [
+        1
+      ]
+    },
+    "generic-default": "red",
+    "generic-override": "blue",
+    "generic-forward-default": "red",
+    "generic-forward-override": "blue"
+  },
+  "current": {
+    "relation-parent-child": {
+      "trace": [
+        [
+          "linked",
+          "p",
+          "a"
+        ],
+        [
+          "linked",
+          "a",
+          "p"
+        ],
+        [
+          "linked",
+          "p",
+          "b"
+        ],
+        [
+          "linked",
+          "b",
+          "p"
+        ],
+        [
+          "linked",
+          "p",
+          "c"
+        ],
+        [
+          "linked",
+          "c",
+          "p"
+        ]
+      ],
+      "nodes": {
+        "p": [
+          "a",
+          "b",
+          "c"
+        ],
+        "a": [
+          "p"
+        ],
+        "b": [
+          "p"
+        ],
+        "c": [
+          "p"
+        ]
+      }
+    },
+    "relation-rotate": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "b"
+          ],
+          [
+            "linked",
+            "b",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "c"
+          ],
+          [
+            "linked",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a",
+            "b",
+            "c"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "linkChanged",
+            "p",
+            "c"
+          ],
+          [
+            "linkChanged",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "c",
+            "a",
+            "b"
+          ],
+          "c": [
+            "p"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ]
+        }
+      }
+    },
+    "relation-prepend": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "b"
+          ],
+          [
+            "linked",
+            "b",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "c"
+          ],
+          [
+            "linked",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a",
+            "b",
+            "c"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "x"
+          ],
+          [
+            "linked",
+            "x",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "x",
+            "a",
+            "b",
+            "c"
+          ],
+          "x": [
+            "p"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      }
+    },
+    "relation-remove": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "b"
+          ],
+          [
+            "linked",
+            "b",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "c"
+          ],
+          [
+            "linked",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a",
+            "b",
+            "c"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "unlinked",
+            "p",
+            "a"
+          ],
+          [
+            "unlinked",
+            "a",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "b",
+            "c"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      }
+    },
+    "relation-reparent": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a"
+          ],
+          "q": [],
+          "a": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "unlinked",
+            "p",
+            "a"
+          ],
+          [
+            "unlinked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "q",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "q"
+          ]
+        ],
+        "nodes": {
+          "p": [],
+          "q": [
+            "a"
+          ],
+          "a": [
+            "q"
+          ]
+        }
+      }
+    },
+    "relation-nearest-ancestor": {
+      "trace": [
+        [
+          "linked",
+          "q",
+          "a"
+        ],
+        [
+          "linked",
+          "a",
+          "q"
+        ]
+      ],
+      "nodes": {
+        "p": [],
+        "q": [
+          "a"
+        ],
+        "a": [
+          "q"
+        ]
+      }
+    },
+    "relation-ancestor-through-component": {
+      "trace": [
+        [
+          "linked",
+          "p",
+          "a"
+        ],
+        [
+          "linked",
+          "a",
+          "p"
+        ]
+      ],
+      "nodes": {
+        "p": [
+          "a"
+        ],
+        "a": [
+          "p"
+        ]
+      }
+    },
+    "relation-parent-component-boundary": {
+      "trace": [],
+      "nodes": {
+        "p": [],
+        "a": []
+      }
+    },
+    "relation-missing-reciprocal": {
+      "trace": [],
+      "nodes": {
+        "p": []
+      }
+    },
+    "relation-behavior-target": {
+      "initial": {
+        "trace": [
+          [
+            "linked",
+            "p",
+            "a"
+          ],
+          [
+            "linked",
+            "a",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "b"
+          ],
+          [
+            "linked",
+            "b",
+            "p"
+          ],
+          [
+            "linked",
+            "p",
+            "c"
+          ],
+          [
+            "linked",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "a",
+            "b",
+            "c"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ],
+          "c": [
+            "p"
+          ]
+        }
+      },
+      "updated": {
+        "trace": [
+          [
+            "linkChanged",
+            "p",
+            "c"
+          ],
+          [
+            "linkChanged",
+            "c",
+            "p"
+          ]
+        ],
+        "nodes": {
+          "p": [
+            "c",
+            "a",
+            "b"
+          ],
+          "c": [
+            "p"
+          ],
+          "a": [
+            "p"
+          ],
+          "b": [
+            "p"
+          ]
+        }
+      }
+    },
+    "behavior-object-merge": {
+      "nested": {
+        "a": 1,
+        "shared": "b",
+        "b": 2,
+        "own": 3
+      }
+    },
+    "behavior-array-merge": {
+      "items": [
+        3
+      ]
+    },
+    "behavior-property-method-precedence": {
+      "data": {
+        "value": 3
+      },
+      "method": "component"
+    },
+    "behavior-diamond": {
+      "trace": [
+        "base",
+        "left",
+        "right",
+        "component"
+      ],
+      "has": [
+        true,
+        true,
+        true
+      ]
+    },
+    "behavior-shared-callback": [
+      "same",
+      "same",
+      "same",
+      "same"
+    ],
+    "behavior-observer-chain": [
+      [
+        "a",
+        2
+      ],
+      [
+        "b",
+        2
+      ],
+      [
+        "component",
+        2
+      ]
+    ],
+    "behavior-instance-isolation": {
+      "nested": {
+        "count": 1
+      },
+      "items": [
+        1
+      ]
+    },
+    "generic-default": "red",
+    "generic-override": "blue",
+    "generic-forward-default": "red",
+    "generic-forward-override": "blue"
+  }
+}

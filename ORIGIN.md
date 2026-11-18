@@ -13,3 +13,7 @@ Gloss Ink 于 2026-11-18 从 `Mamong/ting-talk-now` 的组件系统工作区提�
 历史语义研究参考包括原项目审阅的 glass-easel 1.2.1 和 adapter 版本记录；本仓库没有引入 GlassEasel 的 vendored 实现，也未声称二进制、模板产物或后端 ABI 互换。原项目集成、宿主设备验证和性能研究不随本次提取自动扩展。
 
 原 Now 项目中的源码仍作为当前集成快照保留；独立仓库可通过 `npm run pack:modules` 交付五包。更新 Now 的快照或依赖时需要执行其自身的 SDK/CLI/宿主检查。
+
+2026-11-18 继续迁入通用数据、Behavior、relations/generics 与逻辑事件语义用例及已冻结双参考观察记录，来源 Now 提交 `e77e240`。场景定义和参考 JSON 原样复制，适配器改用本仓库公开工厂；无 SDK、DOM 或跨仓库路径。逐文件来源哈希见 [语义来源清单](docs/semantics-origin.json)，覆盖边界见 [语义说明](docs/component-semantics.md)。引擎运行文件及五包内容均未改变。
+
+同日新增独立编写的 Node Worker/MessagePort 验收用例，直接使用公开 component-engine 工厂，覆盖两种加载方式的 14 个场景（28 项测试）。测试后端和 RPC 只属于验收 fixture，没有作为生产传输实现加入任何运行包；运行包仍保持相同内容。说明与边界见 [Worker 验收](docs/component-worker.md)。

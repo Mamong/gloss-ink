@@ -1,0 +1,5 @@
+
+> gloss-ink@0.1.0 pack:modules
+> node scripts/pack-modules.cjs
+
+Five independent npm packages and SHA-256 manifest: /Users/marco/Documents/gloss-ink/artifacts/packages
