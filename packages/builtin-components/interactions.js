@@ -23,10 +23,10 @@ function createWeappInteractions(root, options) {
   function live(node) {
     if (!node?.element?.isConnected) return false;
     for (const parent of options.path(node)) {
-      if (!parent.eventView?.live() || parent.attrs?.hidden || parent.attrs?.disabled || parent.element?.hidden || parent.element?.inert || parent.element?.style?.display==='none' || parent.element?.style?.visibility==='hidden') return false;
+      if (!parent.eventView?.live() || parent.attrs?.hidden || parent.attrs?.disabled || parent.element?.hidden === true || parent.element?.inert === true || parent.element?.style?.display==='none' || parent.element?.style?.visibility==='hidden') return false;
     }
     for (let element = node.element; element; element = element.parentElement || element.getRootNode?.().host || element.host) {
-      if (element.hidden || element.inert || element.disabled || element.style?.display === 'none' || element.style?.visibility === 'hidden') return false;
+      if (element.hidden === true || element.inert === true || element.disabled === true || element.style?.display === 'none' || element.style?.visibility === 'hidden') return false;
     }
     return true;
   }
