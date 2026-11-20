@@ -54,8 +54,10 @@ function compile(entries, read, asset, diagnostic, scope, customTags = [], setti
         })).processSync(rule.selector);
         if (scope) rule.selector = selectors(tree => tree.each(selector => {
           const page = selector.nodes.find(node => node.type === 'class' && node.value === 'weapp-page');
-          const prefix = selectors().astSync(scope).nodes[0].nodes;
-          if (page) page.replaceWith(...prefix.map(node => node.clone()));
+          // The route boundary must not make authored selectors more specific.
+          // Keep the existing page-root selector when it is explicitly addressed.
+          const prefix = selectors().astSync(':where(' + scope + ')').nodes[0].nodes;
+          if (page) { for (const node of prefix) selector.insertBefore(page, node.clone()); }
           else { selector.prepend(selectors.combinator({value: ' '})); for (const node of [...prefix].reverse()) selector.prepend(node.clone()); }
         })).processSync(rule.selector);
       } catch (error) { diagnostic('error', 'WXSS_SELECTOR', file, rule.source.start.offset, error.message); }
@@ -113,7 +115,7 @@ function externalRules(css,owner) {
   return result;
 }
 function owned(css,owner){
- const root=postcss.parse(css);root.walkRules(rule=>{if(rule.parent.type==='atrule'&&/keyframes$/i.test(rule.parent.name))return;rule.selector=selectors(tree=>tree.each(selector=>{let compound=[];const flush=()=>{if(!compound.length)return;if(!compound.some(node=>node.type==='pseudo'&&/^::?host(?:-context)?$|^::slotted$/.test(node.value))){const attribute=selectors().astSync('[data-weapp-owner~="'+owner+'"]').nodes[0].nodes[0].clone();const pseudo=compound.find(node=>node.type==='pseudo'&&node.value.startsWith('::'));if(pseudo)selector.insertBefore(pseudo,attribute);else selector.insertAfter(compound.at(-1),attribute);}compound=[];};for(const node of [...selector.nodes]){if(node.type==='combinator')flush();else compound.push(node);}flush();})).processSync(rule.selector);});return root.toString();
+ const root=postcss.parse(css);root.walkRules(rule=>{if(rule.parent.type==='atrule'&&/keyframes$/i.test(rule.parent.name))return;rule.selector=selectors(tree=>tree.each(selector=>{let compound=[];const flush=()=>{if(!compound.length)return;if(!compound.some(node=>node.type==='pseudo'&&/^::?host(?:-context)?$|^::slotted$/.test(node.value))){const attribute=selectors().astSync(':where([data-weapp-owner~="'+owner+'"])').nodes[0].nodes[0].clone();const pseudo=compound.find(node=>node.type==='pseudo'&&node.value.startsWith('::'));if(pseudo)selector.insertBefore(pseudo,attribute);else selector.insertAfter(compound.at(-1),attribute);}compound=[];};for(const node of [...selector.nodes]){if(node.type==='combinator')flush();else compound.push(node);}flush();})).processSync(rule.selector);});return root.toString();
 }
 return {compile, externalRules, owned};
 }

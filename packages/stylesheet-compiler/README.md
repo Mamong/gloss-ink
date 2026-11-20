@@ -13,3 +13,9 @@ const css=compiler.compile(['page.wxss'],read,asset,diagnostic,'[data-weapp-rout
 `createLessCompiler` 是可选的工程预处理入口，继续在有界子进程内对输入快照编译；禁止远程导入、JavaScript 和插件。该入口与当前 read/exists/diagnostic/root 接口保持兼容。
 
 GlassEasel 的 stylesheet/backend 协议需要独立适配，模块边界不意味着其编译产物可以直接互换。
+
+## 隔离边界与选择器权重
+
+页面路由边界使用 `:where(...)`，实例归属属性也放入 `:where(...)`，因此隔离标记不增加业务选择器权重。显式的 `page` 仍保留页面根节点选择器，确保其规则能覆盖页面根节点的默认样式；全局和页面规则维持原有顺序。此变更不移除页面/组件边界，也不改变现有标签到基础组件类名的转换。
+
+默认按钮保留非 mini 规则的属性条件，防止单个业务类无意覆盖固定默认宽度。标签选择器转换和原生标签的完整权重等价性仍是独立兼容范围，不应将本修复描述为全部 WXSS 语义完全一致。
