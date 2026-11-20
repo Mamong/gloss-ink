@@ -22,6 +22,8 @@ DOM driver 只按核心的协调计划执行删除、patch、物理移动和生�
 
 装配时必须显式提供 `config.templateEvaluator` 和 `config.childReconciler`。SDK、分析/正式编译、Worker 和独立验收应用均使用核心导出的对应工厂。两包之间没有隐式相对导入。
 
+实例端口确认 `component.attach` 的 `attached: true` 后，driver 在该组件 DOM 仍连接时复用此确认，避免后续渲染重复发送相同的连接状态。未确认的挂载仍重试；DOM 断开会重新通知逻辑端，之后重连和新建组件必须重新确认。首次挂载的提交回执仍参与渲染完成等待，属性、子视图渲染、树提交和生命周期语义保持。
+
 ## 控制器装配
 
 picker/editor/nativeComponents/interactiveComponents/layerComponents/virtualList/cameraRuntime/keyboardAccessory/pageMeta/backToTop/matchMedia/accessibility 均由基础组件包提供实际实现。videoRuntime/mapRuntime 也通过配置注入；driver 只保留作用域节点查询、实例/宿主请求与事件连接，视频事件详情和地图绘制已归属相应控制器。未提供某项能力时，对该能力的调用明确失败。
@@ -46,3 +48,5 @@ node scripts/build-component-ports.cjs --check
 事件工具同时声明普通HTMLElement事件节点、虚拟range及其文本子节点；父路径保持同一种逻辑事件节点结构。查询工具提供节点/测量操作的判别联合、编辑器context和旧版Canvas接口；本地Canvas解析器与远程执行端口有明确互斥要求。业务/传输消息仍通过unknown进入JSON与生命周期检查，未用宽泛函数签名替代这些运行期边界。
 
 发送事件的source/target也保留DomEventNode类型，原始事件提供结构化触点/坐标信息；虚拟节点的父链仍能保留这些元数据，不需要把它们扩大成没有viewNodeId的基础节点或强制转换成原生HTMLElement。
+
+Unchanged logical node indexes reuse only a matching `tree.commit` revision acknowledgment. Node order, IDs, classes, component identity, parent topology and movement notifications still commit; a new view starts without cached topology. Data snapshots, child rendering and render receipt/callback waits remain unchanged.

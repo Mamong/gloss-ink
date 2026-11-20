@@ -44,7 +44,7 @@ function createDomBackend(environment) {
   let renderRoots = new Set(), renderedData = {}, childCommits = [];
   let externalClasses = {}, inheritedRules = {},projectedNodes=[],slotNodes=new Map();
   const request=(method,value)=>instances.request({version:1,ownerId:instanceId,method,...(value===undefined?{}:{value})});
-  let treeRevision=0,pendingRelationMoves=[];
+  let treeRevision=0,pendingRelationMoves=[],confirmedTree=null;
   const elements = new WeakMap();
   const webViewControls=config.webViewRuntime?.(root,{Error:ErrorType,request});
   const cameraControls=config.cameraRuntime?.(root,{Error:ErrorType,live:element=>!disposed&&!mount.hidden&&!mount.inert&&port.receiver.isVisible()&&interactions.live(elements.get(element)),host:(method,value)=>request('camera.host',{method,value}),emit:emitNative});
@@ -289,7 +289,14 @@ function createDomBackend(environment) {
     const {nodes:next,templateCalls}=evaluator.evaluate(renderedData,renderRoots);if(metrics){metrics.viewRenders=(metrics.viewRenders||0)+1;metrics.viewNodes=(metrics.viewNodes||0)+next.length;metrics.templateCalls=(metrics.templateCalls||0)+templateCalls;}
     if(placement&&next.some(node=>['page-meta','navigation-bar'].includes(node.tag)))throw new ErrorType('页面配置节点只能用于页面根',{code:'INVALID_ARGUMENT'});pageMeta?.validate(next);yield* patchChildren(mount, previous, next); previous = next;const metaCommit=pageMeta?.update(next);if(metaCommit?.then)yield metaCommit;textInputs.flush(previous);keyboardAccessories?.flush();editorControls?.flush();nativeControls?.flush();interactiveControls?.flush();layerControls?.flush();refreshControls();a11y?.flush();cameraControls?.flush();
     yield* commitTree();
-    for(const record of components.values())yield request('component.attach',{id:record.instanceId,connected:record.element.isConnected});
+    for(const record of components.values()){
+      const connected=record.element.isConnected;
+      // Only a successful logical attach can establish the connected cache.
+      // Unattached ancestors and disconnected DOM must still be retried.
+      if(connected&&record.confirmedConnected===true)continue;
+      const reply=yield request('component.attach',{id:record.instanceId,connected});
+      record.confirmedConnected=connected&&reply?.attached===true;
+    }
     forms.sync(previous);
     if(childCommits.length)return Promise.all(childCommits).then(()=>virtualLists?.flush());
     virtualLists?.flush();
@@ -307,7 +314,15 @@ function createDomBackend(environment) {
   function* commitTree(){
     const nodes=[];
     function walk(values,parentNodeId){for(const node of values){if(node.viewNodeId){const component=components.get(node.element);nodes.push({nodeId:node.viewNodeId,parentNodeId,tag:node.tag,elementId:string(node.attrs.id),classes:node.element.className.split(/\s+/).filter(Boolean),...(component?{componentId:component.instanceId}:{})});walk(node.children||[],node.viewNodeId);}else walk(node.children||[],parentNodeId);}}
-    walk(previous,null);if(metrics){metrics.treeCommits=(metrics.treeCommits||0)+1;metrics.treeNodes=(metrics.treeNodes||0)+nodes.length;metrics.treeBytes=(metrics.treeBytes||0)+JSON.stringify(nodes).length;}const moved=pendingRelationMoves.filter(id=>nodes.some(node=>node.nodeId===id));pendingRelationMoves=[];yield request('tree.commit',{revision:++treeRevision,nodes,moved});
+    walk(previous,null);
+    const snapshot=JSON.stringify(nodes),moved=pendingRelationMoves.filter(id=>nodes.some(node=>node.nodeId===id));pendingRelationMoves=[];
+    // Reuse only an acknowledged topology. Movement still carries relation hooks,
+    // even when the final logical node list is unchanged.
+    if(snapshot===confirmedTree&&!moved.length)return;
+    if(metrics){metrics.treeCommits=(metrics.treeCommits||0)+1;metrics.treeNodes=(metrics.treeNodes||0)+nodes.length;metrics.treeBytes=(metrics.treeBytes||0)+snapshot.length;}
+    confirmedTree=null;
+    const revision=++treeRevision,reply=yield request('tree.commit',{revision,nodes,moved});
+    if(reply?.revision===revision)confirmedTree=snapshot;
   }
   function pageLifetime(name,value){if(environment.remote)return {};return request('lifecycle',{name,...(value===undefined?{}:{value})});}
   function markChanges(patch) { dirty=true;Object.keys(patch).forEach(path => pendingRoots.add(path.split(/[.\[]/)[0])); }
