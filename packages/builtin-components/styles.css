@@ -1,6 +1,6 @@
 :root { --weapp-rpx: calc(100vw / 750); }
 html, body { margin: 0; min-height: 100%; width: 100%; }
-body { font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #222; background: #fff; }
+body { font-size: 16px; color: #222; background: #fff; }
 .weapp-page { min-height: 100dvh; overflow-wrap: anywhere; }
 .weapp-view, .weapp-scroll-view, .weapp-block { display: block; }
 .weapp-text { white-space: pre-wrap; user-select: none; }
