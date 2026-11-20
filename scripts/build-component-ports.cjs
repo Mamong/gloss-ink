@@ -4,6 +4,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const source = path.resolve(__dirname, '../packages');
 const entries = [
+  ['component-backend/index.d.ts', 'component-backend-dom/ports/backend.d.ts'],
   ['component-engine/index.d.ts', 'component-backend-dom/ports/engine.d.ts'],
   ['builtin-components/index.d.ts', 'component-backend-dom/ports/builtin.d.ts'],
   ['template-compiler/runtime.d.ts', 'component-backend-dom/ports/wxs.d.ts'],

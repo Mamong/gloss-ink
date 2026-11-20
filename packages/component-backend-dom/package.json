@@ -17,11 +17,15 @@
     "ports/wxs.d.ts",
     "view-types.d.ts",
     "query-types.d.ts",
-    "canvas-types.d.ts"
+    "canvas-types.d.ts",
+    "ports/backend.d.ts"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Mamong/gloss-ink.git",
     "directory": "packages/component-backend-dom"
+  },
+  "dependencies": {
+    "@tingtalk/component-backend": "0.1.0"
   }
 }

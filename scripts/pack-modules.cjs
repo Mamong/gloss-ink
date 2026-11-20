@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '..');
 const output = path.resolve(process.argv[2] || path.join(root, 'artifacts/packages'));
 fs.mkdirSync(output, {recursive: true});
 const manifest = {};
-for (const name of ['component-engine', 'builtin-components', 'component-backend-dom', 'template-compiler', 'stylesheet-compiler']) {
+for (const name of ['component-engine', 'builtin-components', 'component-backend', 'component-backend-dom', 'template-compiler', 'stylesheet-compiler']) {
   const [pack] = JSON.parse(execFileSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', output], {
     cwd: path.join(root, 'packages', name), encoding: 'utf8'
   }));
@@ -18,4 +18,4 @@ for (const name of ['component-engine', 'builtin-components', 'component-backend
     files: pack.files.map(file => file.path)};
 }
 fs.writeFileSync(path.join(output, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
-console.log('Five independent npm packages and SHA-256 manifest: ' + output);
+console.log('Six npm packages and SHA-256 manifest: ' + output);

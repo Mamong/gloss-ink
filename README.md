@@ -1,8 +1,8 @@
 # Gloss Ink
 
-独立组件引擎与浏览器组件工具链。组件状态和逻辑树核心、浏览器基础组件、DOM 后端、WXML/WXS 编译器和 WXSS/LESS 编译器分别作为五个 npm 包维护，可以按需要组合。
+独立组件引擎与浏览器组件工具链。组件状态和逻辑树核心、浏览器基础组件、通用后端、DOM 后端、WXML/WXS 编译器和 WXSS/LESS 编译器分别作为六个 npm 包维护，可以按需要组合。
 
-组件逻辑核心不读取 DOM；三个运行期包没有外部 npm 依赖。模板和样式编译器通过显式 schema/标签表配置。宿主资源、导航、相机授权和页面配置等服务由应用注入。
+组件逻辑核心不读取 DOM；核心、通用后端和基础组件没有 npm 依赖；DOM 后端仅依赖通用后端。模板和样式编译器通过显式 schema/标签表配置。宿主资源、导航、相机授权和页面配置等服务由应用注入。
 
 ## 包结构
 
@@ -10,7 +10,8 @@
 | --- | --- | --- |
 | `@tingtalk/component-engine` | [packages/component-engine](packages/component-engine) | 数据、Behavior、实例树、逻辑事件、模板求值和节点协调 |
 | `@tingtalk/builtin-components` | [packages/builtin-components](packages/builtin-components) | 41 个公开标签的目录、真实浏览器控制器及基础样式 |
-| `@tingtalk/component-backend-dom` | [packages/component-backend-dom](packages/component-backend-dom) | DOM 投影、事件、布局、查询、Canvas 和提交协议 |
+| `@tingtalk/component-backend` | [packages/component-backend](packages/component-backend) | 平台无关提交协议、回执、重置和事件绑定版本 |
+| `@tingtalk/component-backend-dom` | [packages/component-backend-dom](packages/component-backend-dom) | DOM 投影、事件、布局、查询和 Canvas |
 | `@tingtalk/template-compiler` | [packages/template-compiler](packages/template-compiler) | 构建期 WXML/受限 WXS 编译；纯浏览器 WXS runtime 子入口 |
 | `@tingtalk/stylesheet-compiler` | [packages/stylesheet-compiler](packages/stylesheet-compiler) | WXSS、标签选择器、rpx 与 LESS 编译 |
 
@@ -30,7 +31,7 @@ npm run pack:modules
 
 `npm test` 检查包依赖/声明闭包和生成声明漂移，并运行独立的 Node 单元测试，包括无 DOM 核心、模板协调、实例重连、实际控制器清理和严格类型正反例。测试使用本仓库安装的 jsdom，不加载 Now SDK 或原项目测试 helper。通用语义回归同时覆盖 CommonJS 和无 DOM 的内嵌表达式：55 个场景各运行两次，包含数据观察器、Behavior、relations/generics 和逻辑事件；两处已知差异也逐项固定预期。详见 [语义回归说明](docs/component-semantics.md)。另外使用真实 Node Worker 与 MessagePort 验证重连身份、回执等待、回调取消和资源清理，见 [Worker 验收说明](docs/component-worker.md)。后续优先级与验收条件见 [路线图](docs/ROADMAP.md)。
 
-`npm run pack:modules` 在 `artifacts/packages` 输出五个 tarball 和包含 SHA-256、integrity 与文件清单的 manifest。消费者可安装这些本地 tarball；不需要把整个 workspace 作为依赖。
+`npm run pack:modules` 在 `artifacts/packages` 输出六个 tarball 和包含 SHA-256、integrity 与文件清单的 manifest。消费者可安装这些本地 tarball；不需要把整个 workspace 作为依赖。
 
 ```sh
 npm install /path/to/gloss-ink/artifacts/packages/tingtalk-component-engine-0.1.0.tgz
@@ -46,7 +47,7 @@ npm install /path/to/gloss-ink/artifacts/packages/tingtalk-component-engine-0.1.
 npm run test:browser
 ```
 
-脚本将五模块分别打包，在全新目录复制验收应用，通过锁文件 `npm ci` 安装，清除 `NODE_PATH`，核对依赖真实解析路径，再执行严格 TypeScript、WXML/WXSS 构建和 Chrome 验收。输出最后一行给出应用及 `dist/acceptance.json` 所在目录。也可指定一个空目录：
+脚本将六模块分别打包，在全新目录复制验收应用，通过锁文件 `npm ci` 安装，清除 `NODE_PATH`，核对依赖真实解析路径，再执行严格 TypeScript、WXML/WXSS 构建和 Chrome 验收。输出最后一行给出应用及 `dist/acceptance.json` 所在目录。也可指定一个空目录：
 
 ```sh
 node scripts/check-standalone-components.cjs artifacts/standalone
@@ -65,7 +66,7 @@ npm run types:component-ports
 npm run types:check
 ```
 
-GitHub Actions 配置 Node 24/26 的单元/打包检查，以及安装 Chrome 后的独立应用验收。每个 Node job 同时保存离线语义报告、单元日志及五包 manifest；`npm test` 已包含语义测试。CI 不发布 npm 包、不部署站点。迁移来源和输入哈希见 [ORIGIN.md](ORIGIN.md)。
+GitHub Actions 配置 Node 24/26 的单元/打包检查，以及安装 Chrome 后的独立应用验收。每个 Node job 同时保存离线语义报告、单元日志及六包 manifest；`npm test` 已包含语义测试。CI 不发布 npm 包、不部署站点。迁移来源和输入哈希见 [ORIGIN.md](ORIGIN.md)。
 
 ## License
 

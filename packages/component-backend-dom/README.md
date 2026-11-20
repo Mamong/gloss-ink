@@ -4,7 +4,7 @@ DOM 渲染后端，从 Now 的视图驱动中提取。入口为 `createDomBacken
 
 后端不接收 SDK 对象。运行环境提供 document/定时器、编译后的模板与视图配置、基础组件注册器、逻辑实例端口、可视连接及提交跟踪接口。`Error` 默认为原生 Error；Now 的薄适配层提供 NowAppError 和 trackCommit；表单服务直接接收 Error 构造器。
 
-逻辑事件路径、slot 分配、模板展开和兄弟节点匹配通过核心的 logicalEvents/projectionPlanner/templateEvaluator/childReconciler 接口提供；DOM 监听、物理节点移动、Shadow DOM、样式与资源呈现由本包处理。实例端口与 ViewProtocol 仍显式注入且可替换。本包公开的 ViewProtocol 沿用原有 now-view-v1 实现，独立应用无需借用 SDK 源码；它不属于组件逻辑核心，也不导入宿主、路由或网络实现。
+逻辑事件路径、slot 分配、模板展开和兄弟节点匹配通过核心的 logicalEvents/projectionPlanner/templateEvaluator/childReconciler 接口提供；DOM 监听、物理节点移动、Shadow DOM、样式与资源呈现由本包处理。实例端口与 ViewProtocol 仍显式注入且可替换。ViewProtocol 的实现归属 `@tingtalk/component-backend`，本包显式依赖该包，并保留 `createViewProtocol` 和 `protocol.js` 的兼容导出。协议继续使用 now-view-v1；它不属于组件逻辑核心，也不导入宿主、路由或网络实现。
 
 基础组件库通过 `config.builtinComponents` 提供节点映射、初始化和属性更新。输入、表单、原生媒体、手势等可视功能仍通过具名 capability factories 配置；它们不是本包的 npm 依赖。
 
@@ -12,7 +12,7 @@ DOM 渲染后端，从 Now 的视图驱动中提取。入口为 `createDomBacken
 
 ## 独立验收与类型边界
 
-仓库示例 `examples/standalone` 只通过五包 npm 产物与声明依赖构建，覆盖原生输入、表单、slot、Shadow DOM 样式和 keyed 重排。`npm run test:component-standalone` 在全新目录安装并运行严格 TypeScript 检查及真实 Chrome 验收。
+仓库示例 `examples/standalone` 只通过六包 npm 产物与声明依赖构建，覆盖原生输入、表单、slot、Shadow DOM 样式和 keyed 重排。`npm run test:component-standalone` 在全新目录安装并运行严格 TypeScript 检查及真实 Chrome 验收。
 
 `DomBackendConfig` 的全部工厂采用明确的输入与返回端口，已移除 CapabilityFactory / never[] 占位。模板、事件、查询、Canvas、资源租约与 ViewProtocol 均有具名接口；`schedule` 接收 registry 回调令牌，`render/show` 允许销毁后的 void。协议包和业务数据仍以 unknown 进入运行期校验。
 
@@ -30,7 +30,7 @@ picker/editor/nativeComponents/interactiveComponents/layerComponents/virtualList
 
 ## 类型声明生成与独立性
 
-`ports/engine.d.ts`、`ports/builtin.d.ts` 与 `ports/wxs.d.ts` 由对应归属模块的公开声明生成，包含规范化LF文本的SHA-256。它们是分发所需的类型快照，避免消费者为了检查backend配置而额外安装核心、基础组件或SDK。手写契约只维护backend自己的view/query/canvas类型，其余直接引用本地生成声明。
+`ports/backend.d.ts`、`ports/engine.d.ts`、`ports/builtin.d.ts` 与 `ports/wxs.d.ts` 由对应归属模块的公开声明生成，包含规范化LF文本的SHA-256。它们是分发所需的类型快照，避免消费者为了检查backend配置而额外安装类型依赖；运行时仍需安装声明的通用 backend 依赖。手写契约只维护backend自己的view/query/canvas类型，其余直接引用本地生成声明。
 
 ```sh
 node scripts/build-component-ports.cjs
@@ -41,7 +41,7 @@ node scripts/build-component-ports.cjs --check
 
 `DomBackendConfig = DomBackendFactories & PageResourceBinding`：配置pageResources时必须同时给出具有route/template/styles的pageEntries。资源lease返回释放函数；视图查询需要fields或显式node模式；逻辑协议可单独创建而不携带视图render，render提交回调返回void/完成Promise。事件、输入及浏览器属性服务保留具体节点泛型，能够连接逻辑路径与原生DOM事件，避免扩大成只有基础属性的节点。
 
-严格类型验收包含真实五包组合和backend单包空目录检查，并通过负向示例确认控制器接错位置、缺失生命周期、SDK对象代替服务、无效模板/WXS/查询/绘图参数都会在编译时失败。运行期JSON限制、权限、生命周期和资源authority仍按原实现执行；本批未改浏览器执行代码。
+严格类型验收包含真实六包组合和backend单包空目录检查，并通过负向示例确认控制器接错位置、缺失生命周期、SDK对象代替服务、无效模板/WXS/查询/绘图参数都会在编译时失败。运行期JSON限制、权限、生命周期和资源authority仍按原实现执行；本批未改浏览器执行代码。
 
 事件工具同时声明普通HTMLElement事件节点、虚拟range及其文本子节点；父路径保持同一种逻辑事件节点结构。查询工具提供节点/测量操作的判别联合、编辑器context和旧版Canvas接口；本地Canvas解析器与远程执行端口有明确互斥要求。业务/传输消息仍通过unknown进入JSON与生命周期检查，未用宽泛函数签名替代这些运行期边界。
 

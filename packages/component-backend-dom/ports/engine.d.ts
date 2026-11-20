@@ -1,4 +1,4 @@
-// Generated from component-engine/index.d.ts; SHA-256 fc93bb65f55ff700f7de0e953ce62f9db55b0fb737227d4c4b7b70eb3929e85a
+// Generated from component-engine/index.d.ts; SHA-256 90ef216680963139a2d5e3825c410d0b9cda6b9568e16950e0c89b4c831cc795
 // Regenerate with npm run types:component-ports
 export type JsonValue = null | boolean | number | string | JsonValue[] | {[key: string]: JsonValue};
 export type Data = Record<string, JsonValue>;
@@ -35,8 +35,10 @@ export interface ComponentInstance {
   [key: string]: unknown;
 }
 
-export interface ComponentView {
-  render(): RenderReceipt | void;
+/** Minimum submission interface; transport and physical rendering are supplied externally. */
+export interface RenderBackend {render(): RenderReceipt | void}
+
+export interface ComponentView extends RenderBackend {
   markChanges(changes: Data): void;
   destroy(): void;
   select(selector: string, all: boolean): unknown;
@@ -225,7 +227,7 @@ export interface ProjectionPlanner {
   prepare(nodes: ProjectionNode[]): void;
 }
 export function createProjectionPlanner(): ProjectionPlanner;
-export function createViewConnection<T extends {render(): RenderReceipt | void}>(backend: T): T;
+export function createViewConnection<T extends RenderBackend>(backend: T): T;
 
 /** Pure sibling matching. Physical movement and lifecycle delivery belong to the backend. */
 export interface ChildIdentity {tag: string; key?: string; identity?: string}

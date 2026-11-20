@@ -1,3 +1,4 @@
+import type {ViewProtocol} from './ports/backend';
 import type * as Core from './ports/engine';
 import type * as Builtin from './ports/builtin';
 import type {ComponentViewTools} from './view-types';
@@ -7,7 +8,7 @@ export * from './query-types';
 export * from './canvas-types';
 
 export type Dictionary = Core.Dictionary;
-export type Receipt = Core.RenderReceipt & {readonly error?: Error};
+export type Receipt = import('./ports/backend').Receipt;
 export type ErrorType = Builtin.ErrorConstructor;
 export type BrowserRoot = Builtin.BrowserRoot;
 export type WxsFactory = typeof import('./ports/wxs');
@@ -115,55 +116,9 @@ export interface DomBackendEnvironment {
 }
 export function createDomBackend(environment: DomBackendEnvironment): (instanceId: string, route: string, placement?: DomPlacement) => DomView;
 export function createComponentViews(root: {document: Document}, logicalEvents: Core.LogicalEvents): ComponentViewTools;
-export interface ProtocolOptions {
-  id: string;
-  route: string;
-  kind?: 'page' | 'component';
-  parentId?: string;
-  data: Dictionary;
-  visible?: boolean;
-  setTimeout?: typeof window.setTimeout;
-  clearTimeout?: typeof window.clearTimeout;
-  render(value: Dictionary, forced: string[], settings: {reset: boolean; revision: number}): void | PromiseLike<unknown>;
-  result?(nodeId: string, value: string | {value: string; cursor?: number}): void;
-  visibility?(visible: boolean): void;
-  destroy?(): void;
-  invoke?(binding: Dictionary, event: Dictionary): unknown;
-  onError?(error: unknown): void;
-}
-export interface ProtocolInspection {id: string; revision: number; closed: boolean; visible: boolean; broken: boolean; nodes: number; data: Dictionary}
-export interface ProtocolLogic {
-  readonly id: string;
-  receive(packet: unknown): boolean;
-  create(): Receipt;
-  update(data: Dictionary, forced?: string[]): Receipt;
-  reset(data?: Dictionary): Receipt;
-  visibility(visible: boolean): Receipt;
-  destroy(): void;
-  inspect(): ProtocolInspection & {pending: number};
-}
-export interface ProtocolReceiver {
-  readonly id: string;
-  receive(packet: unknown): boolean;
-  isVisible(): boolean;
-  node(): string;
-  bind(nodeId: string, metadata: Dictionary, bindings: Dictionary[]): void;
-  invalidateInput(nodeId: string): void;
-  remove(nodeId: string): void;
-  event(nodeId: string, key: string, input?: Dictionary): boolean;
-  inspect(): ProtocolInspection;
-}
-export interface ViewProtocol {
-  readonly version: 1;
-  readonly protocol: string;
-  readonly limits: {readonly dataCharacters: number; readonly packetCharacters: number; readonly eventCharacters: number; readonly nodes: number; readonly pending: number; readonly timeout: number};
-  snapshot<T>(value: T, maximum?: number): T;
-  inputResult(value: unknown): string | {value: string; cursor?: number} | undefined;
-  connect(options: ProtocolOptions): {logic: ProtocolLogic; receiver: ProtocolReceiver};
-  createLogic(options: Omit<ProtocolOptions, 'render'> & {render?: ProtocolOptions['render']; send(packet: Dictionary): void}): ProtocolLogic;
-  createReceiver(options: ProtocolOptions & {send(packet: Dictionary): void}): ProtocolReceiver;
-}
-export function createViewProtocol(): ViewProtocol;
+/** Protocol declarations are generated from the platform-neutral backend. */
+export {createViewProtocol} from './ports/backend';
+export type {ProtocolOptions, ProtocolInspection, ProtocolLogic, ProtocolReceiver, ViewProtocol, ScheduleTimeout, CancelTimeout} from './ports/backend';
 export function createSelectorQueryTools(): SelectorQueryTools;
 
 /** Core-owned declarations are bundled locally so this package has no type-only peers. */

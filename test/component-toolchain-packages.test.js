@@ -6,9 +6,11 @@ const core=require(path.join(source,'component-engine')),ui=require(path.join(so
 const {createDom}=require('./helpers/dom.cjs');
 function temporary(t){const directory=fs.mkdtempSync(path.join(os.tmpdir(),'now-component-toolchain-'));t.after(()=>fs.rmSync(directory,{recursive:true,force:true}));return directory;}
 
-test('the five modules load from isolated copies and compilers need no SDK or backend',t=>{
- const directory=temporary(t),modules=['component-engine','component-backend-dom','builtin-components','template-compiler','stylesheet-compiler'];
+test('the six modules load from isolated copies and compilers need no SDK or backend',t=>{
+ const directory=temporary(t),modules=['component-engine','component-backend','component-backend-dom','builtin-components','template-compiler','stylesheet-compiler'];
  for(const name of modules)fs.cpSync(path.join(source,name),path.join(directory,name),{recursive:true});
+ fs.mkdirSync(path.join(directory,'node_modules/@tingtalk'),{recursive:true});
+ fs.symlinkSync(path.join(directory,'component-backend'),path.join(directory,'node_modules/@tingtalk/component-backend'),'dir');
  for(const name of ['acorn','postcss','postcss-selector-parser','postcss-value-parser','less']){let location=path.dirname(require.resolve(name));while(!fs.existsSync(path.join(location,'package.json'))||JSON.parse(fs.readFileSync(path.join(location,'package.json'),'utf8')).name!==name){const parent=path.dirname(location);if(parent===location)throw new Error('Package root missing: '+name);location=parent;}fs.mkdirSync(path.join(directory,'node_modules'),{recursive:true});fs.symlinkSync(location,path.join(directory,'node_modules',name),'dir');}
  const script=`
  const assert=require('node:assert/strict');

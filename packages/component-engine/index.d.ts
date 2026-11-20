@@ -33,8 +33,10 @@ export interface ComponentInstance {
   [key: string]: unknown;
 }
 
-export interface ComponentView {
-  render(): RenderReceipt | void;
+/** Minimum submission interface; transport and physical rendering are supplied externally. */
+export interface RenderBackend {render(): RenderReceipt | void}
+
+export interface ComponentView extends RenderBackend {
   markChanges(changes: Data): void;
   destroy(): void;
   select(selector: string, all: boolean): unknown;
@@ -223,7 +225,7 @@ export interface ProjectionPlanner {
   prepare(nodes: ProjectionNode[]): void;
 }
 export function createProjectionPlanner(): ProjectionPlanner;
-export function createViewConnection<T extends {render(): RenderReceipt | void}>(backend: T): T;
+export function createViewConnection<T extends RenderBackend>(backend: T): T;
 
 /** Pure sibling matching. Physical movement and lifecycle delivery belong to the backend. */
 export interface ChildIdentity {tag: string; key?: string; identity?: string}

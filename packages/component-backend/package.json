@@ -1,0 +1,20 @@
+{
+  "name": "@tingtalk/component-backend",
+  "version": "0.1.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "ISC",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "protocol.js",
+    "LICENSE",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mamong/gloss-ink.git",
+    "directory": "packages/component-backend"
+  },
+  "description": "Platform-independent component view commit and event protocol"
+}

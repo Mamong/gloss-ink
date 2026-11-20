@@ -145,7 +145,7 @@ const {chromium} = require('playwright-core');
     checks.push('original CSP without inline scripts or eval');
     const catalog = await require('./verify-catalog.cjs')(browser, 'http://127.0.0.1:' + server.address().port);
     checks.push(...catalog.checks);
-    const report = {passed: true, catalog, checks, browser: await browser.version(), packages: Object.fromEntries(['component-engine','builtin-components','component-backend-dom','template-compiler','stylesheet-compiler'].map(name => [name, require('@tingtalk/' + name + '/package.json').version]))};
+    const report = {passed: true, catalog, checks, browser: await browser.version(), packages: Object.fromEntries(['component-engine','builtin-components','component-backend','component-backend-dom','template-compiler','stylesheet-compiler'].map(name => [name, require('@tingtalk/' + name + '/package.json').version]))};
     fs.writeFileSync(path.join(directory, 'acceptance.json'), JSON.stringify(report, null, 2) + '\n');
     console.log(JSON.stringify(report, null, 2));
   } finally {await browser?.close(); await new Promise(resolve => server.close(resolve));}

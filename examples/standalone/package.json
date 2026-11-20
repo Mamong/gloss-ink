@@ -12,7 +12,8 @@
     "@tingtalk/builtin-components": "file:packages/tingtalk-builtin-components-0.1.0.tgz",
     "@tingtalk/component-backend-dom": "file:packages/tingtalk-component-backend-dom-0.1.0.tgz",
     "@tingtalk/template-compiler": "file:packages/tingtalk-template-compiler-0.1.0.tgz",
-    "@tingtalk/stylesheet-compiler": "file:packages/tingtalk-stylesheet-compiler-0.1.0.tgz"
+    "@tingtalk/stylesheet-compiler": "file:packages/tingtalk-stylesheet-compiler-0.1.0.tgz",
+    "@tingtalk/component-backend": "file:packages/tingtalk-component-backend-0.1.0.tgz"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

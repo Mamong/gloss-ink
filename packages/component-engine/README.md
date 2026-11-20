@@ -62,3 +62,7 @@ registry 的必填 `port` 是小型 codec 契约：`snapshot(value)`、`inputRes
 两端口都可通过 CommonJS 或 source.js 的内嵌表达式加载；类型声明不需要 DOM lib。它们沿用本项目编译模板语义，不表示接受官方编译器字节码。
 
 逻辑事件的original参数使用平台无关的结构化能力声明（停止传播、阻止默认行为等），无需DOM lib也能接收原生Event。编译事件显式声明capture；模板程序可携带具有reset端口的WXS状态。后端使用生成的本地声明快照对齐这些边界，核心仍无DOM/SDK依赖。
+
+## 后端契约
+
+核心拥有最小 `RenderBackend` 接口：`render(): RenderReceipt | void`。`ComponentView` 在此基础上增加逻辑组件需要的变更、查询和销毁接口；`createViewConnection` 保持原来的回执检查行为。核心不依赖任何后端实现。`@tingtalk/component-backend` 提供可选的提交/事件协议，`@tingtalk/component-backend-dom` 执行 DOM 渲染。

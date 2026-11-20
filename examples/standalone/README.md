@@ -1,6 +1,6 @@
 # 独立组件系统验收应用
 
-这是一个真实浏览器应用。构建仅导入五个已安装的 `@tingtalk` 包与声明的开发依赖；运行期不导入 Now SDK、仓库 helper、测试 DOM、空控制器或其他源码。输入、交互与表单使用基础组件包公开的实际实现。
+这是一个真实浏览器应用。构建仅导入六个已安装的 `@tingtalk` 包与声明的开发依赖；运行期不导入 Now SDK、仓库 helper、测试 DOM、空控制器或其他源码。输入、交互与表单使用基础组件包公开的实际实现。
 
 在仓库根目录运行：
 
@@ -8,7 +8,7 @@
 node scripts/check-standalone-components.cjs /tmp/ting-components-acceptance
 ```
 
-目标目录必须为空。脚本复制本目录的应用文件，将五模块分别 `npm pack` 后安装到新目录，移除 `NODE_PATH`，核对实际模块解析路径，使用应用 lockfile 执行 npm ci，再检查类型、构建并运行 Chrome 验收。需要可用的 npm registry 及已安装的 Google Chrome。验收结果保留在新目录的 `dist/acceptance.json`，完整 lockfile 与 tarballs 也保留，便于复现。
+目标目录必须为空。脚本复制本目录的应用文件，将六模块分别 `npm pack` 后安装到新目录，移除 `NODE_PATH`，核对实际模块解析路径，使用应用 lockfile 执行 npm ci，再检查类型、构建并运行 Chrome 验收。需要可用的 npm registry 及已安装的 Google Chrome。验收结果保留在新目录的 `dist/acceptance.json`，完整 lockfile 与 tarballs 也保留，便于复现。
 
 新目录可脱离本仓库直接运行：
 
@@ -31,7 +31,7 @@ npm test
 
 后端装配类型使用随包声明，不需要运行期或额外类型peer。contracts.ts只作为noEmit类型验收，包含真实工厂连接和带@ts-expect-error的负向装配示例，不进入浏览器bundle；选择器、Canvas、页面资源配对与协议完成回调也有检查。打包脚本会先验证声明生成物和依赖闭包。
 
-类型验收同时覆盖虚拟事件节点/文本投影和普通DOM节点，确认节点泛型不会丢失viewNodeId等元数据。单独backend声明验收在仓库unit中执行；该目录的五包组合验收继续检查各真实工厂的结构兼容性。
+类型验收同时覆盖虚拟事件节点/文本投影和普通DOM节点，确认节点泛型不会丢失viewNodeId等元数据。单独backend声明验收在仓库unit中执行；该目录的六包组合验收继续检查各真实工厂的结构兼容性。
 
 目录页通过应用自己的 `platform.request` 服务将 `page.meta` 的标题配置写入 `document.title`，并验证更新及移除后恢复。实际控制器仍全部来自安装的基础组件包；浏览器服务不提供原生导航栏呈现或真实相机能力。
 

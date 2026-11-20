@@ -18,13 +18,13 @@ for (const name of ['package.json', 'build.cjs', 'app.js', 'index.html', 'verify
 }
 const packages = path.join(target, 'packages');
 fs.mkdirSync(packages);
-for (const name of ['component-engine', 'builtin-components', 'component-backend-dom', 'template-compiler', 'stylesheet-compiler']) {
+for (const name of ['component-engine', 'builtin-components', 'component-backend', 'component-backend-dom', 'template-compiler', 'stylesheet-compiler']) {
   run(['pack', '--pack-destination', packages], path.join(repository, 'packages', name));
 }
 // Keep registry dependencies pinned while binding the local package entries to this build's tarballs.
 const lockFile = path.join(target, 'package-lock.json');
 const lock = JSON.parse(fs.readFileSync(lockFile, 'utf8'));
-for (const name of ['component-engine', 'builtin-components', 'component-backend-dom', 'template-compiler', 'stylesheet-compiler']) {
+for (const name of ['component-engine', 'builtin-components', 'component-backend', 'component-backend-dom', 'template-compiler', 'stylesheet-compiler']) {
   const metadata = JSON.parse(fs.readFileSync(path.join(repository, 'packages', name, 'package.json'), 'utf8'));
   const entry = lock.packages['node_modules/' + metadata.name];
   if (!entry || entry.version !== metadata.version || !isDeepStrictEqual(entry.dependencies || {}, metadata.dependencies || {})) {
@@ -36,7 +36,7 @@ for (const name of ['component-engine', 'builtin-components', 'component-backend
 fs.writeFileSync(lockFile, JSON.stringify(lock, null, 2) + '\n');
 run(['ci', '--no-audit', '--no-fund']);
 // Each module must physically resolve inside this clean application's node_modules.
-for (const name of ['component-engine', 'builtin-components', 'component-backend-dom', 'template-compiler', 'stylesheet-compiler', 'esbuild', 'playwright-core', 'typescript']) {
+for (const name of ['component-engine', 'builtin-components', 'component-backend', 'component-backend-dom', 'template-compiler', 'stylesheet-compiler', 'esbuild', 'playwright-core', 'typescript']) {
   const request = name.startsWith('component-') || ['builtin-components','template-compiler','stylesheet-compiler'].includes(name) ? '@tingtalk/' + name : name;
   const resolved = fs.realpathSync(require.resolve(request, {paths: [target]}));
   if (!resolved.startsWith(fs.realpathSync(path.join(target, 'node_modules')) + path.sep)) throw new Error('Dependency escaped isolated install: ' + resolved);

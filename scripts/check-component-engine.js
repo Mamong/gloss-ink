@@ -21,12 +21,13 @@ function checkDeclarations(directory,metadata){
 function check(){
  require('./build-component-ports.cjs').main({check:true});
  const sourceRoot=path.resolve(__dirname,'../packages');
- const modules=['component-engine','component-backend-dom','builtin-components','template-compiler','stylesheet-compiler'];
+ const modules=['component-engine','component-backend','component-backend-dom','builtin-components','template-compiler','stylesheet-compiler'];
  for(const name of modules){
   const directory=path.join(sourceRoot,name),metadata=require(path.join(directory,'package.json'));
   if(!metadata.name.startsWith('@tingtalk/'))throw new Error('Component package identity changed: '+name);
   const dependencies={...metadata.dependencies,...metadata.peerDependencies};
-  if(!name.endsWith('-compiler')&&Object.keys(dependencies).length)throw new Error('Runtime component modules must not import SDK or external packages: '+name);
+  const backendDependency=name==='component-backend-dom'?'@tingtalk/component-backend':undefined;
+  if(!name.endsWith('-compiler')&&Object.keys(dependencies).some(request=>request!==backendDependency||dependencies[request]!==require(path.join(sourceRoot,'component-backend/package.json')).version))throw new Error('Runtime component modules must not import SDK or external packages: '+name);
   checkDeclarations(directory,metadata);
   for(const file of metadata.files){
    const full=path.join(directory,file);if(!fs.existsSync(full))throw new Error('Missing component package file: '+name+'/'+file);
@@ -38,18 +39,18 @@ function check(){
      const property=node.computed?node.property.value:node.property.name;
      if(name==='builtin-components'&&['webkit','messageHandlers'].includes(property))throw new Error('Builtin controller contains a native bridge: '+file);
      if(['sdk','NowApp'].includes(object))throw new Error('Component module depends on SDK: '+name+'/'+file);
-     if(name==='component-engine'&&['window','document'].includes(object))throw new Error('Component core depends on DOM: '+file);
+     if(['component-engine','component-backend'].includes(name)&&['window','document'].includes(object))throw new Error('Component core depends on DOM: '+file);
     }
     if(node.type!=='CallExpression'||node.callee.type!=='Identifier'||node.callee.name!=='require')return;
     const request=node.arguments[0]?.value;
     if(typeof request!=='string')throw new Error('Dynamic component dependency: '+name+'/'+file);
     if(request.startsWith('.')){if(!request.startsWith('./')||path.relative(directory,path.resolve(path.dirname(full),request)).startsWith('..'))throw new Error('Component module imports outside its package: '+name+'/'+file+' -> '+request);}
-    else if(!name.endsWith('-compiler')||!request.startsWith('node:')&&!dependencies[request])throw new Error('Undeclared component dependency: '+name+'/'+file+' -> '+request);
+    else if(!(request===backendDependency&&dependencies[request])&&(!name.endsWith('-compiler')||!request.startsWith('node:')&&!dependencies[request]))throw new Error('Undeclared component dependency: '+name+'/'+file+' -> '+request);
    });
   }
  }
  return require(path.join(sourceRoot,'component-engine/package.json'));
 }
-function main(){check();console.log('Component core, DOM backend, builtins and compiler dependency checks passed');}
+function main(){check();console.log('Component core, generic/DOM backends, builtins and compiler dependency checks passed');}
 if(require.main===module)try{main();}catch(error){console.error(error.message);process.exitCode=1;}
 module.exports={check,main,checkDeclarations};
