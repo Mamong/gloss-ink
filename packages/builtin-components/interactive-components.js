@@ -238,7 +238,7 @@ function createInteractiveComponents(root, options) {
     }
   }
   function selectedText(element, range, selection) {
-    if (element.children.length === 1 && element.firstElementChild.classList.contains('weapp-editor')) return String(selection.toString());
+    if (element.children.length === 1 && element.firstElementChild?.classList?.contains?.('weapp-editor')) return String(selection.toString());
     if (!document.createTreeWalker || !root.NodeFilter || !root.Range) return String(selection.toString());
     const walker = document.createTreeWalker(element, root.NodeFilter.SHOW_TEXT), parts = [];
     let node;
