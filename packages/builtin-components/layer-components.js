@@ -1,6 +1,6 @@
 function createLayerComponents(root, options) {
   'use strict';
-  const document=root.document,records=new Map(),locks=createLayerComponents.locks||(createLayerComponents.locks=new WeakMap());const stacks=createLayerComponents.stacks||(createLayerComponents.stacks=new WeakMap());let visible=true,disposed=false,sequence=0;
+  const document=root.document,records=new Map(),locks=createLayerComponents.locks||(createLayerComponents.locks=new WeakMap());const stacks=createLayerComponents.stacks||(createLayerComponents.stacks=new WeakMap());let visible=true,disposed=false,sequence=0,portalAnchor;
   function stack(){let value=stacks.get(options.page);if(!value){value=[];stacks.set(options.page,value);}return value;}
   function unstack(record){const values=stack(),index=values.indexOf(record);if(index>=0)values.splice(index,1);}
   const fail=message=>{throw new options.Error(message,{code:'INVALID_ARGUMENT'});};
@@ -48,13 +48,17 @@ function createLayerComponents(root, options) {
       if(!record.element.isConnected)continue;
       if(!visible){if(record.popover)try{record.element.hidePopover?.();}catch(_){}record.popover=false;record.element.hidden=true;continue;}
       record.element.hidden=false;
-      if(record.enabled){record.element.setAttribute('popover','manual');Object.assign(record.element.style,{position:'absolute',inset:'auto',top:((options.page.getBoundingClientRect?.().bottom||0)+(root.scrollY||0))+'px',left:'0',margin:'0',border:'0',padding:'0',width:'100%',height:'auto',maxWidth:'none',maxHeight:'none',overflow:'visible',background:'transparent',pointerEvents:'none'});if(!record.popover&&record.element.showPopover)try{record.element.showPopover();record.popover=true;}catch(_){}record.element.setAttribute('data-now-portal-active','true');}
+      if(record.enabled){record.element.setAttribute('popover','manual');Object.assign(record.element.style,{position:'absolute',inset:'auto',top:'0px',left:'0',margin:'0',border:'0',padding:'0',width:'100%',height:'auto',maxWidth:'none',maxHeight:'none',overflow:'visible',background:'transparent',pointerEvents:'none'});if(!record.popover&&record.element.showPopover)try{record.element.showPopover();record.popover=true;}catch(_){}record.element.setAttribute('data-now-portal-active','true');
+        // A flow anchor follows page content even when the page fills the viewport.
+        if(!portalAnchor){portalAnchor=document.createElement('div');portalAnchor.className='weapp-root-portal-anchor';portalAnchor.setAttribute('aria-hidden','true');portalAnchor.style.cssText='display:block;position:static;width:0;height:0;margin:0;padding:0;border:0;overflow:hidden;pointer-events:none;';}
+        const page=options.page;if(page.childNodes[page.childNodes.length-1]!==portalAnchor)page.append(portalAnchor);
+        record.element.style.top=((portalAnchor.getBoundingClientRect?.().top||0)+(root.scrollY||0))+'px';}
       else{if(record.popover)try{record.element.hidePopover?.();}catch(_){}record.popover=false;record.element.removeAttribute('popover');record.element.removeAttribute('data-now-portal-active');for(const key of ['position','inset','top','left','margin','border','padding','width','height','maxWidth','maxHeight','overflow','background','pointerEvents'])record.element.style[key]='';if(record.props.style)record.element.style.cssText=options.style(record.props.style);}
     }else if(live(record))transition(record,record.show&&!record.dismissed);
   }}
   const observer=typeof root.ResizeObserver==='function'?new root.ResizeObserver(()=>{if(!disposed)flush();}):null;observer?.observe(options.page);
-  function remove(element){const record=records.get(element);if(!record)return;cancelTimer(record);closeNative(record);restoreFocus(record);record.sheet?.remove();for(const[name,fn]of record.listeners)element.removeEventListener(name,fn);records.delete(element);}
-  return{create,patch,flush,remove,back(){const record=stack().at(-1);if(!record||!live(record))return false;if(record.phase!=='leaving')dismiss(record,false);return true;},visibility(value){visible=value;if(!value)for(const record of records.values()){cancelTimer(record);record.resumeFocus=record.focus||record.resumeFocus;closeNative(record);record.phase='closed';record.slide=null;record.focus=null;}else flush();},dispose(){disposed=true;observer?.disconnect();for(const element of [...records.keys()])remove(element);}};
+  function remove(element){const record=records.get(element);if(!record)return;cancelTimer(record);closeNative(record);restoreFocus(record);record.sheet?.remove();for(const[name,fn]of record.listeners)element.removeEventListener(name,fn);records.delete(element);if(![...records.values()].some(item=>item.tag==='root-portal')){portalAnchor?.remove();portalAnchor=null;}}
+  return{create,patch,flush,remove,back(){const record=stack().at(-1);if(!record||!live(record))return false;if(record.phase!=='leaving')dismiss(record,false);return true;},visibility(value){visible=value;if(!value)for(const record of records.values()){cancelTimer(record);record.resumeFocus=record.focus||record.resumeFocus;closeNative(record);record.phase='closed';record.slide=null;record.focus=null;}else flush();},dispose(){disposed=true;observer?.disconnect();portalAnchor?.remove();portalAnchor=null;for(const element of [...records.keys()])remove(element);}};
 }
 
 module.exports = createLayerComponents;
