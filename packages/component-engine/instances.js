@@ -109,7 +109,7 @@ function createInstanceRegistry(options) {
     const binding=value.binding,event=value.event;
     if(binding.handler==='@navigate'){
       if(!platform.navigate)fail('UNKNOWN_METHOD','当前环境不支持导航');
-      return platform.navigate(binding.args);
+      return platform.navigate(binding.args,{id:owner.id,kind:owner.kind,source:owner.source,page:record(owner.pageId).page,live:()=>records.has(owner.id)&&!owner.closing});
     }
     const target=instance(owner),callback=Object.hasOwn(target,binding.handler)?target[binding.handler]:null;
     if(typeof callback!=='function')fail('INVALID_ARGUMENT','找不到事件处理函数：'+binding.handler);

@@ -1,4 +1,4 @@
-// Generated from component-engine/index.d.ts; SHA-256 41189a3b38776c3319f9c664bbddb6bb5c5a6d59bb54942f9f13f32c0f1c68bd
+// Generated from component-engine/index.d.ts; SHA-256 3db28e8aa699167913a16162478a487f852003dce116d3d59b7cc70317b1ee17
 // Regenerate with npm run types:component-ports
 export type JsonValue = null | boolean | number | string | JsonValue[] | {[key: string]: JsonValue};
 export type Data = Record<string, JsonValue>;
@@ -144,7 +144,7 @@ export interface PlatformScope {
 export interface InstancePlatform {
   registerPage?(page: PageOwner, id: string): void;
   release?(id: string): void;
-  navigate?(attrs: Dictionary): unknown;
+  navigate?(attrs: Dictionary, scope?: PlatformScope): unknown;
   request?(scope: PlatformScope, method: string, value: Dictionary): unknown;
   attachPage?(page: PageOwner, node: unknown): void;
   applyAnimation?(page: PageOwner, node: unknown, value: unknown): void;

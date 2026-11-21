@@ -142,7 +142,7 @@ export interface PlatformScope {
 export interface InstancePlatform {
   registerPage?(page: PageOwner, id: string): void;
   release?(id: string): void;
-  navigate?(attrs: Dictionary): unknown;
+  navigate?(attrs: Dictionary, scope?: PlatformScope): unknown;
   request?(scope: PlatformScope, method: string, value: Dictionary): unknown;
   attachPage?(page: PageOwner, node: unknown): void;
   applyAnimation?(page: PageOwner, node: unknown, value: unknown): void;
