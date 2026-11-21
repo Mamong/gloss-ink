@@ -60,3 +60,9 @@ video 控制器在隐藏、移除和销毁时清理自己创建的弹幕节点�
 ## rpx 单位策略
 
 统一采用 `layout-pixel-v1`：750rpx 对应当前内容视口宽度；每个非零 rpx 长度按绝对值向下取整，最少 1 CSS px，再恢复符号；0 为 0。DPR 不参与布局取整，px/% 不取整。CSS 结果保留视口变量，resize 时重新计算；数值属性使用相同的 `createRpxUnits().pixels()`。CSS 呈现需要浏览器支持 `round()`。
+
+## selection 与 editor-portal
+
+selection 默认采用行内布局，业务 class/行内 display 可覆盖；hidden 始终隐藏。selectionchange 的 selectedString 只拼接范围内可选 text/rich-text 文本，单一 editor 子节点沿用原生选区字符串；firstRangeRect 使用完整 Range 外接矩形，覆盖多行与跨节点范围。重复有效载荷去重，移到区域外发送折叠状态，隐藏/销毁后不发送。
+
+editor-portal 保留区块节点身份、原生输入和各自编辑器归属。区块内部的输入、粘贴、IME 和键盘事件在 portal 处停止原生冒泡，监听器随移除/销毁释放；逻辑 input/change/confirm/focus/blur 可传到 portal 本身，随后终止，tap 等普通业务事件仍沿原有投影路径传播。编辑器 Delta、历史与区块控件状态继续由各自控制器维护。

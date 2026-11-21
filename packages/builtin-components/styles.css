@@ -111,7 +111,7 @@ input.weapp-switch:focus-visible,input.weapp-checkbox:focus-visible,input.weapp-
 [data-weui-theme=dark] .weapp-picker-view-indicator{border-color:#606064;}
 .weapp-movable-area{display:block;position:relative;width:10px;height:10px;max-width:100%;}
 .weapp-movable-view{display:block;width:28px;height:28px;box-sizing:border-box;}
-.weapp-selection{display:block;max-width:100%;overflow-wrap:anywhere;}
+.weapp-selection{display:inline;user-select:none;max-width:100%;overflow-wrap:anywhere;}
 .weapp-canvas{display:block;max-width:100%;touch-action:none;}
 
 .weapp-root-portal[data-now-portal-active="true"]>*{pointer-events:auto;}
@@ -242,3 +242,10 @@ input.weapp-switch[data-weapp-switch-type="checkbox"]:checked::after { content:"
 .weapp-movable-area {max-width:none;}
 .weapp-movable-view {width:10px;height:10px;box-sizing:content-box;}
 .weapp-page-container:focus-visible {outline:none;}
+
+/* Selection wrappers keep inline flow; editable documents and portal controls own selection. */
+.weapp-selection[hidden] { display:none !important; }
+.weapp-editor,.weapp-editor-content,.weapp-editor-portal,.weapp-editor-portal .weapp-view,.weapp-editor-portal .weapp-button,.weapp-editor-portal .weapp-input { user-select:text; }
+.weapp-editor-portal .weapp-input { white-space:nowrap; }
+/* A custom block and its explicit newline occupy separate document lines. */
+.weapp-editor-content p:has(>[data-custom-block])::after { content:'';display:block;height:1lh; }

@@ -369,7 +369,13 @@ function createEditorRuntime(root, options) {
     fail('不支持的编辑器方法');
   }
   function create(element, tag) {
-    if (tag === 'editor-portal') { portals.set(element, {element, key: '', owner: null}); element.hidden = true; element.setAttribute('contenteditable', 'false'); return; }
+    if (tag === 'editor-portal') {
+      const names = ['input', 'beforeinput', 'paste', 'compositionstart', 'compositionupdate', 'compositionend', 'keydown'];
+      const stop = event => event.stopPropagation();
+      for (const name of names) element.addEventListener(name, stop);
+      portals.set(element, {element, key: '', owner: null, names, stop});
+      element.hidden = true; element.setAttribute('contenteditable', 'false'); return;
+    }
     if (tag !== 'editor') return;
     const body = document.createElement('div'); body.className = 'weapp-editor-content ql-editor'; element.append(body);
     const record = {element, body, props: {}, units: normalize({ops: []}), range: {index: 0, length: 0}, active: {}, undo: [], redo: [], listeners: [], focused: false, ready: false};
@@ -448,10 +454,12 @@ function createEditorRuntime(root, options) {
   function remove(element) {
     const record = records.get(element);
     if (record) { for (const [name, listener] of record.listeners) record.body.removeEventListener(name, listener); record.imageTools?.remove();records.delete(element); delete element.weappEditorContext; }
+    const portal = portals.get(element);
+    if (portal) for (const name of portal.names) element.removeEventListener(name, portal.stop);
     portals.delete(element);
     if (listening && !records.size) { document.removeEventListener?.('selectionchange', selectionChanged); listening = false; }
   }
-  return {create, patch, flush, remove, prepare(element) { const record = records.get(element); if (record) readSelection(record); }, execute(nodeId, method, value) { const record = [...records.values()].find(record => record.nodeId === nodeId); if (!record) throw new options.Error('编辑器已销毁', {code: 'PAGE_UNLOADED'}); return execute(record, method, value); }, identify(element, nodeId) { const record = records.get(element); if (record) record.nodeId = nodeId; }, visibility(value) { visible = value; if (!value) for (const record of records.values()) { record.body.blur?.(); record.focused = false; } }, dispose() { for (const element of records.keys()) remove(element); portals.clear(); document.removeEventListener?.('selectionchange', selectionChanged); disposed = true; }};
+  return {create, patch, flush, remove, prepare(element) { const record = records.get(element); if (record) readSelection(record); }, execute(nodeId, method, value) { const record = [...records.values()].find(record => record.nodeId === nodeId); if (!record) throw new options.Error('编辑器已销毁', {code: 'PAGE_UNLOADED'}); return execute(record, method, value); }, identify(element, nodeId) { const record = records.get(element); if (record) record.nodeId = nodeId; }, visibility(value) { visible = value; if (!value) for (const record of records.values()) { record.body.blur?.(); record.focused = false; } }, dispose() { for (const element of records.keys()) remove(element); for (const element of portals.keys()) remove(element); document.removeEventListener?.('selectionchange', selectionChanged); disposed = true; }};
 }
 
 module.exports = createEditorRuntime;

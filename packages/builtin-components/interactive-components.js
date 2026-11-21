@@ -237,6 +237,22 @@ function createInteractiveComponents(root, options) {
       record.timer = root.setTimeout(step, 16);
     }
   }
+  function selectedText(element, range, selection) {
+    if (element.children.length === 1 && element.firstElementChild.classList.contains('weapp-editor')) return String(selection.toString());
+    if (!document.createTreeWalker || !root.NodeFilter || !root.Range) return String(selection.toString());
+    const walker = document.createTreeWalker(element, root.NodeFilter.SHOW_TEXT), parts = [];
+    let node;
+    while ((node = walker.nextNode())) {
+      const target = node.parentElement?.closest('.weapp-text,.weapp-rich-text');
+      if (!target || root.getComputedStyle(target).userSelect !== 'text' || !range.intersectsNode(node)) continue;
+      const leaf = document.createRange(), part = range.cloneRange();
+      leaf.selectNodeContents(node);
+      if (range.compareBoundaryPoints(root.Range.START_TO_START, leaf) < 0) part.setStart(node, 0);
+      if (range.compareBoundaryPoints(root.Range.END_TO_END, leaf) > 0) part.setEnd(node, node.nodeValue.length);
+      parts.push(part.toString());
+    }
+    return parts.join('');
+  }
   function selectionChanged(record) {
     if (!live(record)) return;
     const selected = document.getSelection?.() || root.getSelection?.();
@@ -245,8 +261,8 @@ function createInteractiveComponents(root, options) {
       if (record.selectionActive) { record.selectionActive = false; record.signature = null; emit(record, 'selectionchange', {isCollapsed: true, selectedString: '', firstRangeRect: {x: 0, y: 0, width: 0, height: 0}}); }
       return;
     }
-    const text = String(selected.toString()); if (text.length > 65536) return;
-    const range = selected.getRangeAt(0), box = range.getClientRects?.()[0] || range.getBoundingClientRect?.();
+    const range = selected.getRangeAt(0), text = selectedText(record.element, range, selected); if (text.length > 65536) return;
+    const box = range.getBoundingClientRect?.() || range.getClientRects?.()[0];
     const rect = {}; for (const key of ['x', 'y', 'width', 'height', 'top', 'right', 'bottom', 'left']) rect[key] = Number.isFinite(box?.[key]) ? box[key] : 0;
     const detail = {isCollapsed: false, selectedString: text, firstRangeRect: rect}, signature = JSON.stringify(detail);
     if (signature !== record.signature) { record.selectionActive = true; record.signature = signature; emit(record, 'selectionchange', detail); }
@@ -277,7 +293,7 @@ function createInteractiveComponents(root, options) {
     if (record.tag === 'picker-view') {picker(record, node, old);if(!live(record)||element.getClientRects?.().length===0)record.needsInitial=true;}
     if (record.tag === 'movable-area') { bool(node.attrs['scale-area']); element.style.position = 'relative'; }
     if (record.tag === 'movable-view') movable(record, node, old);
-    if (record.tag === 'selection') { bool(node.attrs['disable-context-menu']); element.style.display = 'block'; }
+    if (record.tag === 'selection') { bool(node.attrs['disable-context-menu']); }
   }
   function remove(element) {
     const record = records.get(element); if (!record) return;
