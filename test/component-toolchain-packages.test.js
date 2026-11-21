@@ -62,7 +62,7 @@ test('the standalone browser builtins render icon and progress without an applic
  const document=createDom();const components=ui.createBrowserComponents({document});
  const icon={tag:'icon',attrs:{type:'success',size:24,color:'red'},dataset:{}},element=document.createElement(components.nodeName(icon.tag));
  components.create(element,icon);components.created(element,icon);components.attributes(element,undefined,icon);
- assert.equal(element.textContent,'✓');assert.equal(element.style.fontSize,'24px');assert.equal(element.getAttribute('role'),'img');
+ assert.equal(element.querySelector('svg')?.getAttribute('viewBox'),'0 0 24 24');assert.equal(element.querySelector('.weapp-icon-glyph').style.fontSize,'24px');assert.equal(element.getAttribute('aria-label'),'success');assert.equal(element.getAttribute('role'),'img');
  const progress={tag:'progress',attrs:{percent:42},dataset:{}},bar=document.createElement('div');
  components.create(bar,progress);components.attributes(bar,undefined,progress);assert.equal(bar.getAttribute('aria-valuenow'),'42');
 });
@@ -80,8 +80,8 @@ test('template, core and DOM backend compose and update without receiving an SDK
   interactions:ui.createWeappInteractions,textInput:ui.createTextInputRuntime,formRuntime:ui.createFormRuntime,selectorQuery:dom.createSelectorQueryTools,componentSelector:core.createComponentSelector};
  const backend=dom.createDomBackend({root,config,Error:core.ComponentError,viewProtocol:protocol,instances:registry.driver,visual:registry.visual,customEvents:new WeakMap()});
  const view=backend(page.id,'page');view.show();
- assert.equal(document.getElementById('status').textContent,'✓');
- pageObject.data.type='warn';view.markChanges({type:'warn'});const receipt=view.render();assert.equal(receipt.settled,true);assert.equal(document.getElementById('status').textContent,'!');
+ assert.equal(document.getElementById('status').getAttribute('aria-label'),'success');assert.ok(document.querySelector('#status svg'));
+ pageObject.data.type='warn';view.markChanges({type:'warn'});const receipt=view.render();assert.equal(receipt.settled,true);assert.equal(document.getElementById('status').getAttribute('aria-label'),'warn');assert.ok(document.querySelector('#status svg'));
  registry.destroy(page.id);assert.equal(registry.inspect().instances,0);
 });
 

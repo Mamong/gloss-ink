@@ -11,7 +11,7 @@ const nodes = {
   'swiper-item': 'div', 'rich-text': 'div', icon: 'span', progress: 'div',
   'picker-view': 'div', 'picker-view-column': 'div', 'movable-area': 'div',
   'movable-view': 'div', selection: 'div', 'page-container': 'dialog',
-  'root-portal': 'div', canvas: 'canvas', video: 'video', map: 'div'
+  'root-portal': 'div', canvas: 'div', video: 'div', map: 'div'
 };
 const observations = Object.fromEntries(Object.entries(nodes).map(([tag, nodeName]) =>
   [tag, {selector: '#catalog-' + tag, nodeName, physical: true}]));

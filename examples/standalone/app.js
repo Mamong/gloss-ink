@@ -31,7 +31,7 @@ const page = {
   data: {title: 'Independent', banner: true, output: '', rows: [{id: 'a', title: 'Alpha'}, {id: 'b', title: 'Beta'}], choices: ['First', 'Second'], choice: 0, editorText: '', scrollTop: 0, scrollInto: '', listRows: Array.from({length: 60}, (_, id) => ({id, label: 'Item ' + id})), markers: [{id: 1, longitude: 20, latitude: 10, label: 'One'}]},
   change() { view?.schedule(); },
   changed(event) { this.data.output = JSON.stringify(event.detail); view.markChanges({output: this.data.output}); view.schedule(); },
-  picked(event) { this.data.choice = event.detail.value; view.markChanges({choice: this.data.choice}); view.schedule(); },
+  picked(event) { this.lastPickerEventValue = event.detail.value; this.data.choice = Number(event.detail.value); view.markChanges({choice: this.data.choice}); view.schedule(); },
   edited(event) { this.data.editorText = event.detail.text; },
   markerTap(event) { this.selectedMarker = event.detail.markerId; },
   activate() { this.activations = (this.activations || 0) + 1; },
