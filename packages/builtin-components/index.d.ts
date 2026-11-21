@@ -157,7 +157,7 @@ export interface NativeComponentsOptions {
   backToTop?: BackToTopRuntime;
 }
 export interface EventController extends BrowserController {ownsEvent(tag: string, name: string): boolean}
-export function createNativeComponents(root: BrowserRoot, options: NativeComponentsOptions): EventController;
+export function createNativeComponents(root: BrowserRoot, options: NativeComponentsOptions): EventController & {children(element: HTMLElement): HTMLElement | undefined};
 export function createInteractiveComponents(root: BrowserRoot, options: {
   Error: ErrorConstructor; live(): boolean; emit: ComponentEmit;
   style(value: unknown): string; classes(value: unknown): string;

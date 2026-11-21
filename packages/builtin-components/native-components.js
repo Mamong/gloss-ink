@@ -79,8 +79,8 @@ function createNativeComponents(root,options) {
    if(node.attrs['refresher-background']!==undefined&&(typeof node.attrs['refresher-background']!=='string'||node.attrs['refresher-background'].length>128||/[;{}<>]/.test(node.attrs['refresher-background'])||/url\s*\(/i.test(node.attrs['refresher-background'])))fail('refresher-background需要安全颜色');
    if(node.attrs['refresher-default-style']!==undefined&&!['black','white','none'].includes(node.attrs['refresher-default-style']))fail('refresher-default-style无效');
    const triggered=node.attrs['refresher-triggered'];
-   if(node.attrs['refresher-enabled']){element.setAttribute('tabindex',String(node.attrs.tabindex??0));element.setAttribute('aria-label','下拉或按Enter刷新');element.setAttribute('aria-keyshortcuts','Enter');}
-   else{element.removeAttribute('aria-keyshortcuts');if(previous['refresher-enabled']){element.removeAttribute('aria-label');if(node.attrs.tabindex===undefined)element.removeAttribute('tabindex');}}
+   if(node.attrs['refresher-enabled']){record.owner.setAttribute('tabindex',String(node.attrs.tabindex??0));record.owner.setAttribute('aria-label','下拉或按Enter刷新');record.owner.setAttribute('aria-keyshortcuts','Enter');}
+   else{record.owner.removeAttribute('aria-keyshortcuts');if(previous['refresher-enabled']){record.owner.removeAttribute('aria-label');if(node.attrs.tabindex===undefined)record.owner.removeAttribute('tabindex');}}
 
    if(!node.attrs['refresher-enabled']){record.refreshing=false;record.pendingRefresh=false;record.pull=0;record.pullStart=null;}
    else if(triggered===true){if(!record.refreshing){record.refreshing=true;record.pullStart=null;record.pull=0;record.pendingRefresh=true;}}
