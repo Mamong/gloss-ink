@@ -234,3 +234,11 @@ input.weapp-switch[data-weapp-switch-type="checkbox"]:checked::after { content:"
 .weapp-navigator.navigator-hover { background-color:rgba(0,0,0,.1); }
 .weapp-editor-content ul { list-style:none; }
 .weapp-editor-content ul>li::before { content:" ";display:inline-block;background-color:rgba(0,0,0,.9);border-radius:50%;width:6px;height:6px;margin-right:12px;text-align:center;transform:translateY(-2px);vertical-align:middle; }
+
+/* Formal scrolling, carousel and movable container defaults. */
+.weapp-scroll-view {overflow:visible;}
+.weapp-scroll-port {width:100%;height:100%;overflow:hidden;}
+.weapp-swiper-item {box-sizing:content-box;}
+.weapp-movable-area {max-width:none;}
+.weapp-movable-view {width:10px;height:10px;box-sizing:content-box;}
+.weapp-page-container:focus-visible {outline:none;}

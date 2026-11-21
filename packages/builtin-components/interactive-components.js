@@ -156,7 +156,9 @@ function createInteractiveComponents(root, options) {
   function bounds(record, x, y, loose = false) {
     const element = record.element, area = element.parentElement;
     if (!area || !area.className?.split(/\s+/).includes('weapp-movable-area')) fail('movable-view必须是movable-area直接子项');
-    const width = dimension(area, 'width', 10), height = dimension(area, 'height', 10), ew = dimension(element, 'width', 28) * record.scale, eh = dimension(element, 'height', 28) * record.scale;
+    const css=root.getComputedStyle?.(area)||{},padding=key=>parseFloat(css[key])||0;
+    const width = dimension(area, 'width', 10)-padding('paddingLeft')-padding('paddingRight'), height = dimension(area, 'height', 10)-padding('paddingTop')-padding('paddingBottom');
+    const ew = (element.offsetWidth||dimension(element,'width',10)) * record.scale, eh = (element.offsetHeight||dimension(element,'height',10)) * record.scale;
     const clamp = (value, size, item) => Math.max(loose ? -item : Math.min(0, size - item), Math.min(loose ? size : Math.max(0, size - item), value));
     return [clamp(x, width, ew), clamp(y, height, eh)];
   }
@@ -187,7 +189,8 @@ function createInteractiveComponents(root, options) {
     const y = !old || old.attrs.y !== p.y || node.forced?.includes('y') ? number(p.y, 0) : record.y;
     Object.assign(record.element.style, {transition:p.animation===false||root.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'none':'transform 150ms ease-out',position: 'absolute', left: '0', top: '0', transformOrigin: '0 0', touchAction: p.direction === 'horizontal' ? 'pan-y' : p.direction === 'vertical' ? 'pan-x' : 'none', userSelect: 'none'});
     record.element.setAttribute('tabindex', p.disabled ? '-1' : '0'); record.element.setAttribute('role', 'group');
-    if(record.element.parentElement)position(record, x, y, '');else record.pendingPosition={x,y};
+    if(live(record)&&record.element.parentElement?.getClientRects?.().length!==0)position(record,x,y,'');else record.pendingPosition={x,y};
+    if(record.element.parentElement)observer?.observe(record.element.parentElement);
     if(old&&previousScale!==record.scale)emit(record,'scale',{x:record.x,y:record.y,scale:record.scale});
   }
   function moveGesture(record, event, phase) {
@@ -278,7 +281,7 @@ function createInteractiveComponents(root, options) {
     const record = records.get(element); if (!record) return;
     clear(record);record.clampPending=false;record.layers?.forEach(element=>element.remove());
     for (const [target, event, handler, settings] of record.listeners) target.removeEventListener?.(event, handler, settings);
-    records.delete(element);
+    records.delete(element);observer?.disconnect();for(const item of records.values())if(item.tag==='movable-view'&&item.element.parentElement)observer?.observe(item.element.parentElement);
   }
   const resize = () => {
     for (const record of records.values()) if (live(record)) {
@@ -286,8 +289,9 @@ function createInteractiveComponents(root, options) {
       if (record.tag === 'picker-view' && record.node) picker(record, record.node, record.node);
     }
   };
+  const observer=typeof root.ResizeObserver==='function'?new root.ResizeObserver(resize):null;
   root.addEventListener?.('resize', resize);
-  return {create, patch, remove, ownsEvent: (tag, name) => ['picker-view', 'movable-view'].includes(tag) && ['change', 'scale','pickstart','pickend'].includes(name) || tag === 'selection' && name === 'selectionchange', flush() {for(const record of records.values()){if(record.tag==='movable-view'&&record.pendingPosition){const {x,y}=record.pendingPosition;record.pendingPosition=null;position(record,x,y,'');}if(record.tag==='picker-view'&&record.needsInitial&&live(record)&&record.element.getClientRects?.().length!==0){picker(record,record.node,record.node);record.columns.forEach((column,index)=>{column.element.scrollTop=record.value[index]*record.size;});record.needsInitial=false;}}for(const record of records.values()){if(record.clampPending){record.clampPending=false;emit(record,'change',{value:record.value.slice()});}}}, visibility(value) { visible = value; if (!value) for (const record of records.values()) clear(record); }, dispose() { disposed = true; root.removeEventListener?.('resize', resize); for (const element of [...records.keys()]) remove(element); }};
+  return {create, patch, remove, ownsEvent: (tag, name) => ['picker-view', 'movable-view'].includes(tag) && ['change', 'scale','pickstart','pickend'].includes(name) || tag === 'selection' && name === 'selectionchange', flush() {for(const record of records.values()){if(record.tag==='movable-view'&&record.pendingPosition&&live(record)&&record.element.parentElement?.getClientRects?.().length!==0){const {x,y}=record.pendingPosition;record.pendingPosition=null;position(record,x,y,'');}if(record.tag==='picker-view'&&record.needsInitial&&live(record)&&record.element.getClientRects?.().length!==0){picker(record,record.node,record.node);record.columns.forEach((column,index)=>{column.element.scrollTop=record.value[index]*record.size;});record.needsInitial=false;}}for(const record of records.values()){if(record.clampPending){record.clampPending=false;emit(record,'change',{value:record.value.slice()});}}}, visibility(value) { visible = value; if (!value) for (const record of records.values()) clear(record); }, dispose() { disposed = true;observer?.disconnect(); root.removeEventListener?.('resize', resize); for (const element of [...records.keys()]) remove(element); }};
 }
 
 module.exports = createInteractiveComponents;

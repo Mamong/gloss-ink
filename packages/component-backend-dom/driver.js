@@ -233,8 +233,8 @@ function createDomBackend(environment) {
       }
     }
     editorControls?.prepare(element);
-    yield* patchChildren(keyboardAccessories?.children(element,next)||element, old?.children || [], next.children,next);
-    if(next.virtualList)virtualLists.attach(next.virtualList,element,next.children.filter(child=>!child.virtualSpacer).map(child=>child.element));
+    yield* patchChildren(keyboardAccessories?.children(element,next)||nativeControls?.children?.(element)||element, old?.children || [], next.children,next);
+    if(next.virtualList)virtualLists.attach(next.virtualList,nativeControls?.children?.(element)||element,next.children.filter(child=>!child.virtualSpacer).map(child=>child.element));
     keyboardAccessories?.patch(element,next);editorControls?.patch(element,next);editorControls?.identify(element,next.viewNodeId);nativeControls?.patch(element,next,old);interactiveControls?.patch(element,next,old);layerControls?.patch(element,next,old);pickerControls?.patch(element,next);if(next.tag==='scroll-view'&&element.weappScrollContext){root.__nowScrollContexts??=new Map();root.__nowScrollContexts.set(next.viewNodeId,element.weappScrollContext);}
   }
   function* drop(node) {
