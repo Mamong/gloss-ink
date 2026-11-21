@@ -67,9 +67,12 @@ function createKeyboardAccessoryRuntime(root, options) {
         const items = [...owner.items].filter(record => !record.node?.attrs.hidden);
         const current = owner.overlay?.getRootNode?.().activeElement || document.activeElement;
         const focused = active(owner.element) || owner.overlay?.contains?.(current) || owner.pressed;
-        const allowed = visible && realmActive && info.height > 0 && owner.element.isConnected && owner.node && !owner.node.attrs.disabled && options.live(owner.node) && focused && items.length;
+        const portrait = !(root.innerWidth > root.innerHeight);
+        const allowed = visible && realmActive && portrait && info.height > 0 && owner.element.isConnected && owner.node && !owner.node.attrs.disabled && options.live(owner.node) && focused && items.length;
         if (!allowed) { changed = hide(owner) || changed; continue; }
-        const overlay = container(owner);
+        const overlay = container(owner), inherited = root.getComputedStyle?.(owner.element);
+        if (inherited) for (const name of ['fontFamily','fontSize','fontWeight','fontStyle','letterSpacing','color']) overlay.style[name] = inherited[name];
+        let language = ''; for (let node = owner.element; node; node = node.parentElement || node.getRootNode?.().host) { const value = node.getAttribute?.('lang'); if (value !== null && value !== undefined) { language = value; break; } } overlay.lang = language;
         const scope = owner.element.getRootNode?.();
         const mount = scope?.host ? scope : options.mount;
         if (overlay.parentNode !== mount && overlay.parentElement !== mount) mount.append(overlay);

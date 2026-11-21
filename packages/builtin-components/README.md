@@ -82,3 +82,7 @@ picker 以所属视图内容宽度640px为界：小屏使用底部滚动列，�
 ## Page 文档默认值
 
 业务文档只保留16px基础字号，不强设body的文字色、背景、font-family或line-height。Page默认继承浏览器/宿主环境；app.wxss与页面样式按正常级联覆盖。生成的微信小程序分析/编译视图默认不指定html语言，避免预设zh-CN影响CJK字体回退；用户明确指定的语言与宿主字体仍保留。
+
+## 参考兼容补齐（2026-11-21）
+
+selectionchange补齐首尾组件ID与anchor/focus偏移，保留原生重复选区通知，折叠通知只含isCollapsed/selectedString。editor公开Delta统一为customBlock:{blockId,editorId}，仍接收旧custom输入；editor-portal未挂载时停放在文档外，恢复时复用原节点。键盘附件投影明确按实际visibility与键盘几何控制，并从所属输入框继承字体/语言；隐藏原生cover投影的非零测量不视为屏上内容。picker单列change事件为字符串索引（内部/表单索引保持数值）；小屏按已采集参考采用11px选项、17px/1.4头部、48px行、240px视口及0.3s ease动画，安全区由--weapp-safe-area-bottom/原生safeAreaInsets或CSS env提供；大屏维持原控件。

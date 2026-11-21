@@ -258,14 +258,18 @@ function createInteractiveComponents(root, options) {
     const selected = document.getSelection?.() || root.getSelection?.();
     const inside = selected && record.element.contains(selected.anchorNode) && record.element.contains(selected.focusNode);
     if (!inside || selected.isCollapsed || !selected.rangeCount) {
-      if (record.selectionActive) { record.selectionActive = false; record.signature = null; emit(record, 'selectionchange', {isCollapsed: true, selectedString: '', firstRangeRect: {x: 0, y: 0, width: 0, height: 0}}); }
+      if (record.selectionActive) { record.selectionActive = false; emit(record, 'selectionchange', {isCollapsed: true, selectedString: ''}); }
       return;
     }
     const range = selected.getRangeAt(0), text = selectedText(record.element, range, selected); if (text.length > 65536) return;
     const box = range.getBoundingClientRect?.() || range.getClientRects?.()[0];
     const rect = {}; for (const key of ['x', 'y', 'width', 'height', 'top', 'right', 'bottom', 'left']) rect[key] = Number.isFinite(box?.[key]) ? box[key] : 0;
-    const detail = {isCollapsed: false, selectedString: text, firstRangeRect: rect}, signature = JSON.stringify(detail);
-    if (signature !== record.signature) { record.selectionActive = true; record.signature = signature; emit(record, 'selectionchange', detail); }
+    const nodeId = node => { const element = node?.nodeType === 3 ? node.parentElement : node; return (element?.closest?.('.weapp-text,.weapp-rich-text,.weapp-editor') || element)?.id || ''; };
+    const detail = {isCollapsed: false, selectedString: text, firstRangeRect: rect,
+      firstNodeId: nodeId(range.startContainer || selected.anchorNode), lastNodeId: nodeId(range.endContainer || selected.focusNode),
+      firstOffset: Number.isInteger(selected.anchorOffset) ? selected.anchorOffset : range.startOffset || 0,
+      lastOffset: Number.isInteger(selected.focusOffset) ? selected.focusOffset : range.endOffset || 0};
+    record.selectionActive = true; emit(record, 'selectionchange', detail);
   }
   let sequence = 0;
   function create(element, tag) {

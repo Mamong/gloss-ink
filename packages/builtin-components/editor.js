@@ -30,7 +30,7 @@ function createEditorRuntime(root, options) {
     }
     return result;
   }
-  function normalize(delta) {
+  function normalize(delta, editorId = 0) {
     if (!delta || !Array.isArray(delta.ops) || delta.ops.length > 100000) fail('delta 需要 ops 数组');
     const units = [];
     for (const op of delta.ops) {
@@ -40,7 +40,11 @@ function createEditorRuntime(root, options) {
       else if (op.insert && typeof op.insert === 'object' && Object.keys(op.insert).length === 1) {
         const [kind, value] = Object.entries(op.insert)[0];
         if (kind === 'image') source(value);
-        else if (kind === 'custom') { if (typeof value !== 'string' || !/^[\w-]{1,128}$/.test(value)) fail('自定义区块标识无效'); }
+        else if (kind === 'custom' || kind === 'customBlock') {
+          const block = kind === 'custom' ? {blockId: value, editorId} : value;
+          if (!block || typeof block !== 'object' || Array.isArray(block) || Object.keys(block).some(key => !['blockId','editorId'].includes(key)) || typeof block.blockId !== 'string' || !/^[\w-]{1,128}$/.test(block.blockId) || block.editorId !== undefined && (!Number.isSafeInteger(block.editorId) || block.editorId < 0)) fail('自定义区块标识或编辑器归属无效');
+          units.push({insert: {customBlock: {blockId: block.blockId, editorId: block.editorId ?? editorId}}, attributes: attrs}); continue;
+        }
         else if (kind !== 'divider' || value !== true) fail('不支持的 delta 嵌入内容');
         units.push({insert: clone(op.insert), attributes: attrs});
       } else fail('delta.insert 无效');
@@ -95,12 +99,12 @@ function createEditorRuntime(root, options) {
         }
       } else if (op.insert.image) {
         line += '<img src="' + escape(op.insert.image) + '"' + Object.entries(attrs).filter(([key]) => ['alt', 'width', 'height', 'data-custom', 'data-local'].includes(key)).map(([key, value]) => ' ' + key + '="' + escape(value) + '"').join('') + (attrs.extClass ? ' class="' + escape(attrs.extClass) + '"' : '') + '>';
-      } else if (op.insert.custom) line += '<span data-custom-block="' + escape(op.insert.custom) + '" contenteditable="false"></span>';
+      } else if (op.insert.customBlock) line += '<span data-custom-block="' + escape(op.insert.customBlock.blockId) + '" data-editor-id="' + op.insert.customBlock.editorId + '" contenteditable="false"></span>';
       else line += '<hr>';
     }
     return html;
   }
-  function parse(container) {
+  function parse(container, editorId = 0) {
     const units = [];
     const add = (insert, attrs) => { for (let i = 0; i < insert.length; i++) units.push({insert: insert[i], attributes: {...attrs}}); };
     function walk(node, inherited = {}, lineAttrs = {}) {
@@ -109,7 +113,7 @@ function createEditorRuntime(root, options) {
       if (['script', 'style', 'iframe', 'object', 'svg', 'math', 'template'].includes(tag)) return;
       const attrs = {...inherited}, lines = {...lineAttrs};
       const custom = node.getAttribute?.('data-custom-block');
-      if (custom) { units.push({insert: {custom}, attributes: {}}); return; }
+      if (custom) { units.push({insert: {customBlock: {blockId: custom, editorId: Number(node.getAttribute('data-editor-id') ?? editorId)}}, attributes: {}}); return; }
       for (const [names, name] of [[['strong', 'b'], 'bold'], [['em', 'i'], 'italic'], [['u', 'ins'], 'underline'], [['s', 'del'], 'strike']]) if (names.includes(tag)) attrs[name] = true;
       if (tag === 'sub' || tag === 'sup') attrs.script = tag === 'sub' ? 'sub' : 'super';
       if (tag === 'a' && node.getAttribute('href')) { try { attrs.link = source(node.getAttribute('href')); } catch (_) {} }
@@ -146,23 +150,23 @@ function createEditorRuntime(root, options) {
     walk(container);
     return normalize(delta(units));
   }
-  function htmlContents(html) {
+  function htmlContents(html, editorId = 0) {
     if (typeof html !== 'string' || html.length > 2e6) fail('html 需要字符串');
     // Template contents are inert: importing HTML must not start image requests before host resolution.
     const container = document.createElement('template'); container.innerHTML = html;
     const spaces=node=>{for(const child of node.childNodes||[]){if(child.nodeType===3)child.nodeValue=child.nodeValue.replace(/ /g,'\u00a0');else spaces(child);}};spaces(container.content||container);
-    return parse(container.content || container);
+    return parse(container.content || container, editorId);
   }
   const live = record => !disposed && records.has(record.element) && record.element.isConnected;
   const emit = (record, name, detail) => { if (live(record) && visible && options.live()) options.emit(record.element, name, detail); };
   function contents(record) { return {html: markup(record.units), text: record.units.map(unit => typeof unit.insert === 'string' ? unit.insert : '').join(''), delta: delta(record.units)}; }
-  function park(record) { for (const portal of portals.values()) if (portal.owner === record) { portal.element.hidden = true; record.element.append(portal.element); } }
+  function park(record) { for (const portal of portals.values()) if (portal.owner === record) { portal.element.hidden = true; record.parking.append(portal.element); } }
   function attach(record) {
     for (const portal of portals.values()) {
       if (portal.owner !== record) continue;
       const slot = record.body.querySelector?.('[data-custom-block="' + portal.key + '"]');
-      if (slot) { portal.element.hidden = false; if (portal.element.parentElement !== slot) slot.append(portal.element); }
-      else { portal.element.hidden = true; record.element.append(portal.element); }
+      if (slot && Number(slot.getAttribute('data-editor-id')) === record.editorId) { portal.element.hidden = false; if (portal.element.parentElement !== slot) slot.append(portal.element); }
+      else { portal.element.hidden = true; record.parking.append(portal.element); }
     }
   }
   function images(record) {
@@ -338,7 +342,7 @@ function createEditorRuntime(root, options) {
     if (['format', 'clear', 'insertText', 'insertImage', 'insertDivider', 'insertCustomBlock', 'deleteText', 'removeFormat', 'undo', 'redo'].includes(method) && record.props['read-only']) fail('编辑器为只读');
     if (method === 'format') { format(record, value.name, value.value); return {}; }
     if (method === 'getContents') return contents(record);
-    if (method === 'setContents') { const units = value.delta !== undefined ? normalize(value.delta) : htmlContents(value.html === undefined ? '' : value.html); changed(record, units, {index: 0, length: 0}, false, false); record.undo = []; record.redo = []; return {}; }
+    if (method === 'setContents') { const units = value.delta !== undefined ? normalize(value.delta, record.editorId) : htmlContents(value.html === undefined ? '' : value.html, record.editorId); changed(record, units, {index: 0, length: 0}, false, false); record.undo = []; record.redo = []; return {}; }
     if (method === 'clear') { changed(record, normalize({ops: []}), {index: 0, length: 0}); return {}; }
     if (method === 'insertText') { if (typeof value.text !== 'string' || value.text.length > 200000) fail('insertText.text 需要字符串'); insert(record, value.text.split('').map(insert => ({insert, attributes: {...record.active}}))); return {}; }
     if (method === 'insertImage') {
@@ -353,8 +357,8 @@ function createEditorRuntime(root, options) {
     if (method === 'insertDivider') { insert(record, [{insert: {divider: true}, attributes: {}}, {insert: '\n', attributes: {}}]); return {}; }
     if (method === 'insertCustomBlock') {
       if (value.nowrap !== undefined && typeof value.nowrap !== 'boolean') fail('nowrap 需要布尔值');
-      let blockId; do { blockId = 'now-block-' + options.scope + '-' + (++sequence); } while (record.units.some(unit => unit.insert?.custom === blockId));
-      insert(record, [{insert: {custom: blockId}, attributes: {}}, ...(value.nowrap ? [] : [{insert: '\n', attributes: {}}])]); return {blockId};
+      let blockId; do { blockId = 'now-block-' + options.scope + '-' + (++sequence); } while (record.units.some(unit => unit.insert?.customBlock?.blockId === blockId));
+      insert(record, [{insert: {customBlock: {blockId, editorId: record.editorId}}, attributes: {}}, ...(value.nowrap ? [] : [{insert: '\n', attributes: {}}])]); return {blockId};
     }
     if (method === 'deleteText') { const range = rangeArgument(record, value), next = record.units.slice(); next.splice(range.index, range.length); changed(record, next, {index: range.index, length: 0}); return {}; }
     if (method === 'setSelection') { record.range = rangeArgument(record, value); inherit(record); record.body.focus?.(); record.focused = true; restoreSelection(record); return {}; }
@@ -378,7 +382,9 @@ function createEditorRuntime(root, options) {
     }
     if (tag !== 'editor') return;
     const body = document.createElement('div'); body.className = 'weapp-editor-content ql-editor'; element.append(body);
-    const record = {element, body, props: {}, units: normalize({ops: []}), range: {index: 0, length: 0}, active: {}, undo: [], redo: [], listeners: [], focused: false, ready: false};
+    const ids = createEditorRuntime.editorIds || (createEditorRuntime.editorIds = new WeakMap());
+    let state = ids.get(document); if (!state) { state = {next: 0}; ids.set(document, state); }
+    const record = {element, body, editorId: state.next++, parking: document.createDocumentFragment?.() || document.createElement('div'), props: {}, units: normalize({ops: []}), range: {index: 0, length: 0}, active: {}, undo: [], redo: [], listeners: [], focused: false, ready: false};
     records.set(element, record);
     if (!listening) { document.addEventListener?.('selectionchange', selectionChanged); listening = true; }
     element.weappEditorContext = options.createContext((method, value) => execute(record, method, value));
@@ -392,7 +398,7 @@ function createEditorRuntime(root, options) {
     }
     on('input', event => {
       event.stopPropagation(); if (!visible || !options.live() || record.props['read-only'] || record.composing) return;
-      const units = parse(body);
+      const units = parse(body, record.editorId);
       // Preserve native selection and IME state; painting on each keystroke resets both.
       if (!equal(delta(units), delta(record.units))) { remember(record); record.units = units; readSelection(record); body.setAttribute('data-empty', String(units.length === 1)); emit(record, 'input', contents(record)); }
     });
