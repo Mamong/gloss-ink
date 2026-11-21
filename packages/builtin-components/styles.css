@@ -157,3 +157,33 @@ input.weapp-checkbox:checked:disabled::after,input.weapp-radio:checked:disabled:
 input.weapp-switch[data-weapp-switch-type="checkbox"] { box-sizing:content-box;width:22px;height:22px;border:1px solid #d1d1d1;border-radius:3px;background:#fff; }
 input.weapp-switch[data-weapp-switch-type="checkbox"]::before { display:none; }
 input.weapp-switch[data-weapp-switch-type="checkbox"]:checked::after { content:"";position:absolute;left:7px;top:3px;width:6px;height:11px;border:solid var(--weapp-control-color,#07c160);border-width:0 2px 2px 0;transform:rotate(45deg); }
+
+/* Formal text-field defaults; page typography remains inherited. */
+/* UICTFontTextStyleBody is an input compatibility family name; the host resolves the actual font. */
+.weapp-input,.weapp-textarea { box-sizing:content-box;color:inherit; }
+.weapp-input { height:1.4rem;min-height:1.4rem;font-family:UICTFontTextStyleBody;line-height:1.4rem;white-space:nowrap; }
+.weapp-textarea { width:300px;height:150px;min-height:0;line-height:1.2;resize:none; }
+.weapp-input::placeholder,.weapp-textarea::placeholder { line-height:inherit; }
+.weapp-input:focus-visible,.weapp-textarea:focus-visible { outline:none;border-radius:0; }
+.weapp-textarea[data-now-auto-height="true"] { min-height:1.2em; }
+
+/* Slider visuals retain a real native range for input and accessibility. */
+.weapp-slider { display:block;margin:10px 18px;padding:0;box-sizing:content-box; }
+.weapp-slider-wrapper { display:flex;align-items:center; }
+.weapp-slider-tap { flex:1;min-width:0;padding:8px 0;position:relative; }
+.weapp-slider-track { height:2px;position:relative;border-radius:5px;background:var(--slider-background,#e9e9e9);pointer-events:none; }
+.weapp-slider-fill { height:2px;border-radius:6px;background:var(--slider-active,#1aad19); }
+.weapp-slider-thumb { position:absolute;top:50%;width:var(--slider-size,28px);height:var(--slider-size,28px);transform:translate(-50%,-50%);border-radius:50%;background:var(--slider-block,#fff);box-shadow:0 0 4px #0003; }
+.weapp-slider .weapp-slider-tap input[type=range] { position:absolute;left:calc(var(--slider-size,28px) / -2);top:0;width:calc(100% + var(--slider-size,28px));height:18px;margin:0;opacity:0; }
+.weapp-slider-tap:focus-within { outline:2px solid #1677ff;outline-offset:5px; }
+.weapp-slider output { display:block;min-width:0;margin-left:14px;font:14px Times;text-align:center;font-variant-numeric:normal;color:#888; }
+.weapp-slider output[hidden] { display:none; }
+
+/* Columns own their mask and indicator; custom styles/classes are retained. */
+.weapp-picker-view {height:0;box-sizing:content-box;}
+.weapp-picker-view-column>[role=option] {display:block;}
+.weapp-picker-view-indicator {border:0;}
+.weapp-picker-view-indicator::before,.weapp-picker-view-indicator::after {content:"";position:absolute;left:0;right:0;height:0;background:transparent;color:#e5e5e5;border-color:#e5e5e5;transform:scaleY(.5);}
+.weapp-picker-view-indicator::before {top:0;border-top:1px solid #e5e5e5;transform-origin:top;}
+.weapp-picker-view-indicator::after {bottom:0;border-bottom:1px solid #e5e5e5;transform-origin:bottom;}
+[data-weui-theme=dark] .weapp-picker-view-indicator::before,[data-weui-theme=dark] .weapp-picker-view-indicator::after {border-color:#606064;}

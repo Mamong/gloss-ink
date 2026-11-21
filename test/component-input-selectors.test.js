@@ -1,0 +1,23 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm');
+const {JSDOM}=require('jsdom'),ui=require('../packages/builtin-components');
+function environment(t){const root=new JSDOM('<!doctype html><html><body></body></html>').window;t.after(()=>root.close());return root;}
+test('serialized slider retains its native range and paints programmatic and input changes',t=>{
+ const root=environment(t),factory=vm.runInNewContext(require('../packages/builtin-components/source')()),components=factory(root),element=root.document.createElement('div');root.document.body.append(element);const node={tag:'slider',attrs:{min:10,max:110,value:35,'show-value':true,style:'width:210px'},dataset:{}};
+ components.create(element,node);components.attributes(element,undefined,node);const range=element.weappRange;assert.equal(range.type,'range');assert.equal(element.querySelectorAll('input').length,1);assert.equal(element.weappSlider.fill.style.width,'25%');assert.equal(element.style.width,'210px');assert.equal(element.weappOutput.style.width,'1.5em');
+ range.value='85';range.dispatchEvent(new root.Event('input',{bubbles:true}));assert.equal(element.weappSlider.thumb.style.left,'75%');assert.equal(element.weappOutput.textContent,'85');element.value=60;assert.equal(element.weappSlider.fill.style.width,'50%');assert.equal(element.weappOutput.textContent,'60');
+});
+function wheel(t){const root=environment(t),document=root.document,element=document.createElement('div'),columns=[document.createElement('div'),document.createElement('div')],events=[];let height=180;document.body.append(element);element.append(...columns);element.setAttribute('data-weapp-owner','test-owner');element.getBoundingClientRect=()=>({height,width:260});element.getClientRects=()=>height?[{}]:[];
+ const children=columns.map(column=>{const items=Array.from({length:3},(_,index)=>{const item=document.createElement('div');item.textContent=String(index);column.append(item);return {element:item};});return {tag:'picker-view-column',element:column,children:items};});
+ const factory=vm.runInNewContext('('+ui.createInteractiveComponents.toString()+')'),runtime=factory(root,{Error,live:()=>true,emit:(_,name,detail)=>events.push({name,...detail})}),node={tag:'picker-view',attrs:{value:[2,1],'indicator-style':'height:40px;border-color:red','mask-style':'opacity:0.4;background:#ddd','mask-class':'custom-mask','indicator-class':'custom-line'},children};runtime.create(element,'picker-view');runtime.patch(element,node);t.after(()=>runtime.dispose());return {root,document,element,columns,events,node,runtime,height:value=>{height=value;}};}
+test('serialized wheel owns stable per-column layers, preserves custom styles and cleans them on remove',t=>{
+ const f=wheel(t),layers=()=>[...f.element.children].filter(n=>n.classList.contains('weapp-picker-view-mask')||n.classList.contains('weapp-picker-view-indicator'));assert.equal(layers().length,4);const first=layers()[0];assert.equal(first.className,'weapp-picker-view-mask custom-mask');assert.equal(first.style.width,'50%');assert.equal(first.style.opacity,'0.4');assert.equal(first.getAttribute('data-weapp-owner'),'test-owner');
+ f.runtime.patch(f.element,f.node,f.node);f.root.dispatchEvent(new f.root.Event('resize'));assert.equal(layers().length,4);assert.equal(layers()[0],first);assert.equal(f.columns[0].scrollTop,80);f.runtime.remove(f.element);assert.equal(layers().length,0);assert.equal(f.element.children.length,2);
+});
+test('wheel emits one clamped value after item shrink and preserves explicit controlled values',t=>{
+ const f=wheel(t),old=f.node;const next={...old,children:[{...old.children[0],children:old.children[0].children.slice(0,1)},old.children[1]]};for(const child of [...f.columns[0].children].slice(1))child.remove();f.runtime.patch(f.element,next,old);f.runtime.flush();f.runtime.flush();assert.equal(f.events.length,1);assert.deepEqual(Array.from(f.events[0].value),[0,1]);
+ const controlled={...next,attrs:{...next.attrs,value:[0,0]}};f.runtime.patch(f.element,controlled,next);f.runtime.flush();assert.equal(f.events.length,1);assert.equal(f.columns[1].scrollTop,0);
+});
+test('a zero-height wheel suppresses pending clamp and keyboard notifications',t=>{
+ const f=wheel(t);f.height(0);const old=f.node,next={...old,children:[{...old.children[0],children:old.children[0].children.slice(0,1)},old.children[1]]};f.runtime.patch(f.element,next,old);f.runtime.flush();f.columns[1].dispatchEvent(new f.root.KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true}));assert.equal(f.events.length,0);
+});

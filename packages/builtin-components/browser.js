@@ -11,8 +11,11 @@ function createBrowserComponents(root,options={}){
     if(node.tag==='image')element.addEventListener('load',()=>{if(!interactive(nodeFor(element)||node))element.weappDeferredLoad=element.getAttribute('src');},true);
     if (node.tag === 'slider') {
       const range = document.createElement('input'), output = document.createElement('output'); range.type = 'range'; range.value = '0'; range.style.cssText = 'flex:1;min-width:0;';
-      element.append(range,output); element.weappRange = range; element.weappOutput = output;
-      const paint=()=>{const min=Number(range.min||0),max=Number(range.max||100),percent=Math.max(0,Math.min(100,(Number(range.value)-min)/(max-min)*100));range.style.background='linear-gradient(to right,var(--slider-active,#1aad19) '+percent+'%,var(--slider-background,#e9e9e9) '+percent+'%)';output.textContent=range.value;};
+      const make=name=>{const node=document.createElement('div');node.className='weapp-slider-'+name;return node;};
+      const wrapper=make('wrapper'),tap=make('tap'),track=make('track'),fill=make('fill'),thumb=make('thumb');
+      track.setAttribute('aria-hidden','true');track.append(fill,thumb);tap.append(track,range);wrapper.append(tap,output);element.append(wrapper);
+      element.weappRange=range;element.weappOutput=output;element.weappSlider={fill,thumb};
+      const paint=()=>{const min=Number(range.min||0),max=Number(range.max||100),percent=Math.max(0,Math.min(100,(Number(range.value)-min)/(max-min)*100));range.style.background='linear-gradient(to right,var(--slider-active,#1aad19) '+percent+'%,var(--slider-background,#e9e9e9) '+percent+'%)';fill.style.width=percent+'%';thumb.style.left=percent+'%';output.textContent=range.value;};
       range.addEventListener('input',paint);range.addEventListener('change',paint);
       Object.defineProperty(element,'value',{get:()=>range.value,set:value=>{range.value=String(value);paint();}});
       Object.defineProperty(element,'disabled',{get:()=>range.disabled,set:value=>{range.disabled=value;}});
@@ -55,7 +58,8 @@ function createBrowserComponents(root,options={}){
       const size=Number(next['block-size']??28);if(!Number.isInteger(size)||size<12||size>28)throw new ErrorType('slider.block-size需12–28整数',{code:'INVALID_ARGUMENT'});
       const safe=value=>{if(typeof value!=='string'||value.length>128||/[;{}<>]/.test(value)||/url\s*\(/i.test(value))throw new ErrorType('slider颜色无效',{code:'INVALID_ARGUMENT'});return value;};
       range.style.setProperty?.('--slider-active',safe(next.activeColor??next['selected-color']??'#1aad19'));range.style.setProperty?.('--slider-background',safe(next.backgroundColor??next.color??'#e9e9e9'));range.style.setProperty?.('--slider-block',safe(next['block-color']??'#ffffff'));range.style.setProperty?.('--slider-size',size+'px');range.style.accentColor=safe(next.activeColor??next['selected-color']??'#1aad19');
-      element.weappOutput.hidden=!next['show-value'];element.weappOutput.textContent=element.value;
+      for(const key of ['--slider-active','--slider-background','--slider-block','--slider-size'])element.style.setProperty(key,range.style.getPropertyValue(key));
+      element.weappOutput.style.width=String(range.max).length*.5+'em';element.weappOutput.hidden=!next['show-value'];element.weappOutput.textContent=element.value;
     }
  }
  const createTags=new Set(['image','slider']),createdTags=new Set(['navigator','button','switch','checkbox','radio']);

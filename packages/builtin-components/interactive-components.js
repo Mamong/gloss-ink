@@ -14,7 +14,7 @@ function createInteractiveComponents(root, options) {
     return value;
   };
   const live = record => !disposed && visible && options.live() && record.element.isConnected;
-  const emit = (record, name, detail) => { if (live(record)) options.emit(record.element, name, detail); };
+  const emit = (record, name, detail) => { if (live(record)&&!(record.tag==='picker-view'&&['change','pickstart','pickend'].includes(name)&&record.element.getBoundingClientRect?.().height===0)) options.emit(record.element, name, detail); };
   function listen(record, target, name, handler, settings, owner) {
     target.addEventListener?.(name, handler, settings);
     record.listeners.push([target, name, handler, settings, owner]);
@@ -70,7 +70,7 @@ function createInteractiveComponents(root, options) {
     bool(attrs['immediate-change']);
     const source=attrs['indicator-style']||'',match=/(?:^|;)\s*height\s*:\s*(\d+(?:\.\d+)?)(px|rpx)\s*(?:;|$)/i.exec(source);
     if(/(?:^|;)\s*height\s*:/i.test(source)&&!match)fail('picker-view指示器height需要px/rpx长度');
-    const size=number(match?Number(match[1])*(match[2].toLowerCase()==='rpx'?(root.innerWidth||document.documentElement?.clientWidth||750)/750:1):undefined,34,12,200),height=dimension(record.element,'height',200);
+    const size=number(match?Number(match[1])*(match[2].toLowerCase()==='rpx'?(root.innerWidth||document.documentElement?.clientWidth||750)/750:1):undefined,34,12,200),height=record.element.isConnected&&record.element.getBoundingClientRect?record.element.getBoundingClientRect().height:dimension(record.element,'height',200);
     record.held ||= new Set();
     record.size = size;
     record.element.style.setProperty?.('--weapp-picker-row-height', size + 'px');
@@ -87,6 +87,7 @@ function createInteractiveComponents(root, options) {
       const controlled = !old || JSON.stringify(old.attrs.value) !== JSON.stringify(attrs.value) || node.forced?.includes('value');
       const raw = controlled ? attrs.value?.[index] ?? 0 : record.value[index] ?? 0;
       record.value[index] = Math.max(0, Math.min(Math.max(0, items.length - 1), raw));
+      if(!controlled&&before&&before.items.length!==items.length&&record.value[index]!==raw)record.clampPending=true;
       Object.assign(element.style, {flex: '1 1 0', minWidth: '0', overflowY: 'auto', overflowX: 'hidden', height: '100%', boxSizing: 'border-box', paddingTop: Math.max(0, (height - size) / 2) + 'px', paddingBottom: Math.max(0, (height - size) / 2) + 'px', scrollSnapType: 'y mandatory', overscrollBehavior: 'contain'});
       element.setAttribute('role', 'listbox'); element.setAttribute('tabindex', '0'); element.setAttribute('aria-label', '第' + (index + 1) + '列');
       items.forEach((item, position) => {
@@ -131,14 +132,25 @@ function createInteractiveComponents(root, options) {
     });
     record.value.length = record.columns.length; record.height = height; record.oldSize = size;
     paintColumns(record);
-    if (!record.indicator) { record.indicator = document.createElement('div'); record.indicator.setAttribute('aria-hidden', 'true'); }
-    record.indicator.className='weapp-picker-view-indicator'+(indicatorClass?' '+indicatorClass:'');
-    record.indicator.style.cssText=indicator;
-    Object.assign(record.indicator.style,{position:'absolute',top:Math.max(0,(height-size)/2)+'px',height:size+'px',left:'0',right:'0',pointerEvents:'none'});
-    record.masks ||= [document.createElement('div'),document.createElement('div')];
-    record.masks.forEach((element,index)=>{element.setAttribute('aria-hidden','true');element.className='weapp-picker-view-mask'+(maskClass?' '+maskClass:'');element.style.cssText=mask;Object.assign(element.style,{position:'absolute',left:'0',right:'0',top:index?'auto':'0',bottom:index?'0':'auto',height:Math.max(0,(height-size)/2)+'px',pointerEvents:'none',transform:index?'rotate(180deg)':''});record.element.append(element);});
-    for(const element of [record.indicator,...record.masks]){const owner=record.element.getAttribute('data-weapp-owner');if(owner!==null)element.setAttribute('data-weapp-owner',owner);}
-    record.element.append(record.indicator);
+    const layers=record.layers||[];record.layers=[];
+    const owner=record.element.getAttribute('data-weapp-owner');
+    for(let index=0;index<record.columns.length;index++){
+      const column=record.columns[index].element;
+      column.style.paddingTop=column.style.paddingBottom=Math.max(0,(height-size)/2)+'px';
+      for(const [offset,type,source,classes]of [[0,'mask',mask,maskClass],[1,'indicator',indicator,indicatorClass]]){
+        const layer=layers[index*2+offset]||document.createElement('div');
+        layer.className='weapp-picker-view-'+type+(classes?' '+classes:'');layer.setAttribute('aria-hidden','true');layer.style.cssText=source;
+        Object.assign(layer.style,{display:'block',position:'absolute',pointerEvents:'none',left:(index*100/record.columns.length)+'%',right:'auto',width:(100/record.columns.length)+'%',top:type==='mask'?'0px':(height-size)/2+'px',bottom:'auto',height:(type==='mask'?height:size)+'px',transform:'none'});
+        if(type==='mask'){
+          layer.style.backgroundSize='100% '+Math.max(0,(height-size)/2)+'px';
+          if(!attrs['mask-style']){layer.style.backgroundImage='linear-gradient(var(--weapp-picker-mask-color,rgba(255,255,255,.95)),var(--weapp-picker-mask-edge,rgba(255,255,255,.6))),linear-gradient(0deg,var(--weapp-picker-mask-color,rgba(255,255,255,.95)),var(--weapp-picker-mask-edge,rgba(255,255,255,.6)))';layer.style.backgroundRepeat='no-repeat';layer.style.backgroundPosition='top, bottom';}
+        }else layer.style.boxSizing='content-box';
+        if(owner!==null)layer.setAttribute('data-weapp-owner',owner);
+        record.element.append(layer);record.layers.push(layer);
+      }
+    }
+    for(const layer of layers)if(!record.layers.includes(layer))layer.remove();
+
   }
 
   function bounds(record, x, y, loose = false) {
@@ -264,7 +276,7 @@ function createInteractiveComponents(root, options) {
   }
   function remove(element) {
     const record = records.get(element); if (!record) return;
-    clear(record); record.indicator?.remove();record.masks?.forEach(element=>element.remove());
+    clear(record);record.clampPending=false;record.layers?.forEach(element=>element.remove());
     for (const [target, event, handler, settings] of record.listeners) target.removeEventListener?.(event, handler, settings);
     records.delete(element);
   }
@@ -275,7 +287,7 @@ function createInteractiveComponents(root, options) {
     }
   };
   root.addEventListener?.('resize', resize);
-  return {create, patch, remove, ownsEvent: (tag, name) => ['picker-view', 'movable-view'].includes(tag) && ['change', 'scale','pickstart','pickend'].includes(name) || tag === 'selection' && name === 'selectionchange', flush() {for(const record of records.values()){if(record.tag==='movable-view'&&record.pendingPosition){const {x,y}=record.pendingPosition;record.pendingPosition=null;position(record,x,y,'');}if(record.tag==='picker-view'&&record.needsInitial&&live(record)&&record.element.getClientRects?.().length!==0){picker(record,record.node,record.node);record.columns.forEach((column,index)=>{column.element.scrollTop=record.value[index]*record.size;});record.needsInitial=false;}}}, visibility(value) { visible = value; if (!value) for (const record of records.values()) clear(record); }, dispose() { disposed = true; root.removeEventListener?.('resize', resize); for (const element of [...records.keys()]) remove(element); }};
+  return {create, patch, remove, ownsEvent: (tag, name) => ['picker-view', 'movable-view'].includes(tag) && ['change', 'scale','pickstart','pickend'].includes(name) || tag === 'selection' && name === 'selectionchange', flush() {for(const record of records.values()){if(record.tag==='movable-view'&&record.pendingPosition){const {x,y}=record.pendingPosition;record.pendingPosition=null;position(record,x,y,'');}if(record.tag==='picker-view'&&record.needsInitial&&live(record)&&record.element.getClientRects?.().length!==0){picker(record,record.node,record.node);record.columns.forEach((column,index)=>{column.element.scrollTop=record.value[index]*record.size;});record.needsInitial=false;}}for(const record of records.values()){if(record.clampPending){record.clampPending=false;emit(record,'change',{value:record.value.slice()});}}}, visibility(value) { visible = value; if (!value) for (const record of records.values()) clear(record); }, dispose() { disposed = true; root.removeEventListener?.('resize', resize); for (const element of [...records.keys()]) remove(element); }};
 }
 
 module.exports = createInteractiveComponents;
