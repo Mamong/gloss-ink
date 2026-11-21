@@ -7,3 +7,7 @@
 `setTimeout` / `clearTimeout` 可由宿主注入，句柄允许数字或对象。省略时使用运行环境的全局定时器。
 
 核心需要的最小 `RenderBackend` 契约由 component-engine 自己定义。该包不包含节点树协调、DOM 查询、样式、Canvas、宿主桥或路由。DOM 实现位于 `@tingtalk/component-backend-dom`，其旧 `createViewProtocol` 导出和 `protocol.js` 路径保留为转发入口。
+
+## rpx 单位策略
+
+统一采用 `layout-pixel-v1`：750rpx 对应当前内容视口宽度；每个非零 rpx 长度按绝对值向下取整，最少 1 CSS px，再恢复符号；0 为 0。DPR 不参与布局取整，px/% 不取整。CSS 结果保留视口变量，resize 时重新计算；数值属性使用相同的 `createRpxUnits().pixels()`。CSS 呈现需要浏览器支持 `round()`。

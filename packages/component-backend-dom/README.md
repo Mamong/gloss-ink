@@ -50,3 +50,7 @@ node scripts/build-component-ports.cjs --check
 发送事件的source/target也保留DomEventNode类型，原始事件提供结构化触点/坐标信息；虚拟节点的父链仍能保留这些元数据，不需要把它们扩大成没有viewNodeId的基础节点或强制转换成原生HTMLElement。
 
 Unchanged logical node indexes reuse only a matching `tree.commit` revision acknowledgment. Node order, IDs, classes, component identity, parent topology and movement notifications still commit; a new view starts without cached topology. Data snapshots, child rendering and render receipt/callback waits remain unchanged.
+
+## rpx 单位策略
+
+统一采用 `layout-pixel-v1`：750rpx 对应当前内容视口宽度；每个非零 rpx 长度按绝对值向下取整，最少 1 CSS px，再恢复符号；0 为 0。DPR 不参与布局取整，px/% 不取整。CSS 结果保留视口变量，resize 时重新计算；数值属性使用相同的 `createRpxUnits().pixels()`。CSS 呈现需要浏览器支持 `round()`。

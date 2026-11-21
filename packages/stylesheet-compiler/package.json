@@ -10,7 +10,8 @@
     "styles.js",
     "less.js",
     "less-worker.js",
-    "README.md"
+    "README.md",
+    "rpx.js"
   ],
   "dependencies": {
     "postcss": "^8.5.32",

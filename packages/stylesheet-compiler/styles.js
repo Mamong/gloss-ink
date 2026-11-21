@@ -4,6 +4,7 @@ const {createHash} = require('node:crypto');
 const postcss = require('postcss');
 const selectors = require('postcss-selector-parser');
 const values = require('postcss-value-parser');
+const rpxUnits = require('./rpx')();
 function createStylesheetCompiler({tags:tagNames=[]}={}){
 const tags = new Set(tagNames);
 const placeholderProperties=new Set(['color','font-size','font-weight','line-height']);
@@ -87,7 +88,7 @@ function compile(entries, read, asset, diagnostic, scope, customTags = [], setti
           }
           return false;
         }
-        if (node.type === 'word' && /^-?(?:\d+(?:\.\d*)?|\.\d+)rpx$/i.test(node.value)) node.value = 'calc(' + parseFloat(node.value) + ' * var(--weapp-rpx))';
+        if (node.type === 'word' && /^-?(?:\d+(?:\.\d*)?|\.\d+)rpx$/i.test(node.value)) node.value = rpxUnits.css(parseFloat(node.value));
       });
       declaration.value = tree.toString();
     });

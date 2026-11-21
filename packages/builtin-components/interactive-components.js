@@ -1,5 +1,7 @@
+const createRpxUnits = require('./rpx');
 function createInteractiveComponents(root, options) {
   'use strict';
+  const rpxUnits = createRpxUnits();
   const document = root.document, records = new Map();
   let visible = true, disposed = false;
   const fail = message => { throw new options.Error(message, {code: 'INVALID_ARGUMENT'}); };
@@ -50,7 +52,7 @@ function createInteractiveComponents(root, options) {
     if(typeof value!=='string'||value.length>4096)fail('picker-view样式需要最多4096字符字符串');
     const allowed=new Set(['height','background','background-color','background-image','opacity','border','border-top','border-bottom','border-color','border-width','border-style','border-radius','box-shadow','color']);
     for(const part of value.split(';')){if(!part.trim())continue;const match=/^\s*([a-z-]+)\s*:\s*(.+?)\s*$/i.exec(part);if(!match||!allowed.has(match[1].toLowerCase())||/[{}<>\\@]/.test(match[2])||/url\s*\(|expression\s*\(|!important/i.test(match[2]))fail('picker-view样式包含不支持的声明');}
-    return options.style?options.style(value):value.replace(/(\d+(?:\.\d+)?)rpx\b/g,(_,n)=>'calc('+n+' * var(--weapp-rpx))');
+    return options.style?options.style(value):value.replace(/(\d+(?:\.\d+)?)rpx\b/g,(_,n)=>rpxUnits.css(Number(n)));
   }
   function wheelClass(value){if(value===undefined)return '';if(typeof value!=='string'||value.length>512||/[\x00-\x1f\x7f]/.test(value))fail('picker-view类名需要有效字符串');return options.classes?options.classes(value):value;}
   function wheelCommit(record){
@@ -70,7 +72,7 @@ function createInteractiveComponents(root, options) {
     bool(attrs['immediate-change']);
     const source=attrs['indicator-style']||'',match=/(?:^|;)\s*height\s*:\s*(\d+(?:\.\d+)?)(px|rpx)\s*(?:;|$)/i.exec(source);
     if(/(?:^|;)\s*height\s*:/i.test(source)&&!match)fail('picker-view指示器height需要px/rpx长度');
-    const size=number(match?Number(match[1])*(match[2].toLowerCase()==='rpx'?(root.innerWidth||document.documentElement?.clientWidth||750)/750:1):undefined,34,12,200),height=record.element.isConnected&&record.element.getBoundingClientRect?record.element.getBoundingClientRect().height:dimension(record.element,'height',200);
+    const size=number(match?(match[2].toLowerCase()==='rpx'?rpxUnits.pixels(Number(match[1]),root.innerWidth||document.documentElement?.clientWidth||750):Number(match[1])):undefined,34,12,200),height=record.element.isConnected&&record.element.getBoundingClientRect?record.element.getBoundingClientRect().height:dimension(record.element,'height',200);
     record.held ||= new Set();
     record.size = size;
     record.element.style.setProperty?.('--weapp-picker-row-height', size + 'px');

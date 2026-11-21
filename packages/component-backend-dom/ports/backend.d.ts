@@ -1,4 +1,4 @@
-// Generated from component-backend/index.d.ts; SHA-256 ac997d7c2875fe812df05b9203ac2c8676edcdba44bc116822351c799d1f4db0
+// Generated from component-backend/index.d.ts; SHA-256 5de8bb820332bb937e12f27d87880596a939c5b71769f715add2e6d8cb2bd672
 // Regenerate with npm run types:component-ports
 /** Platform-neutral protocol data; validated and copied at runtime. */
 export type Dictionary = Record<string, unknown>;
@@ -59,3 +59,12 @@ export interface ViewProtocol {
   createReceiver(options: ProtocolOptions & {send(packet: Dictionary): void}): ProtocolReceiver;
 }
 export function createViewProtocol(): ViewProtocol;
+
+/** Shared layout-pixel rpx policy; independent of device pixel ratio. */
+export interface RpxUnits {
+  readonly policy: 'layout-pixel-v1';
+  css(value: number): string;
+  pixels(value: number, viewportWidth: number): number;
+  rewrite(css: string): string;
+}
+export function createRpxUnits(): RpxUnits;

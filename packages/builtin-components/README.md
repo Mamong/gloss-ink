@@ -56,3 +56,7 @@ video 控制器在隐藏、移除和销毁时清理自己创建的弹幕节点�
 `createWebViewRuntime(root, {Error, request})` 导出 web-view 控制器。DOM backend 通过 `webViewRuntime` 工厂注入，向实例所属平台服务发出 `webview.update` / `webview.remove`；update 包含 scoped nodeId、src、visible、元素 id/dataset 及 load/error/message 绑定。src 不走图片资源解析。
 
 控制器维护 DOM 占位与请求委托，不创建嵌入浏览器。网页容器、URL策略、消息交付、前后台和页面卸载时的服务资源释放由宿主拥有；controller.dispose 清除本地记录，不向已卸载实例发出RPC。41标签独立目录应用使用显式服务记录器验证这一边界。
+
+## rpx 单位策略
+
+统一采用 `layout-pixel-v1`：750rpx 对应当前内容视口宽度；每个非零 rpx 长度按绝对值向下取整，最少 1 CSS px，再恢复符号；0 为 0。DPR 不参与布局取整，px/% 不取整。CSS 结果保留视口变量，resize 时重新计算；数值属性使用相同的 `createRpxUnits().pixels()`。CSS 呈现需要浏览器支持 `round()`。

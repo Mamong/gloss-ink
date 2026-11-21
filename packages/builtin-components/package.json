@@ -33,7 +33,8 @@
     "accessibility.js",
     "styles.css",
     "web-view.js",
-    "media-frames.js"
+    "media-frames.js",
+    "rpx.js"
   ],
   "repository": {
     "type": "git",

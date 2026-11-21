@@ -9,7 +9,8 @@
     "index.d.ts",
     "protocol.js",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "rpx.js"
   ],
   "repository": {
     "type": "git",

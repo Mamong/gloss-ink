@@ -1,6 +1,8 @@
+const createRpxUnits = require('./rpx');
 'use strict';
 function createDomBackend(environment) {
   'use strict';
+  const rpxUnits = createRpxUnits();
   const {root,Error:ErrorType=Error,trackCommit,config,customEvents,viewProtocol,instances,visual,metrics}=environment;
   let formScope=0,nextView=0;
   const accessibility=config.accessibility?.(root,{Error:ErrorType});
@@ -115,10 +117,10 @@ function createDomBackend(environment) {
       if (quote) { result += character; index++; if (character === '\\') result += source[index++] || ''; else if (character === quote) quote = null; continue; }
       if (character === '"' || character === "'") { quote = character; result += character; index++; continue; }
       const match = /^(-?(?:\d+(?:\.\d*)?|\.\d+))rpx\b/i.exec(source.slice(index));
-      if (match) { result += 'calc(' + Number(match[1]) + ' * var(--weapp-rpx))'; index += match[0].length; }
+      if (match) { result += rpxUnits.css(Number(match[1])); index += match[0].length; }
       else { result += character; index++; }
     }
-    return result;
+    return rpxUnits.rewrite(result);
   }
   const reconciler=config.childReconciler();
   const evaluator=config.templateEvaluator(template,{element(node,{attrs,scope,path,forced}){

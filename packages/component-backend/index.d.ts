@@ -57,3 +57,12 @@ export interface ViewProtocol {
   createReceiver(options: ProtocolOptions & {send(packet: Dictionary): void}): ProtocolReceiver;
 }
 export function createViewProtocol(): ViewProtocol;
+
+/** Shared layout-pixel rpx policy; independent of device pixel ratio. */
+export interface RpxUnits {
+  readonly policy: 'layout-pixel-v1';
+  css(value: number): string;
+  pixels(value: number, viewportWidth: number): number;
+  rewrite(css: string): string;
+}
+export function createRpxUnits(): RpxUnits;

@@ -1,5 +1,7 @@
+const createRpxUnits = require('./rpx');
 function createPageMeta(root, options) {
   'use strict';
+  const rpxUnits = createRpxUnits();
   const {mount}=options,document=root.document;
   const color=/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
   const windowFields={'background-text-style':'backgroundTextStyle','background-color':'backgroundColor','background-color-top':'backgroundColorTop','background-color-bottom':'backgroundColorBottom','root-background-color':'backgroundColorContent','page-orientation':'pageOrientation'};
@@ -49,7 +51,7 @@ function createPageMeta(root, options) {
   function scrollPixels(value){
     if(value===undefined||value==='')return undefined;
     const match=/^(-?\d+(?:\.\d+)?)(px|rpx)?$/.exec(String(value));if(!match)fail('scroll-top 需要 px 或 rpx 长度');
-    const pixels=Number(match[1])*(match[2]==='rpx'?(root.innerWidth||document.documentElement?.clientWidth||375)/750:1);
+    const pixels=match[2]==='rpx'?rpxUnits.pixels(Number(match[1]),root.innerWidth||document.documentElement?.clientWidth||375):Number(match[1]);
     if(!Number.isFinite(pixels)||Math.abs(pixels)>10000000)fail('scroll-top 超过支持范围');return Math.max(0,pixels);
   }
   function flush(){

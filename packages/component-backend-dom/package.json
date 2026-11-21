@@ -18,7 +18,8 @@
     "view-types.d.ts",
     "query-types.d.ts",
     "canvas-types.d.ts",
-    "ports/backend.d.ts"
+    "ports/backend.d.ts",
+    "rpx.js"
   ],
   "repository": {
     "type": "git",
