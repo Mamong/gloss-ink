@@ -34,7 +34,7 @@ function createNativeComponents(root,options) {
     if(name==='img'){const src=String(attrs.src||'');if(/^(?:javascript:|data:image\/svg)/i.test(src))continue;if(/^(?:nowfile|nowsaved):\/\//.test(src))record.dynamic=true;let value='';try{value=/^data:image\/(?:png|jpe?g|gif|webp|bmp);base64,[a-z0-9+/=]+$/i.test(src)&&src.length<=1398200?src:options.asset(src,node.origin);}catch(_){continue;}if(value&&!/^(?:blob:|data:image\/(?:png|jpe?g|gif|webp|bmp);)/i.test(value))continue;if(value)element.setAttribute('src',value);else if(/^https:\/\//i.test(src)&&options.imageStatus?.(src)?.pending)pendingRemote=true;element.style.maxWidth='100%';}
     element.append(...render(children,depth+1));out.push(element);
    }return out;}
-  record.element.replaceChildren(...render(source,0));if(pendingRemote)record.dynamic=true;record.element.style.userSelect=node.attrs['user-select']||node.attrs.selectable?'text':'none';
+  const content=document.createElement('div');content.className='weapp-rich-text-root';if(owner)content.setAttribute('data-weapp-owner',owner);content.append(...render(source,0));record.element.replaceChildren(content);if(pendingRemote)record.dynamic=true;record.element.style.userSelect=node.attrs['user-select']||node.attrs.selectable?'text':'none';
  }
  function refreshPaint(record){
   if(!record.refreshUI){const ui=document.createElement('div');ui.setAttribute('role','status');ui.setAttribute('aria-live','polite');ui.setAttribute('data-now-refresher','');record.refreshUI=ui;}

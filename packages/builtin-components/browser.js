@@ -34,7 +34,7 @@ function createBrowserComponents(root,options={}){
       element.textContent=icons[next.type||'success'];element.style.fontSize=size+'px';element.style.color=next.color||'currentColor';element.setAttribute('role','img');element.setAttribute('aria-label',next.type||'success');
     }
     if(['input','textarea'].includes(node.tag)){const maximum=next.maxlength==null?140:Number(next.maxlength);if(!Number.isSafeInteger(maximum)||maximum<-1)throw new ErrorType('maxlength需要-1或非负整数',{code:'INVALID_ARGUMENT'});if(maximum===-1)element.removeAttribute('maxlength');else element.setAttribute('maxlength',String(maximum));}
-    if(['switch','checkbox','radio'].includes(node.tag)){const color=next.color||({switch:'#07C160',checkbox:'#09BB07',radio:'#09BB07'}[node.tag]);element.style.accentColor=color;element.style.setProperty?.('--weapp-control-color',color);if(node.tag==='switch')element.setAttribute('role','switch');}
+    if(['switch','checkbox','radio'].includes(node.tag)){const color=next.color||({switch:next.type==='checkbox'?'#09bb07':'#07C160',checkbox:'#09BB07',radio:'#07c160'}[node.tag]);element.style.accentColor=color;element.style.setProperty?.('--weapp-control-color',color);if(node.tag==='switch')element.setAttribute('role','switch');}
     if (node.tag === 'input') {
       const type = next.password ? 'password' : ['digit', 'idcard'].includes(next.type) ? 'text' : next.type || 'text';
       if (element.type !== type) element.type = type;

@@ -12,7 +12,7 @@ function createFormRuntime(root, ErrorType, settings) {
     if (node.tag === 'switch') return !!node.element.checked;
     if (node.tag === 'slider') return Number(node.element.value);
     if (groupTags.has(node.tag)) {
-      const selected = checkedItems(node).filter(child => child.element.checked && !child.element.disabled);
+      const selected = checkedItems(node).filter(child => child.element.checked);
       return node.tag === 'radio-group' ? String(selected[0]?.attrs.value ?? '') : selected.map(child => String(child.attrs.value ?? ''));
     }
     return String(node.element.value ?? '');
@@ -45,11 +45,13 @@ function createFormRuntime(root, ErrorType, settings) {
         if (reset && initial) {
           if(node.tag==='picker')settings.picker.reset(node.element);
           else if (controller?.formField) settings.resetField(controller.id,initial.custom);
+          else if(['input','textarea'].includes(node.tag))node.element.value='';
+          else if(['switch','checkbox','radio'].includes(node.tag))node.element.checked=false;
           else { node.element.value = initial.value; node.element.checked = initial.checked; }
         }
         if (controller?.formField) { if (!reset && !node.attrs.disabled) assign(controller.name, JSON.parse(JSON.stringify(controller.value))); continue; }
         if (groupTags.has(node.tag)) { if (reset) walk(node.children); else assign(node.attrs.name,value(node)); continue; }
-        if (controls.has(node.tag) && !reset && !node.element.disabled) assign(node.attrs.name,value(node));
+        if (controls.has(node.tag) && !reset && (!node.element.disabled || ['input','textarea','switch'].includes(node.tag))) assign(node.attrs.name,value(node));
         walk(node.children);
       }
     }

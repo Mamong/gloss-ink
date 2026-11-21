@@ -1,9 +1,9 @@
 :root { --weapp-rpx: calc(100vw / 750); }
 html, body { margin: 0; min-height: 100%; width: 100%; }
 body { font-size: 16px; color: #222; background: #fff; }
-.weapp-page { min-height: 100dvh; overflow-wrap: anywhere; }
+.weapp-page { min-height: 100dvh; overflow-wrap: normal; }
 .weapp-view, .weapp-scroll-view, .weapp-block { display: block; }
-.weapp-text { white-space: pre-wrap; user-select: none; }
+.weapp-text { white-space: normal; user-select: none; }
 .weapp-button { display:block;box-sizing:border-box;width:184px;max-width:100%;padding:8px 24px;margin:0 auto;border:0;border-radius:4px;background:#f8f8f8;color:#000;font:inherit;font-size:17px;font-weight:700;line-height:1.411764705882353;text-align:center;white-space:normal;cursor:pointer; }
 .weapp-button:not([data-weapp-size="mini"]) { width:184px; }
 .weapp-button[data-weapp-type="primary"] { background:#07c160;color:#fff; }
@@ -31,13 +31,15 @@ body { font-size: 16px; color: #222; background: #fff; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
 
-.weapp-form,.weapp-radio-group,.weapp-checkbox-group { display:block; }
+.weapp-form { display:inline; }
+.weapp-radio-group,.weapp-checkbox-group { display:block; }
 .weapp-slider {display:flex;align-items:center;gap:8px;}
 .weapp-radio {margin:0 4px;}
 
 .weapp-swiper {height:150px;position:relative;overflow:hidden;}
 .weapp-swiper-item {display:block;box-sizing:border-box;flex:0 0 100%;overflow:hidden;}
-.weapp-rich-text {display:block;overflow-wrap:anywhere;}
+.weapp-rich-text {display:inline;overflow-wrap:normal;}
+:where(.weapp-rich-text-root) * {margin:0;}
 
 .weapp-picker {display:block;cursor:pointer;}
 .weapp-picker[aria-disabled="true"] {cursor:default;}
@@ -137,3 +139,21 @@ input.weapp-switch:focus-visible,input.weapp-checkbox:focus-visible,input.weapp-
 /* Progress defaults stay below business class and inline styles. */
 .weapp-progress { display:flex;align-items:center;width:100%;gap:0; }
 .weapp-progress>span { margin-left:15px;min-width:2em; }
+
+/* Default view selection and native choice geometry, below business rules. */
+.weapp-view {user-select:none;}
+/* Keep native input state and focus semantics. */
+input.weapp-switch { border:2px solid transparent;background:rgba(0,0,0,.1);transition:background-color .1s,border-color .1s; }
+input.weapp-switch::before { left:0;top:0;border-radius:15px;box-shadow:0 2px 3px rgba(0,0,0,.06);transition:transform .3s; }
+input.weapp-switch:checked { background:var(--weapp-control-color,#07c160);border-color:var(--weapp-control-color,#07c160); }
+input.weapp-switch:disabled { opacity:.3; }
+input.weapp-checkbox,input.weapp-radio { box-sizing:content-box;width:22px;height:22px;margin-right:5px; }
+input.weapp-checkbox:checked { background:#fff;border-color:#d1d1d1; }
+input.weapp-checkbox:checked::after { left:7px;top:3px;border-color:var(--weapp-control-color,#09bb07); }
+input.weapp-checkbox:disabled,input.weapp-radio:disabled { opacity:1;background:#e1e1e1;border-color:#d1d1d1; }
+input.weapp-radio:checked { background:var(--weapp-control-color,#07c160);border-color:var(--weapp-control-color,#07c160); }
+input.weapp-radio:checked::after { left:7px;top:3px; }
+input.weapp-checkbox:checked:disabled::after,input.weapp-radio:checked:disabled::after { border-color:#adadad; }
+input.weapp-switch[data-weapp-switch-type="checkbox"] { box-sizing:content-box;width:22px;height:22px;border:1px solid #d1d1d1;border-radius:3px;background:#fff; }
+input.weapp-switch[data-weapp-switch-type="checkbox"]::before { display:none; }
+input.weapp-switch[data-weapp-switch-type="checkbox"]:checked::after { content:"";position:absolute;left:7px;top:3px;width:6px;height:11px;border:solid var(--weapp-control-color,#07c160);border-width:0 2px 2px 0;transform:rotate(45deg); }
