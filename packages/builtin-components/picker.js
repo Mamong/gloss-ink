@@ -96,6 +96,7 @@ function createPickerRuntime(root, options) {
   function settleWheel(current,wheel){
     root.clearTimeout(wheel.timer);wheel.timer=null;
     if(active!==current||!wheel.items.length)return;
+    if(wheel.initializing){wheel.initializing=false;wheel.element.scrollTop=wheel.index*48;return;}
     const index=Math.min(wheel.items.length-1,Math.max(0,Math.round((wheel.element.scrollTop||0)/48)));
     if(index!==wheel.index)chooseWheel(current,wheel.column,index);else wheel.element.scrollTop=wheel.index*48;
   }
@@ -111,7 +112,7 @@ function createPickerRuntime(root, options) {
         Object.assign(element.style,{flex:'1',minWidth:'0',height:'240px',overflowY:'auto',padding:'96px 0',boxSizing:'border-box',scrollSnapType:'y mandatory',overscrollBehavior:'contain',scrollbarWidth:'none',outlineOffset:'-2px'});
         wheel={element,column,items:[],index:0,signature:null,timer:null};current.wheels.push(wheel);current.body.insertBefore(element,current.mask);
         element.addEventListener('scroll',()=>{if(active!==current||wheel.initializing||Math.abs((element.scrollTop||0)-wheel.index*48)<.5)return;root.clearTimeout(wheel.timer);wheel.timer=root.setTimeout(()=>settleWheel(current,wheel),100);});
-        element.addEventListener('pointerdown',()=>{wheel.initializing=false;});
+        element.addEventListener('pointerdown',()=>{wheel.initializing=false;});element.addEventListener('wheel',()=>{wheel.initializing=false;},{passive:true});
         element.addEventListener('click',event=>{wheel.initializing=false;let item=event.target;while(item&&item!==element&&item.getAttribute?.('data-now-picker-option')===null)item=item.parentElement;if(item&&item!==element)chooseWheel(current,column,Number(item.getAttribute('data-now-picker-option')));});
         element.addEventListener('keydown',event=>{wheel.initializing=false;const delta={ArrowUp:-1,ArrowDown:1,PageUp:-5,PageDown:5};if(event.key==='Enter'){event.preventDefault();current.confirm.click();return;}if(event.key===' '){event.preventDefault();return;}if(!own(delta,event.key)&&!['Home','End'].includes(event.key))return;event.preventDefault();chooseWheel(current,column,event.key==='Home'?0:event.key==='End'?wheel.items.length-1:wheel.index+delta[event.key]);});
       }
@@ -146,7 +147,7 @@ function createPickerRuntime(root, options) {
       // once layout has run, unless the user has already interacted with it.
       if(dialog.open&&typeof root.requestAnimationFrame==='function')for(const wheel of current.wheels){
         wheel.initializing=true;
-        root.requestAnimationFrame(()=>{if(active!==current||!current.compact||!wheel.initializing)return;wheel.element.scrollTop=wheel.index*48;wheel.initializing=false;});
+        root.requestAnimationFrame(()=>{const animations=dialog.getAnimations?.()||[];Promise.all(animations.map(animation=>animation.finished.catch(()=>{}))).then(()=>{if(active!==current||!current.compact||!wheel.initializing)return;wheel.element.scrollTop=wheel.index*48;wheel.initializing=false;});});
       }
     }
     if(dialog.isConnected)(current.compact?current.wheels[0]?.element:current.inputs[0]||input)?.focus?.();
