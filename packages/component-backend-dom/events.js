@@ -34,12 +34,13 @@ function createComponentViews(root, logicalEvents) {
  const key=binding=>logicalEvents.key(binding);
  function route(source,name,detail,settings={},original={}){
   const continued=logicalEvents.route(source,name,detail,settings,original);
-  if(continued&&!original.defaultPrevented){if(name==='tap'&&source.tag==='button'&&source.attrs['open-type']==='share')source.eventView.special(source,'@share',original);if(name==='tap'&&source.tag==='button'&&source.attrs['open-type']==='send'&&original.isTrusted===true)source.eventView.special(source,'@send',original);if(name==='tap'&&source.tag==='navigator')source.eventView.special(source,'@navigate',original);}
+  if(continued&&!original.defaultPrevented){if(name==='tap'&&source.tag==='button'&&source.attrs['open-type']==='share')source.eventView.special(source,'@share',original);if(name==='tap'&&source.tag==='button'&&source.attrs['open-type']==='send'&&original.isTrusted===true)source.eventView.special(source,'@send',original);if(name==='tap'&&source.tag==='navigator')source.eventView.special(source,'@navigate',original);if(name==='tap'){const functional=ancestors(source).find(node=>node.tag==='functional-page-navigator');if(functional&&(!guard||guard(functional,original)))functional.eventView.special(functional,'@functional',original);}}
   return continued;
  }
  function native(event){if(processed.has(event))return;processed.add(event);let element=event.composedPath?.()[0]||event.target;while(element&&!owners.has(element))element=element.parentElement||element.host;const source=owners.get(element);if(!source||!source.eventView.live()||guard&&!guard(source,event))return;
   const type=event.type.startsWith('weapp:')?event.type.slice(6):({click:'tap',keydown:'confirm',input:source.tag==='slider'?'changing':'input'}[event.type]||event.type);
   if(type==='confirm'&&source.tag==='textarea'&&['return','enter'].includes(source.attrs['confirm-type']??'return'))return;
+  if(event.type==='keydown'&&source.tag==='functional-page-navigator'&&['Enter',' '].includes(event.key)){event.preventDefault?.();if(!event.repeat)source.eventView.special(source,'@functional',event);return;}
   if(type==='confirm'&&event.key!=='Enter'){if(source.tag==='navigator'&&event.key===' '){event.preventDefault?.();source.eventView.special(source,'@navigate',event);}return;}
   const detail=event.type.startsWith('weapp:')?event.detail:source.eventView.detail(source,event,type);
   route(source,type,detail,{bubbles:true,composed:true,capturePhase:true},event);

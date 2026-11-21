@@ -134,6 +134,7 @@ export interface InstanceView {
 }
 export interface PlatformScope {
   id: string;
+  source: string;
   kind: 'page' | 'component';
   page: PageOwner;
   live(): boolean;

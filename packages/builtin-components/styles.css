@@ -254,3 +254,6 @@ input.weapp-switch[data-weapp-switch-type="checkbox"]:checked::after { content:"
 .weapp-editor-portal .weapp-input { white-space:nowrap; }
 /* A custom block and its explicit newline occupy separate document lines. */
 .weapp-editor-content p:has(>[data-custom-block])::after { content:'';display:block;height:1lh; }
+
+.weapp-functional-page-navigator { display: block; cursor: pointer; }
+.weapp-functional-page-navigator:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }

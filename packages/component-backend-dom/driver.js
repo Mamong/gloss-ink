@@ -74,7 +74,7 @@ function createDomBackend(environment) {
   const textInputs=config.textInput(root,{Error:ErrorType,scope:instanceId,styleRoot,style,classes:classNames,accessoryHeight:element=>keyboardAccessories?.height(element)||0,live:node=>interactions.live(node),emit:emitNative,invalidate:node=>port.receiver.invalidateInput(node.viewNodeId),height:node=>{const match=/(?:^|;)\s*height\s*:\s*([^;]+)/i.exec(style(node.attrs.style,node.origin));return match?match[1]:'';}});
   const pageMeta=placement?undefined:config.pageMeta?.(root,{mount,Error:ErrorType,style,emit:emitNative,send:value=>request('page.meta',value),live:()=>!disposed&&!mount.hidden&&!mount.inert&&port.receiver.isVisible()});
   const projection=config.projectionPlanner();
-  const builtins=config.builtinComponents(root,{Error:ErrorType,textInputs,style,classNames,string,asset,remoteImages,deferImage,schedule,live:()=>!disposed,node:element=>elements.get(element),interactive:node=>interactions.live(node),emit:emitNative,canvasTransfer:environment.canvasTransfer,accessibility,owner:componentTools?(placement?'':config.styleTokens[route]+' ')+instanceId:undefined});
+  const builtins=config.builtinComponents(root,{functionalPage:value=>request('functional.open',value),Error:ErrorType,textInputs,style,classNames,string,asset,remoteImages,deferImage,schedule,live:()=>!disposed,node:element=>elements.get(element),interactive:node=>interactions.live(node),emit:emitNative,canvasTransfer:environment.canvasTransfer,accessibility,owner:componentTools?(placement?'':config.styleTokens[route]+' ')+instanceId:undefined});
   const attributes=builtins.attributes;
   const template = config.templates[route](lookup, read, string, config.wxsRuntime);
   function normalizedPath(path) {
@@ -93,7 +93,8 @@ function createDomBackend(environment) {
   function asset(value,from=route) {
     const url = string(value); if(/^https:\/\//i.test(url))return remoteImage(url); if(/^(?:nowfile|nowsaved):\/\/[0-9a-f]{48}$/.test(url))return root.__nowImageResources?.get(url)||''; if (/^blob:/i.test(url)) return url; if (!url || url.startsWith('data:')) return url;
     if (/^(?:[a-z]+:|\/\/)/i.test(url)) throw new Error('不支持外部图片：' + url);
-    const name = normalizedPath(url.startsWith('/') ? url.slice(1) : from.slice(0,from.lastIndexOf('/')+1)+url);
+    const pluginRoot=(config.pluginRoots||[]).find(directory=>from.startsWith(directory+'/'));
+    const name = normalizedPath(url.startsWith('/') ? (pluginRoot?pluginRoot+'/':'')+url.slice(1) : from.slice(0,from.lastIndexOf('/')+1)+url);
     if (!name || !Object.hasOwn(config.assets, name)) throw new Error('图片不在导入资源中：' + url);
     return config.assets[name];
   }
@@ -148,7 +149,7 @@ function createDomBackend(environment) {
   });
   const eventView={classes:classNames,parent:()=>placement?.eventParent?.(),live:()=>!disposed&&!mount.hidden&&!mount.inert&&port.receiver.isVisible(),
     send(node,binding,detail,target,original){if(binding.name==='change'&&original.type==='change'&&['checkbox-group','radio-group'].includes(node.tag))detail=forms.detail(node,original);const touches=items=>Array.from(items||[],item=>Object.fromEntries(Object.entries({identifier:item.identifier,pageX:item.pageX,pageY:item.pageY,clientX:item.clientX,clientY:item.clientY,x:item.clientX,y:item.clientY,force:item.force||0}).filter(([,value])=>value!==undefined)));port.receiver.event(node.viewNodeId,eventTools.key(binding),{targetNodeId:target.viewNodeId,detail,timeStamp:original.timeStamp,touches:touches(original.touches),changedTouches:touches(original.changedTouches)});},
-    special(node,key,original){if(key==='@share'||key==='@send'){root.document.dispatchEvent(new root.CustomEvent(key==='@send'?'now-app-send':'now-app-share',{detail:{target:{id:string(node.attrs.id),dataset:node.dataset},...(key==='@send'?{activation:original}:{})}}));return;}port.receiver.event(node.viewNodeId,key,{targetNodeId:node.viewNodeId,detail:{},timeStamp:original.timeStamp});},
+    special(node,key,original){if(key==='@functional'){builtins.activate?.(node.element,node);return;}if(key==='@share'||key==='@send'){root.document.dispatchEvent(new root.CustomEvent(key==='@send'?'now-app-send':'now-app-share',{detail:{target:{id:string(node.attrs.id),dataset:node.dataset},...(key==='@send'?{activation:original}:{})}}));return;}port.receiver.event(node.viewNodeId,key,{targetNodeId:node.viewNodeId,detail:{},timeStamp:original.timeStamp});},
     detail(node,original,name){const element=node.element;if(forms.detail(node,original))return forms.detail(node,original);if(['input','confirm','focus','blur'].includes(name))return{value:element.value,cursor:element.selectionStart??string(element.value).length,...(name==='focus'?{height:Number(root.__nowNativeEnvironment?.keyboardHeight)||0}:{})};if(name==='change')return{value:['switch','checkbox','radio'].includes(node.tag)?element.checked:element.value};if(node.tag==='image'&&name==='load')return{width:element.naturalWidth||0,height:element.naturalHeight||0};if(node.tag==='image'&&name==='error')return{errMsg:original.detail?.errMsg||'image:fail unable to load'};if(node.tag==='video')return videoControls?.detail(element,name)||{};if(name==='tap')return{x:original.clientX||0,y:original.clientY||0};return{};}
   };
   function emitNative(element,name,detail){if(disposed)return;const node=elements.get(element);if(!node||!interactions.live(node))return;eventTools.route(node,name,detail,{bubbles:false,composed:false,capturePhase:false});}

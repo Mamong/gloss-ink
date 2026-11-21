@@ -11,6 +11,7 @@ export interface ViewNode {tag: string; attrs: Record<string, unknown>; dataset?
 export interface ErrorConstructor {new(message: string, options?: {code?: string; cause?: unknown}): Error}
 export interface BuiltinDefinition {
   nodeName: string;
+  activate?(element: HTMLElement, node: ViewNode): void;
   create?(element: HTMLElement, node: ViewNode): void;
   created?(element: HTMLElement, node: ViewNode): void;
   attributes?(element: HTMLElement, next: Record<string, unknown>, old: Record<string, unknown> | undefined, node: ViewNode): void;
@@ -22,6 +23,7 @@ export interface BuiltinRegistry {
   names(): string[];
   nodeName(name: string, custom?: boolean): string;
   create(element: HTMLElement, node: ViewNode): void;
+  activate(element: HTMLElement, node: ViewNode): void;
   created(element: HTMLElement, node: ViewNode): void;
   patchAttributes(element: HTMLElement, node: ViewNode, old?: Record<string, unknown>): void;
   remove(element: HTMLElement, node: ViewNode): void;
@@ -29,6 +31,7 @@ export interface BuiltinRegistry {
 export function createBuiltinRegistry(options?: {Error?: ErrorConstructor}): BuiltinRegistry;
 export interface BrowserServices<N extends ViewNode = ViewNode> {
   Error?: ErrorConstructor;
+  functionalPage?(value: {name: string; version: string; args: Record<string, unknown>}): Promise<Record<string, unknown>>;
   string?(value: unknown): string;
   style?(value: unknown, origin?: string): string;
   classNames?(value: unknown): string;
@@ -246,3 +249,5 @@ export function createWebViewRuntime(root: BrowserRoot, options: {
   visibility(value: boolean): unknown;
   dispose(): void;
 };
+
+export function createFunctionalPageNavigator<N extends ViewNode = ViewNode>(root: {setTimeout: typeof setTimeout; clearTimeout: typeof clearTimeout}, options?: BrowserServices<N>): Pick<BuiltinDefinition, "create" | "attributes" | "activate" | "remove">;

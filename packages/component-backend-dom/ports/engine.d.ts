@@ -1,4 +1,4 @@
-// Generated from component-engine/index.d.ts; SHA-256 90ef216680963139a2d5e3825c410d0b9cda6b9568e16950e0c89b4c831cc795
+// Generated from component-engine/index.d.ts; SHA-256 41189a3b38776c3319f9c664bbddb6bb5c5a6d59bb54942f9f13f32c0f1c68bd
 // Regenerate with npm run types:component-ports
 export type JsonValue = null | boolean | number | string | JsonValue[] | {[key: string]: JsonValue};
 export type Data = Record<string, JsonValue>;
@@ -136,6 +136,7 @@ export interface InstanceView {
 }
 export interface PlatformScope {
   id: string;
+  source: string;
   kind: 'page' | 'component';
   page: PageOwner;
   live(): boolean;

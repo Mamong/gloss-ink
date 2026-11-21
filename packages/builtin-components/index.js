@@ -1,5 +1,6 @@
 'use strict';
 module.exports=Object.freeze({
+  createFunctionalPageNavigator:require('./functional-page-navigator'),
   createAccessibility:require('./accessibility'),
   createMapRuntime:require('./map'),
   createVideoRuntime:require('./video'),
