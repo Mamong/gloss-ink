@@ -26,7 +26,7 @@ function createBrowserComponents(root,options={}){
  }
  function attributes(element,next,old,node){
     if(node.tag==='scroll-view'){for(const [key,axis]of [['scroll-x','overflowX'],['scroll-y','overflowY']])if(next[key]!==undefined)element.style[axis]=next[key]?'auto':'hidden';}
-    if(node.tag==='progress')patchProgress(element,next,ErrorType,(name,detail)=>emitNative(element,name,detail));
+    if(node.tag==='progress')patchProgress(element,next,ErrorType,(name,detail)=>emitNative(element,name,detail),()=>interactive(nodeFor(element)||node));
     if(node.tag==='icon'){
       const icons=catalog.icons;
       if(!Object.hasOwn(icons,next.type||'success'))throw new Error('尚未支持 icon.type：'+next.type);
@@ -60,7 +60,7 @@ function createBrowserComponents(root,options={}){
  }
  const createTags=new Set(['image','slider']),createdTags=new Set(['navigator','button','switch','checkbox','radio']);
  const attributeTags=new Set(['scroll-view','progress','icon','input','textarea','switch','checkbox','radio','image','slider']);
- for(const [name,nodeName]of Object.entries(catalog.nodeNames))registry.register(name,{nodeName,...(createTags.has(name)?{create}:{}),...(createdTags.has(name)?{created}:{}),...(attributeTags.has(name)?{attributes}:{})});
+ for(const [name,nodeName]of Object.entries(catalog.nodeNames))registry.register(name,{nodeName,...(createTags.has(name)?{create}:{}),...(createdTags.has(name)?{created}:{}),...(name==='progress'?{remove:element=>patchProgress.release(element)}:{}),...(attributeTags.has(name)?{attributes}:{})});
  return Object.freeze({...registry,attributes:createBrowserAttributes({...options,root,registry})});
 }
 module.exports=createBrowserComponents;
