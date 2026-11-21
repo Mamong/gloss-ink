@@ -60,7 +60,7 @@ function createBrowserComponents(root,options={}){
  }
  const createTags=new Set(['image','slider']),createdTags=new Set(['navigator','button','switch','checkbox','radio']);
  const attributeTags=new Set(['scroll-view','progress','icon','input','textarea','switch','checkbox','radio','image','slider']);
- for(const [name,nodeName]of Object.entries(catalog.nodeNames))registry.register(name,{nodeName,...(createTags.has(name)?{create}:{}),...(createdTags.has(name)?{created}:{}),...(name==='progress'?{remove:element=>patchProgress.release(element)}:{}),...(attributeTags.has(name)?{attributes}:{})});
+ for(const [name,nodeName]of Object.entries(catalog.nodeNames))registry.register(name,{nodeName,...(createTags.has(name)?{create}:{}),...(createdTags.has(name)?{created}:{}),...(name==='progress'?{remove:element=>element.weappProgress?.release()}:{}),...(attributeTags.has(name)?{attributes}:{})});
  return Object.freeze({...registry,attributes:createBrowserAttributes({...options,root,registry})});
 }
 module.exports=createBrowserComponents;

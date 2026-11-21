@@ -12,7 +12,7 @@ function fixture(t,start=1){
  const update=(attrs,live)=>patch(element,attrs,Error,(name,detail)=>events.push({name,...detail}),live);
  const frame=()=>{const entries=[...frames];frames.clear();for(const [,callback]of entries)callback();};
  const complete=()=>{const entries=[...timers];timers.clear();for(const [,timer]of entries)timer.callback();};
- t.after(()=>{patch.release?.(element);root.close();});
+ t.after(()=>{element.weappProgress?.release?.();root.close();});
  return {document,root,element,frames,timers,events,update,frame,complete,reduce:()=>{reduced=true;}};
 }
 test('an initial backwards animation paints from zero and retains its first frame',t=>{
@@ -63,9 +63,17 @@ test('invalid updates leave the current scheduled animation and DOM intact',t=>{
 });
 
 test('a cancelled callback cannot erase the replacement frame handle',t=>{
- const f=fixture(t);f.update({active:true,percent:100,duration:60});const stale=[...f.frames.values()][0];f.update({active:true,percent:40,duration:60});const replacement=[...f.frames.keys()][0];stale();assert.equal(f.element.weappProgress.frame,replacement);patch.release(f.element);assert.equal(f.frames.size,0);
+ const f=fixture(t);f.update({active:true,percent:100,duration:60});const stale=[...f.frames.values()][0];f.update({active:true,percent:40,duration:60});const replacement=[...f.frames.keys()][0];stale();assert.equal(f.element.weappProgress.frame,replacement);f.element.weappProgress.release();assert.equal(f.frames.size,0);
 });
 
 test('zero-valued scheduler handles are cancelled on release',t=>{
- const f=fixture(t,0);f.update({active:true,percent:80,duration:60});assert.equal(f.element.weappProgress.frame,0);patch.release(f.element);assert.equal(f.frames.size,0);
+ const f=fixture(t,0);f.update({active:true,percent:80,duration:60});assert.equal(f.element.weappProgress.frame,0);f.element.weappProgress.release();assert.equal(f.frames.size,0);
+});
+
+test('the SDK serialized browser factory can animate and remove progress without module-scope helpers',t=>{
+ const f=fixture(t),serialized=require(require('node:path').join(source,'source'))();
+ const factory=require('node:vm').runInNewContext(serialized),components=factory(f.root,{emit:(element,name,detail)=>f.events.push({name,...detail})});
+ const node={tag:'progress',attrs:{active:true,percent:100,duration:60},dataset:{}};
+ components.create(f.element,node);components.attributes(f.element,undefined,node);assert.equal(f.frames.size,1);f.frame();assert.equal(f.element.weappProgress.fill.style.width,'100%');f.complete();assert.deepEqual(f.events,[{name:'activeend',percent:100}]);
+ node.attrs.percent=70;components.attributes(f.element,undefined,node);assert.equal(f.frames.size,1);components.remove(f.element,node);assert.equal(f.frames.size,0);
 });

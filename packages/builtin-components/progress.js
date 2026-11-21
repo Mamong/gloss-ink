@@ -1,11 +1,4 @@
 'use strict';
-function releaseProgress(element) {
- const state=element.weappProgress,window=element.ownerDocument.defaultView;
- if(!state)return;
- if(state.frame!==undefined){window?.cancelAnimationFrame?.(state.frame);state.frame=undefined;}
- if(state.endTimer!==undefined){window?.clearTimeout?.(state.endTimer);state.endTimer=undefined;}
- state.generation=(state.generation||0)+1;state.signature=undefined;
-}
 function patchProgress(element,attrs,ErrorType,emit,live=()=>true) {
  const fail=message=>{throw new ErrorType(message,{code:'INVALID_ARGUMENT'});};
  const number=(value,fallback,min,max)=>{const result=value===undefined?fallback:Number(value);if(!Number.isFinite(result)||result<min||result>max)fail('progress数值超出支持范围');return result;};
@@ -17,6 +10,13 @@ function patchProgress(element,attrs,ErrorType,emit,live=()=>true) {
  const duration=number(attrs.duration,500,0,10000),window=element.ownerDocument.defaultView;
  if(!element.weappProgress){const document=element.ownerDocument,track=document.createElement('div'),fill=document.createElement('div'),info=document.createElement('span');track.append(fill);element.append(track,info);element.weappProgress={track,fill,info};}
  const state=element.weappProgress,{track,fill,info}=state;
+ // Keep cleanup inside this serializable factory. The SDK embeds this function
+ // using toString(), so module-level helpers and function properties disappear.
+ state.release||=()=>{
+  if(state.frame!==undefined){window?.cancelAnimationFrame?.(state.frame);state.frame=undefined;}
+  if(state.endTimer!==undefined){window?.clearTimeout?.(state.endTimer);state.endTimer=undefined;}
+  state.generation=(state.generation||0)+1;state.signature=undefined;
+ };
  Object.assign(track.style,{flex:'1',height:stroke+'px',overflow:'hidden',backgroundColor:background});
  Object.assign(fill.style,{height:'100%',backgroundColor:activeColor});
  info.hidden=!attrs['show-info'];info.textContent=percent+'%';info.style.fontSize=size+'px';
@@ -25,7 +25,7 @@ function patchProgress(element,attrs,ErrorType,emit,live=()=>true) {
  const signature=JSON.stringify([percent,active,mode,duration,reduced,!!attrs.hidden]);
  // A color or label update must not restart the animation or its completion.
  if(state.signature===signature)return;
- releaseProgress(element);state.signature=signature;
+ state.release();state.signature=signature;
  const generation=state.generation,available=()=>element.isConnected&&!element.hidden&&live();
  const animate=active&&duration>0&&!reduced&&!attrs.hidden;
  const finish=delay=>{
@@ -46,5 +46,4 @@ function patchProgress(element,attrs,ErrorType,emit,live=()=>true) {
   finish(animate?duration:0);
  }
 }
-patchProgress.release=releaseProgress;
 module.exports=patchProgress;
