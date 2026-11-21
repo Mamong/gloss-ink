@@ -14,7 +14,7 @@ function createMediaFrames(root,options={}){
   const media=document.createElement(node.tag),record={host,media,tag:node.tag,node,listeners:[]};records.set(host,record);media.className='weapp-'+node.tag+'-plane';
   if(node.tag==='canvas'){
    host.weappCanvas=media;media.weappCanvasHost=host;for(const name of ['width','height'])Object.defineProperty(host,name,{configurable:true,get:()=>media[name],set:value=>{media[name]=value;}});
-   for(const name of ['getContext','toDataURL'])if(typeof media[name]==='function')host[name]=(...args)=>media[name](...args);
+   for(const name of ['getContext','toDataURL','toBlob'])if(typeof media[name]==='function')host[name]=(...args)=>media[name](...args);
    host.append(media);return;
   }
   host.weappVideo=media;host.weappVideoControls=value=>{record.controlsOverride=value;repaint(record);};media.playsInline=true;media.controls=false;media.setAttribute('tabindex','0');media.setAttribute('aria-label','视频，按空格播放或暂停');
