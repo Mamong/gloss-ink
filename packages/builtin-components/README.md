@@ -66,3 +66,11 @@ video 控制器在隐藏、移除和销毁时清理自己创建的弹幕节点�
 selection 默认采用行内布局，业务 class/行内 display 可覆盖；hidden 始终隐藏。selectionchange 的 selectedString 只拼接范围内可选 text/rich-text 文本，单一 editor 子节点沿用原生选区字符串；firstRangeRect 使用完整 Range 外接矩形，覆盖多行与跨节点范围。重复有效载荷去重，移到区域外发送折叠状态，隐藏/销毁后不发送。
 
 editor-portal 保留区块节点身份、原生输入和各自编辑器归属。区块内部的输入、粘贴、IME 和键盘事件在 portal 处停止原生冒泡，监听器随移除/销毁释放；逻辑 input/change/confirm/focus/blur 可传到 portal 本身，随后终止，tap 等普通业务事件仍沿原有投影路径传播。编辑器 Delta、历史与区块控件状态继续由各自控制器维护。
+
+## 宿主组件外框
+
+map 默认外框为 300×150 CSS px；本地模拟内容在内部裁剪层绘制，不覆写业务外框的 background/overflow/position。地图数据、瓦片与投影精度仍由宿主能力边界说明。
+
+camera 在尚无预览的浏览器回退中采用自动宽、22px 高的透明外框；成功连接后恢复 100% 宽、240px 高的预览默认，业务尺寸/背景继续覆盖。预览图不隐藏，停止/隐藏/失败时清除就绪标记。回退尺寸仅表示当前浏览器兼容配置，不代表原生摄像头画面规格。
+
+web-view 是行内 DOM 占位，包含空块标记以保留文档流，真实网页由显式宿主服务绘制。更新不覆写业务 style，hidden 同时进入服务 visible 状态；不会在本组件创建 iframe 或加载网页。keyboard-accessory 保留原有焦点和键盘几何门控、停放、hold-keyboard、200px 上限与生命周期；无键盘时不虚构固定投影尺寸。

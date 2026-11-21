@@ -5,7 +5,7 @@ function createCameraRuntime(root, options) {
   const report=(record,name,detail)=>{if(!closed&&records.has(record.element)&&record.element.isConnected)options.emit(record.element,name,detail);};
   const active=record=>visible&&!closed&&options.live(record.element)&&!record.element.hidden&&record.element.isConnected;
   function stop(record,notify=true){
-    record.epoch++;record.opening=false;root.clearTimeout(record.timer);const id=record.id;record.id=null;record.image.removeAttribute('src');if(id)void Promise.resolve().then(()=>options.host('close',{id})).catch(()=>{});else void Promise.resolve().then(()=>options.host('release',{})).catch(()=>{});if(id&&notify)report(record,'stop',{});
+    record.epoch++;record.opening=false;root.clearTimeout(record.timer);const id=record.id;record.id=null;record.element.removeAttribute('data-now-camera-ready');record.image.removeAttribute('src');if(id)void Promise.resolve().then(()=>options.host('close',{id})).catch(()=>{});else void Promise.resolve().then(()=>options.host('release',{})).catch(()=>{});if(id&&notify)report(record,'stop',{});
   }
   async function preview(record,epoch){
     if(!active(record)||epoch!==record.epoch||!record.id)return;
@@ -14,7 +14,7 @@ function createCameraRuntime(root, options) {
   }
   async function open(record){
     if(!active(record)||record.id||record.opening)return;record.opening=true;const epoch=++record.epoch;
-    try{const value=await options.host('open',{position:record.props['device-position']||'back',resolution:record.props.resolution||'medium',mode:record.props.mode||'normal',flash:record.props.flash||'auto'});if(epoch!==record.epoch||!active(record)){if(epoch===record.epoch)record.opening=false;void Promise.resolve().then(()=>options.host('close',{id:value.id})).catch(()=>{});return;}record.id=value.id;record.opening=false;report(record,'initdone',{maxZoom:value.maxZoom});void preview(record,epoch);}
+    try{const value=await options.host('open',{position:record.props['device-position']||'back',resolution:record.props.resolution||'medium',mode:record.props.mode||'normal',flash:record.props.flash||'auto'});if(epoch!==record.epoch||!active(record)){if(epoch===record.epoch)record.opening=false;void Promise.resolve().then(()=>options.host('close',{id:value.id})).catch(()=>{});return;}record.id=value.id;record.opening=false;record.element.setAttribute('data-now-camera-ready','true');report(record,'initdone',{maxZoom:value.maxZoom});void preview(record,epoch);}
     catch(error){if(epoch!==record.epoch)return;record.opening=false;if(error.code==='PAGE_NOT_READY'&&active(record)){record.timer=root.setTimeout(()=>open(record),50);return;}record.failed=true;report(record,'error',{errMsg:error.message,code:error.code||'CAMERA_FAILED'});}
   }
   function create(element,tag){if(tag!=='camera')return;if(records.size)throw fail('CAMERA_LIMIT','同一页面或组件作用域只能有一个camera');const image=root.document.createElement('img');image.alt='';image.setAttribute('aria-hidden','true');image.style.cssText='display:block;width:100%;height:100%;object-fit:cover;';element.append(image);records.set(element,{element,image,props:{},epoch:0,opening:false,id:null});}
