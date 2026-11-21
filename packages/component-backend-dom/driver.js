@@ -125,7 +125,8 @@ function createDomBackend(environment) {
   const reconciler=config.childReconciler();
   const evaluator=config.templateEvaluator(template,{element(node,{attrs,scope,path,forced}){
     if(placement&&['page-meta','navigation-bar'].includes(node.tag))throw new ErrorType('页面配置节点只能用于页面根',{code:'INVALID_ARGUMENT'});
-    if(node.tag==='match-media')return config.matchMedia(attrs,root.innerWidth??document.documentElement?.clientWidth??0,root.innerHeight??document.documentElement?.clientHeight??0,ErrorType)?{flatten:true,prefix:path+'/match'}:{skip:true};
+    // Keep the matched block box; an excluded subtree still follows the existing removal lifecycle.
+    if(node.tag==='match-media')return config.matchMedia(attrs,root.innerWidth??document.documentElement?.clientWidth??0,root.innerHeight??document.documentElement?.clientHeight??0,ErrorType)?{}:{skip:true};
     const loop=node.tag==='scroll-view'&&attrs.type==='list'&&attrs['scroll-y']&&node.nodes.length===1&&node.nodes[0].kind==='for'?node.nodes[0]:null;
     if(!loop||!virtualLists)return;
     const items=loop.value(scope);if(!Array.isArray(items))return;

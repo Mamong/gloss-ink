@@ -1,8 +1,8 @@
 :root { --weapp-rpx: calc(100vw / 750); }
 html, body { margin: 0; min-height: 100%; width: 100%; }
 body { font-size: 16px; color: #222; background: #fff; }
-.weapp-page { min-height: 100dvh; overflow-wrap: normal; }
-.weapp-view, .weapp-scroll-view, .weapp-block { display: block; }
+.weapp-page { width:100%; min-height: 100dvh; overflow-wrap: normal; }
+.weapp-view, .weapp-scroll-view, .weapp-match-media, .weapp-block { display: block; }
 .weapp-text { white-space: normal; user-select: none; }
 .weapp-button { display:block;box-sizing:border-box;width:184px;max-width:100%;padding:8px 24px;margin:0 auto;border:0;border-radius:4px;background:#f8f8f8;color:#000;font:inherit;font-size:17px;font-weight:700;line-height:1.411764705882353;text-align:center;white-space:normal;cursor:pointer; }
 .weapp-button:not([data-weapp-size="mini"]) { width:184px; }

@@ -3,6 +3,7 @@ function createPageMeta(root, options) {
   'use strict';
   const rpxUnits = createRpxUnits();
   const {mount}=options,document=root.document;
+  const rootBackgrounds=createPageMeta.rootBackgrounds||(createPageMeta.rootBackgrounds=new WeakMap()),backgroundOwner={};
   const color=/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
   const windowFields={'background-text-style':'backgroundTextStyle','background-color':'backgroundColor','background-color-top':'backgroundColorTop','background-color-bottom':'backgroundColorBottom','root-background-color':'backgroundColorContent','page-orientation':'pageOrientation'};
   let meta,attrs={},navAttrs={},visible=false,disposed=false,pendingScroll,animation,rootFont,rootFontOwner=false;
@@ -46,6 +47,20 @@ function createPageMeta(root, options) {
     if(visible&&attrs['root-font-size']){if(!rootFontOwner){rootFont=html.style.fontSize||'';rootFontOwner=true;}html.style.fontSize=font(attrs['root-font-size']);}
     else if(rootFontOwner){html.style.fontSize=rootFont;rootFontOwner=false;}
   }
+  function applyRootBackground(){
+    const html=document.documentElement;if(!html?.style)return;
+    const css=html.style;let state=rootBackgrounds.get(html);
+    const value=visible&&!disposed?attrs['root-background-color']:undefined;
+    if(value){
+      if(!state){state={saved:css.getPropertyValue?css.getPropertyValue('background-color'):css.backgroundColor||'',priority:css.getPropertyPriority?.('background-color')||'',owners:[]};rootBackgrounds.set(html,state);}
+      const owner=state.owners.find(entry=>entry.owner===backgroundOwner);
+      if(owner)owner.value=value;else state.owners.push({owner:backgroundOwner,value});
+    }else if(state){const index=state.owners.findIndex(entry=>entry.owner===backgroundOwner);if(index>=0)state.owners.splice(index,1);}
+    if(!state)return;
+    const active=state.owners.at(-1),background=active?.value??state.saved,priority=active?'':state.priority;
+    if(css.setProperty)css.setProperty('background-color',background,priority);else css.backgroundColor=background;
+    if(!state.owners.length)rootBackgrounds.delete(html);
+  }
   function cancelScroll(){if(animation){if(animation.frame)root.cancelAnimationFrame?.(animation.id);else root.clearTimeout(animation.id);animation=null;}}
   function emit(name,detail){if(meta&&visible&&options.live())options.emit(meta.element,name,detail);}
   function scrollPixels(value){
@@ -88,19 +103,19 @@ function createPageMeta(root, options) {
     if(n['color-animation-timing-func']!==navAttrs['color-animation-timing-func'])navigation.timingFunc=timing;
     const pageFont=font(a['page-font-size']);font(a['root-font-size']);
     const nextStyles=declarations(a['page-style']);if(pageFont)nextStyles.set('font-size',pageFont);
-    if(a['root-background-color'])nextStyles.set('background-color',a['root-background-color']);else if(a['background-color'])nextStyles.set('background-color',a['background-color']);
+    // page-style paints the page. Refresh backgrounds belong to the host; root color belongs to the document.
     const top=scrollPixels(a['scroll-top']),scrollDuration=duration(a['scroll-duration'],300);
     if(a['scroll-top']!==attrs['scroll-top']){cancelScroll();pendingScroll=top===undefined?undefined:{top,duration:scrollDuration};}
     attrs={...a};navAttrs={...n};meta=next;
     if(next){next.element.hidden=false;next.element.style.display='contents';if(next.children[0]){next.children[0].element.hidden=true;next.children[0].element.style.display='none';}next.element.setAttribute('aria-hidden','true');}
-    applyStyles(nextStyles);applyRootFont();
+    applyStyles(nextStyles);applyRootFont();applyRootBackground();
     if(Object.hasOwn(window,'backgroundTextStyle')&&a['background-text-style'])mount.setAttribute('data-background-text-style',a['background-text-style']);else if(Object.hasOwn(window,'backgroundTextStyle'))restoreAttribute('data-background-text-style');
     if(a['page-orientation'])mount.setAttribute('data-page-orientation',a['page-orientation']);else if(Object.hasOwn(window,'pageOrientation'))restoreAttribute('data-page-orientation');
     flush();
     if(Object.keys(window).length||Object.keys(navigation).length)return options.send({window,navigation});
   }
   const scrolled=event=>{if(event.target===mount)emit('scroll',{scrollTop:Math.max(0,Number(mount.scrollTop)||0)});};mount.addEventListener('scroll',scrolled,{passive:true});
-  function visibility(value){visible=value;if(!value)cancelScroll();applyRootFont();if(value)flush();}
+  function visibility(value){visible=value;if(!value)cancelScroll();applyRootFont();applyRootBackground();if(value)flush();}
   function resize(){emit('resize',{size:{windowWidth:root.innerWidth||mount.clientWidth||0,windowHeight:root.innerHeight||mount.clientHeight||0}});}
   function restoreAttribute(name){const value=savedAttributes.get(name);if(value===null)mount.removeAttribute(name);else mount.setAttribute(name,value);}
   function nativeEnvironment(){
@@ -109,7 +124,7 @@ function createPageMeta(root, options) {
     if(attrs['root-font-size']==='system')applyRootFont();
   }
   root.addEventListener?.('now-native-environment',nativeEnvironment);
-  function dispose(){root.removeEventListener?.('now-native-environment',nativeEnvironment);disposed=true;visible=false;cancelScroll();pendingScroll=undefined;applyRootFont();applyStyles(new Map());mount.removeEventListener('scroll',scrolled);}
+  function dispose(){root.removeEventListener?.('now-native-environment',nativeEnvironment);disposed=true;visible=false;cancelScroll();pendingScroll=undefined;applyRootFont();applyRootBackground();applyStyles(new Map());mount.removeEventListener('scroll',scrolled);}
   return {validate,update,flush,resize,visibility,dispose};
 }
 
