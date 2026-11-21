@@ -39,10 +39,11 @@ function createMediaFrames(root,options={}){
  function attributes(host,old,node){
   const record=records.get(host),attrs=node.attrs;record.node=node;
   const common=Object.fromEntries(Object.entries(attrs).filter(([name])=>['id','class','style','hidden'].includes(name)||name.startsWith('data-')||name.startsWith('aria-')));
-  options.attributes(host,old,{...node,tag:'view',attrs:common});host.className='weapp-'+node.tag+(attrs.class?' '+(options.classNames?options.classNames(attrs.class):String(attrs.class)):'');record.attrs=attrs;
+  const oldCommon=old?Object.fromEntries(Object.entries(old).filter(([name])=>['id','class','style','hidden'].includes(name)||name.startsWith('data-')||name.startsWith('aria-'))):undefined;
+  options.attributes(host,oldCommon,{...node,tag:'view',attrs:common});host.className='weapp-'+node.tag+(attrs.class?' '+(options.classNames?options.classNames(attrs.class):String(attrs.class)):'');record.attrs=attrs;
   if(node.tag==='canvas'){
    if(attrs['disable-scroll']!==undefined&&typeof attrs['disable-scroll']!=='boolean')fail('canvas.disable-scroll需要boolean');host.style.touchAction=attrs['disable-scroll']?'none':'auto';
-   for(const name of ['width','height'])if(attrs[name]!==undefined){const size=Number(attrs[name]);if(!Number.isInteger(size)||size<1||size>4096)fail('canvas.'+name+'需要1–4096的整数');if(!options.canvasTransfer?.resize(record.media,name,size)){record.media.setAttribute(name,String(size));record.media[name]=size;}host.setAttribute(name,String(size));}
+   for(const name of ['width','height'])if(attrs[name]!==undefined&&(!old||old[name]!==attrs[name]||node.forced?.includes(name))){const size=Number(attrs[name]);if(!Number.isInteger(size)||size<1||size>4096)fail('canvas.'+name+'需要1–4096的整数');if(!options.canvasTransfer?.resize(record.media,name,size)){record.media.setAttribute(name,String(size));record.media[name]=size;}host.setAttribute(name,String(size));}
    if(attrs.type!==undefined)host.setAttribute('type',String(attrs.type));else host.removeAttribute('type');
    if(attrs['canvas-id']!==undefined)host.setAttribute('canvas-id',String(attrs['canvas-id']));else host.removeAttribute('canvas-id');return;
   }
