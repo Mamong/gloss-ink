@@ -1,6 +1,6 @@
 :root { --weapp-rpx: calc(100vw / 750); }
 html, body { margin: 0; min-height: 100%; width: 100%; }
-body { font-size: 16px; color: #222; background: #fff; }
+body { font-size: 16px; }
 .weapp-page { width:100%; min-height: 100dvh; overflow-wrap: normal; }
 .weapp-view, .weapp-scroll-view, .weapp-match-media, .weapp-block { display: block; }
 .weapp-text { white-space: normal; user-select: none; }
