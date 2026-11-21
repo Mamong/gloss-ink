@@ -180,7 +180,7 @@ input.weapp-switch[data-weapp-switch-type="checkbox"]:checked::after { content:"
 .weapp-slider-fill { height:2px;border-radius:6px;background:var(--slider-active,#1aad19); }
 .weapp-slider-thumb { position:absolute;top:50%;width:var(--slider-size,28px);height:var(--slider-size,28px);transform:translate(-50%,-50%);border-radius:50%;background:var(--slider-block,#fff);box-shadow:0 0 4px #0003; }
 .weapp-slider .weapp-slider-tap input[type=range] { position:absolute;left:calc(var(--slider-size,28px) / -2);top:0;width:calc(100% + var(--slider-size,28px));height:18px;margin:0;opacity:0; }
-.weapp-slider-tap:focus-within { outline:2px solid #1677ff;outline-offset:5px; }
+.weapp-slider-tap:has(>input[type=range]:focus-visible) .weapp-slider-thumb { outline:2px solid #1677ff;outline-offset:2px; }
 .weapp-slider output { display:block;min-width:0;margin-left:14px;font:14px Times;text-align:center;font-variant-numeric:normal;color:#888; }
 .weapp-slider output[hidden] { display:none; }
 
