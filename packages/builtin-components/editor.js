@@ -150,6 +150,7 @@ function createEditorRuntime(root, options) {
     if (typeof html !== 'string' || html.length > 2e6) fail('html 需要字符串');
     // Template contents are inert: importing HTML must not start image requests before host resolution.
     const container = document.createElement('template'); container.innerHTML = html;
+    const spaces=node=>{for(const child of node.childNodes||[]){if(child.nodeType===3)child.nodeValue=child.nodeValue.replace(/ /g,'\u00a0');else spaces(child);}};spaces(container.content||container);
     return parse(container.content || container);
   }
   const live = record => !disposed && records.has(record.element) && record.element.isConnected;
@@ -205,7 +206,7 @@ function createEditorRuntime(root, options) {
   }
   function checkpoint(record) { return {delta: delta(record.units), range: {...record.range}}; }
   function remember(record) { record.undo.push(checkpoint(record)); if (record.undo.length > 100) record.undo.shift(); record.redo = []; }
-  function changed(record, units, range, history = true) {
+  function changed(record, units, range, history = true, notify = true) {
     if (equal(delta(units), delta(record.units))) { if (range) { record.range = range; inherit(record); restoreSelection(record); } return; }
     const normalized = normalize(delta(units));
     for (const unit of normalized) if (unit.insert?.image) options.asset(unit.insert.image);
@@ -213,7 +214,7 @@ function createEditorRuntime(root, options) {
     record.units = normalized; if (range) record.range = range;
     record.range.index = Math.min(record.range.index, record.units.length - 1);
     record.range.length = Math.min(record.range.length, record.units.length - 1 - record.range.index);
-    inherit(record); paint(record); restoreSelection(record); emit(record, 'input', contents(record));
+    inherit(record); paint(record); restoreSelection(record); if(notify)emit(record, 'input', contents(record));
   }
   // Browser selections use UTF-16 offsets, as do Delta indices. Embeds occupy one unit.
   function positions(record) {
@@ -337,7 +338,7 @@ function createEditorRuntime(root, options) {
     if (['format', 'clear', 'insertText', 'insertImage', 'insertDivider', 'insertCustomBlock', 'deleteText', 'removeFormat', 'undo', 'redo'].includes(method) && record.props['read-only']) fail('编辑器为只读');
     if (method === 'format') { format(record, value.name, value.value); return {}; }
     if (method === 'getContents') return contents(record);
-    if (method === 'setContents') { const units = value.delta !== undefined ? normalize(value.delta) : htmlContents(value.html === undefined ? '' : value.html); changed(record, units, {index: 0, length: 0}, false); record.undo = []; record.redo = []; return {}; }
+    if (method === 'setContents') { const units = value.delta !== undefined ? normalize(value.delta) : htmlContents(value.html === undefined ? '' : value.html); changed(record, units, {index: 0, length: 0}, false, false); record.undo = []; record.redo = []; return {}; }
     if (method === 'clear') { changed(record, normalize({ops: []}), {index: 0, length: 0}); return {}; }
     if (method === 'insertText') { if (typeof value.text !== 'string' || value.text.length > 200000) fail('insertText.text 需要字符串'); insert(record, value.text.split('').map(insert => ({insert, attributes: {...record.active}}))); return {}; }
     if (method === 'insertImage') {

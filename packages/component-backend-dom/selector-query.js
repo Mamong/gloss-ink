@@ -56,7 +56,7 @@ function createSelectorQueryTools() {
   // 应用自己设置 canvas 节点尺寸后不再由框架按 DPR 接管位图。
   function markManual(element){try{if(element)element.weappCanvasManual=true;}catch(_){}}
   function canvasNode(root,element,options={}){
-    if(!element)return null;
+    if(!element)return null;element=element.weappCanvas||element;
     const name=String(element.tagName||element.nodeName||'').toUpperCase();
     if(name!=='CANVAS')return null;
     const cached=canvasNodes.get(element);if(cached)return cached;
@@ -115,7 +115,7 @@ function createSelectorQueryTools() {
   // 旧版命令式 CanvasContext（wx.createCanvasContext / fields({context})）。
   // 动作先入队，draw() 时回放到真实 2D 上下文；draw 后队列清空，reserve=false 先清空画布。
   const canvasError=(message,code)=>Object.assign(new Error(message),{code});
-  function canvasElement(value){const name=String(value?.tagName||value?.nodeName||'').toUpperCase();return name==='CANVAS'?value:null;}
+  function canvasElement(value){value=value?.weappCanvas||value;const name=String(value?.tagName||value?.nodeName||'').toUpperCase();return name==='CANVAS'?value:null;}
   function canvasNumber(name,value,min,max){if(typeof value!=='number'||!Number.isFinite(value)||Math.abs(value)>10000000||(min!==undefined&&value<min)||(max!==undefined&&value>max))invalid(name+'需要有效数值');return value;}
   function canvasColor(name,value){if(typeof value!=='string'||!value.trim()||value.length>256||/[\x00-\x1f\x7f]/.test(value))invalid(name+'需要颜色字符串');return value;}
   function canvasText(value){if(typeof value!=='string'&&typeof value!=='number')invalid('文本需要字符串或数字');const text=String(value);if(text.length>10000)invalid('文本最多10000字符');return text;}
@@ -193,13 +193,13 @@ function createSelectorQueryTools() {
   // 旧版命令式画布的位图与坐标系（设计见 docs/weapp/canvas-dpr-2026-11）：
   // 逻辑像素 = CSS 布局盒，位图 = 逻辑 × 有效 DPR；应用自己接管位图时退回 1:1 设备像素。
   const CANVAS_MAX_SIDE=4096,CANVAS_MAX_PIXELS=16777216;
-  function canvasSurface(element,root){
+  function canvasSurface(element,root){element=element?.weappCanvas||element;
     const bitmapWidth=Number(element?.width)||0,bitmapHeight=Number(element?.height)||0;
     const plain={managed:false,dpr:1,logicalWidth:bitmapWidth,logicalHeight:bitmapHeight,deviceWidth:bitmapWidth,deviceHeight:bitmapHeight};
     if(String(element?.tagName||element?.nodeName||'').toUpperCase()!=='CANVAS')return plain;
     if(element.weappCanvasManual===true)return plain;
     let logicalWidth=0,logicalHeight=0;
-    try{const rect=typeof element.getBoundingClientRect==='function'?element.getBoundingClientRect():null;logicalWidth=Math.round(Number(rect?.width)||0);logicalHeight=Math.round(Number(rect?.height)||0);}catch(_){}
+    try{let rect=typeof element.getBoundingClientRect==='function'?element.getBoundingClientRect():null;if((!rect?.width||!rect?.height)&&element.weappCanvasHost)rect=element.weappCanvasHost.getBoundingClientRect?.()||rect;logicalWidth=Math.round(Number(rect?.width)||0);logicalHeight=Math.round(Number(rect?.height)||0);}catch(_){}
     // 取不到布局尺寸（假 DOM、未布局、隐藏）时不放大，保持 1:1。
     if(logicalWidth<1||logicalHeight<1)return plain;
     // 没有 CSS 尺寸时画布布局跟着 width/height 属性走：布局等于我们写过的位图时，逻辑尺寸沿用它，否则会每次放大翻倍。

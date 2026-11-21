@@ -1,5 +1,5 @@
 'use strict';
-const runtime=require('./index');
+const runtime={...require('./index'),createMediaFrames:require('./media-frames')};
 // Only the registry/attribute implementation is needed by this browser factory closure.
-const names=['createBuiltinCatalog','createBuiltinRegistry','patchProgress','createBrowserAttributes','createBrowserComponents'];
+const names=['createBuiltinCatalog','createBuiltinRegistry','patchProgress','createBrowserAttributes','createMediaFrames','createBrowserComponents'];
 module.exports=()=>'(function(){'+names.map(name=>'const '+name+'=('+runtime[name].toString()+');').join('\n')+'return createBrowserComponents;})()';

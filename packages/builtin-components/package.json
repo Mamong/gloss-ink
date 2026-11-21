@@ -32,7 +32,8 @@
     "map.js",
     "accessibility.js",
     "styles.css",
-    "web-view.js"
+    "web-view.js",
+    "media-frames.js"
   ],
   "repository": {
     "type": "git",
