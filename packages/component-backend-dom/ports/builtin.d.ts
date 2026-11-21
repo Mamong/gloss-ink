@@ -1,4 +1,4 @@
-// Generated from builtin-components/index.d.ts; SHA-256 9e56207c4c6a713f330d90c82c03b6fdd638bea7a6b156c5288e4be13e06575a
+// Generated from builtin-components/index.d.ts; SHA-256 fdd4bbce738f7aef9939b6b1d121d11b64db393b6c971dfdac6b550bb2125cad
 // Regenerate with npm run types:component-ports
 export interface BuiltinCatalog {
   readonly tags: readonly string[];
@@ -159,7 +159,7 @@ export interface NativeComponentsOptions {
   backToTop?: BackToTopRuntime;
 }
 export interface EventController extends BrowserController {ownsEvent(tag: string, name: string): boolean}
-export function createNativeComponents(root: BrowserRoot, options: NativeComponentsOptions): EventController;
+export function createNativeComponents(root: BrowserRoot, options: NativeComponentsOptions): EventController & {children(element: HTMLElement): HTMLElement | undefined};
 export function createInteractiveComponents(root: BrowserRoot, options: {
   Error: ErrorConstructor; live(): boolean; emit: ComponentEmit;
   style(value: unknown): string; classes(value: unknown): string;
