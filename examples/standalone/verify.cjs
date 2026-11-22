@@ -69,7 +69,8 @@ const {chromium} = require('playwright-core');
     await page.locator('[data-now-picker-input]').selectOption('1');
     await page.locator('[data-now-picker-confirm]').click();
     await page.waitForFunction(() => acceptance.page.data.choice === 1 && !document.querySelector('[data-now-picker]'));
-    checks.push('packaged picker dialog selection and change event');
+    assert.equal(await page.evaluate(() => acceptance.page.lastPickerEventValue), '1');
+    checks.push('packaged picker dialog selection and string change event');
     await page.locator('#rich-editor [contenteditable="true"]').fill('Independent rich text');
     await page.waitForFunction(() => acceptance.page.data.editorText.includes('Independent rich text'));
     const editorText = await page.evaluate(() => new Promise((resolve, reject) => document.querySelector('#rich-editor').weappEditorContext.getContents({success: result => resolve(result.text), fail: reject})));
@@ -83,7 +84,15 @@ const {chromium} = require('playwright-core');
     await page.waitForFunction(() => acceptance.page.selectedMarker === 1);
     assert.deepEqual(await page.evaluate(() => {acceptance.view.map('moveToLocation', {mapId: 'demo-map', longitude: 23, latitude: 11}); return acceptance.view.map('getCenterLocation', {mapId: 'demo-map'});}), {longitude: 23, latitude: 11});
     checks.push('packaged map marker events and context state');
-    assert.deepEqual(await page.evaluate(() => {acceptance.view.video('playbackRate', {videoId: 'demo-video', rate: 1.5}); acceptance.view.video('hideStatusBar', {videoId: 'demo-video'}); const video = document.querySelector('#demo-video'); return {rate: video.playbackRate, controls: video.controls};}), {rate: 1.5, controls: false});
+    assert.deepEqual(await page.evaluate(() => {
+      const host = document.querySelector('#demo-video'), video = host.weappVideo;
+      const bar = host.querySelector('.weapp-video-bar'), top = host.querySelector('.weapp-video-top-bar');
+      acceptance.view.video('showStatusBar', {videoId: 'demo-video'});
+      const shown = !bar.hidden && !top.hidden;
+      acceptance.view.video('playbackRate', {videoId: 'demo-video', rate: 1.5});
+      acceptance.view.video('hideStatusBar', {videoId: 'demo-video'});
+      return {isVideo: video instanceof HTMLVideoElement, rate: video.playbackRate, shown, hidden: bar.hidden && top.hidden};
+    }), {isVideo: true, rate: 1.5, shown: true, hidden: true});
     checks.push('packaged native video context properties');
     const hidden = await page.evaluate(async () => {
       acceptance.view.video('sendDanmu', {videoId: 'demo-video', danmu: {text: 'temporary overlay', duration: 15000}});

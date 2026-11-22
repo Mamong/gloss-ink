@@ -1,7 +1,7 @@
 'use strict';
 const assert = require('node:assert/strict');
 module.exports = async function verifyCatalog(browser, origin) {
-  const page = await browser.newPage();
+  const page = await browser.newPage({viewport: {width: 720, height: 900}});
   const errors = [], checks = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.addInitScript(() => {
@@ -16,6 +16,12 @@ module.exports = async function verifyCatalog(browser, origin) {
     try {await page.waitForFunction(() => window.acceptance?.view.isIdle());}
     catch (error) {throw new Error('Catalog startup failed: ' + JSON.stringify(errors), {cause: error});}
     assert.deepEqual(errors, []);
+    const mountPortal = () => page.evaluate(() => new Promise((resolve, reject) => {
+      document.querySelector('#catalog-editor').weappEditorContext.setContents({
+        delta: {ops: [{insert: {custom: 'catalog-block'}}, {insert: '\n'}]}, success: resolve, fail: reject
+      });
+    }));
+    await mountPortal();
     await page.locator('#catalog-input').focus();
     await page.waitForFunction(() => !!document.querySelector('#catalog-keyboard-accessory'));
     const snapshot = () => page.evaluate(() => Object.fromEntries(Object.entries(acceptance.observations).map(([tag, observation]) => {
@@ -33,8 +39,20 @@ module.exports = async function verifyCatalog(browser, origin) {
       if (observation.physical) assert.equal(initial[tag].phase, true, tag + ' initial common attributes');
     }
     assert.equal(await page.locator('#catalog-block').count(), 0);
-    assert.equal(await page.locator('#catalog-match-media').count(), 0);
-    checks.push('all 41 public tags compile and create with explicit physical or structural observations');
+    checks.push('all 42 public tags compile and create with explicit physical or structural observations');
+    const functional=page.locator('#catalog-functional-page-navigator');
+    await functional.locator('button').click();await page.waitForFunction(()=>acceptance.page.functionalEvent?.outcome==='success');
+    assert.deepEqual(await page.evaluate(()=>acceptance.functionalRequests[0]),{source:'catalog',name:'loginAndGetUserInfo',version:'release',args:{lang:'en'}});
+    assert.equal(await page.evaluate(()=>acceptance.page.functionalEvent.detail.proof),'standalone-injected-service');
+    await page.evaluate(async()=>{acceptance.page.functionalEvent=null;await acceptance.update({functionalOutcome:'cancel',functionalVersion:'trial',functionalArgs:{lang:'zh_CN'}}).done;});
+    await functional.focus();await page.keyboard.press('Enter');await page.waitForFunction(()=>acceptance.page.functionalEvent?.outcome==='cancel');
+    assert.equal(await page.evaluate(()=>acceptance.functionalRequests[1].version),'trial');
+    await page.evaluate(async()=>{acceptance.page.functionalEvent=null;await acceptance.update({functionalOutcome:'fail'}).done;});
+    await functional.locator('button').click();await page.waitForFunction(()=>acceptance.page.functionalEvent?.outcome==='fail');
+    assert.equal(await page.evaluate(()=>acceptance.page.functionalEvent.detail.code),'HOST_UNAVAILABLE');
+    await page.locator('#catalog-input').focus();await page.waitForFunction(()=>!!document.querySelector('#catalog-keyboard-accessory'));
+    checks.push('functional-page-navigator uses the real controller for mouse and keyboard activation, forwarded arguments and success/cancel/fail service outcomes');
+
     await page.evaluate(() => {window.catalogNodes = Object.fromEntries(Object.entries(acceptance.observations).map(([tag, item]) => [tag, document.querySelector(item.selector)]));});
     await page.evaluate(async () => {
       const receipt = acceptance.update({phase: 'updated', fontSize: 18, entry: 'updated entry', memo: 'updated memo', checked: true, amount: 65, choice: 1,
@@ -52,14 +70,14 @@ module.exports = async function verifyCatalog(browser, origin) {
     assert.deepEqual(await page.evaluate(() => ({input: document.querySelector('#catalog-input').value, memo: document.querySelector('#catalog-textarea').value,
       toggle: document.querySelector('#catalog-switch').checked, checkbox: document.querySelector('#catalog-checkbox').checked, radio: document.querySelector('#catalog-radio').checked,
       slider: document.querySelector('#catalog-slider').value, image: document.querySelector('#catalog-image').alt, richText: document.querySelector('#catalog-rich-text').textContent,
-      video: document.querySelector('#catalog-video').controls, rootFont: document.documentElement.style.fontSize,
+      video: document.querySelector('#catalog-video .weapp-video-bar').hidden, rootFont: document.documentElement.style.fontSize,
       center: acceptance.view.map('getCenterLocation', {mapId: 'catalog-map'})})), {
       input: 'updated entry', memo: 'updated memo', toggle: true, checkbox: true, radio: true, slider: '65', image: 'Image updated', richText: 'Updated rich text',
-      video: false, rootFont: '18px', center: {longitude: 23, latitude: 11}
+      video: true, rootFont: '18px', center: {longitude: 23, latitude: 11}
     });
     assert.equal(await page.title(), 'Catalog updated');
     assert.equal(await page.evaluate(() => acceptance.hostMessages.at(-1).window.navigationBarTitleText), 'Catalog updated');
-    checks.push('all 41 tags update without replacing observations and native control state follows authored properties');
+    checks.push('all 42 tags update without replacing observations and native control state follows authored properties');
     const canvasPixel = await page.evaluate(async () => {
       const [{node}] = await acceptance.view.query([{selector: '#catalog-canvas', all: false, viewport: false, node: true}]);
       const context = node.getContext('2d');
@@ -102,8 +120,9 @@ module.exports = async function verifyCatalog(browser, origin) {
     assert.equal(await page.evaluate(() => acceptance.webViews.size), 0);
     assert.equal(await page.title(), 'Independent component system');
     assert.equal(await page.evaluate(() => new Promise(resolve => oldCatalogEditor.getContents({fail: value => resolve(value.errCode)}))), 'PAGE_UNLOADED');
-    checks.push('all 41 observations detach and active layers editor map scroll camera and page metadata release resources');
+    checks.push('all 42 observations detach and active layers editor map scroll camera and page metadata release resources');
     await page.evaluate(async () => {await acceptance.update({catalogEnabled: true, modal: false, portal: false, minimumWidth: 0, phase: 'recreated'}).done;});
+    await page.setViewportSize({width:720,height:900});await mountPortal();
     await page.locator('#catalog-input').focus();
     await page.waitForFunction(() => !!document.querySelector('#catalog-keyboard-accessory'));
     const recreated = await snapshot();
@@ -123,7 +142,7 @@ module.exports = async function verifyCatalog(browser, origin) {
     assert.deepEqual(await page.evaluate(() => cspViolations), []);
     assert.equal(await page.evaluate(() => acceptance.webViews.size), 0);
     checks.push('web-view uses the real controller and awaits injected host requests across update removal and recreation');
-    checks.push('all 41 tags recreate and page destruction releases registry resources under the original CSP');
-    return {checks, tags: Object.keys(expected), coverage: Object.fromEntries(Object.entries(expected).map(([tag, observation]) => [tag, {...observation, stages: ['create', 'update', 'remove', 'recreate']} ])), limitations: ['web-view stays hidden and delegates to an injected service probe; no iframe native container navigation bridge or remote page is tested', 'camera remains hidden; no host capture or permissions', 'video properties only; no media decoding', 'keyboard uses injected host geometry; no physical soft keyboard; editor portal remains parked without a custom block', 'no navigation or external asset requests']};
+    checks.push('all 42 tags recreate and page destruction releases registry resources under the original CSP');
+    return {checks, tags: Object.keys(expected), coverage: Object.fromEntries(Object.entries(expected).map(([tag, observation]) => [tag, {...observation, stages: ['create', 'update', 'remove', 'recreate']} ])), limitations: ['functional-page-navigator delegates to an explicitly injected test service; no real identity/payment/address/invoice provider', 'web-view stays hidden and delegates to an injected service probe; no iframe native container navigation bridge or remote page is tested', 'camera remains hidden; no host capture or permissions', 'video properties only; no media decoding', 'keyboard uses injected host geometry; no physical soft keyboard; editor portal mounted in a custom block; no native IME', 'no navigation or external asset requests']};
   } finally {await page.close();}
 };
