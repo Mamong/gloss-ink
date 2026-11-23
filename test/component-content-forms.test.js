@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm');
 const {JSDOM}=require('jsdom'),ui=require('../packages/builtin-components');
-const serialized=factory=>vm.runInNewContext('('+factory.toString()+')');
+const serialized=factory=>vm.runInNewContext('('+factory.toString()+')',{createRpxUnits:require('../packages/builtin-components/rpx')});
 function environment(t){const root=new JSDOM('<!doctype html><html><body></body></html>').window;t.after(()=>root.close());return root;}
 function textRuntime(root){return serialized(ui.createTextInputRuntime)(root,{Error,scope:'test',styleRoot:root.document.head,style:v=>v,classes:v=>v,live:()=>true,emit(){},invalidate(){},height:()=>''});}
 test('serialized text decodes quotes once and keeps explicit breaks independent of CSS whitespace',t=>{

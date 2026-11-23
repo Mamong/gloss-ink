@@ -7,7 +7,7 @@ const {createTemplateCompiler} = require('../packages/template-compiler');
 const {fixture} = require('./helpers/dom.cjs');
 function setup(t, request = () => ({})) {
   const f = fixture(t), calls = [];
-  const root = {get webkit() {throw new Error('Read native bridge');}, get NowApp() {throw new Error('Read SDK');}};
+  const root = {document:f.document,get webkit() {throw new Error('Read native bridge');}, get NowApp() {throw new Error('Read SDK');}};
   const controller = builtin.createWebViewRuntime(root, {Error: ComponentError, request(method, value) {calls.push({method, value}); return request(method, value);}});
   const element = f.document.createElement('div');
   controller.create(element, 'web-view');
@@ -21,7 +21,7 @@ test('web-view delegates its host request and pending result through the public 
   const {controller, element, node, calls} = setup(t, () => pending);
   const result = controller.patch(element, node); assert.equal(result, pending);
   assert.deepEqual(calls, [{method: 'webview.update', value: {nodeId: 'node-1', src: 'https://example.invalid/page', visible: false, id: 'browser', dataset: {item: 1}, events: [{name: 'message', handler: 'messages'}, {name: 'load', handler: 'loaded'}, {name: 'error', handler: 'failed'}]}}]);
-  assert.equal(element.getAttribute('aria-label'), '网页'); assert.equal(element.style.position, 'fixed');
+  assert.equal(element.getAttribute('aria-label'), '网页'); assert.equal(element.querySelector('.weapp-web-view-placeholder')?.getAttribute('aria-hidden'), 'true');
   resolve({created: true}); assert.deepEqual(await result, {created: true});
 });
 test('web-view visibility is carried by later patches without a host visibility RPC', t => {
