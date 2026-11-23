@@ -27,6 +27,7 @@ function compile(entries, read, asset, diagnostic, scope, customTags = [], setti
       const request = first?.type === 'string' ? first.value : first?.type === 'function' && first.value === 'url' ? values.stringify(first.nodes).replace(/^['"]|['"]$/g, '') : null;
       if (!request || nodes.length !== 1 || /^(?:[a-z]+:|\/\/)/i.test(request)) { diagnostic('error', 'WXSS_IMPORT', file, rule.source.start.offset, '仅支持静态本地 @import，不支持媒体后缀或远程样式'); rule.remove(); return; }
       const target = request.startsWith('/') ? request.slice(1) : path.join(path.dirname(file), request);
+      settings.onImport?.(file,target,rule.source.start.offset);
       rule.replaceWith(load(target, [...ancestors, file]).nodes);
     });
     if (ancestors.length) return root;

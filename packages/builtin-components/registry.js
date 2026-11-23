@@ -10,6 +10,7 @@ function createBuiltinRegistry({Error:ErrorType=Error}={}){
  const api={register,has:name=>definitions.has(name),names:()=>[...definitions.keys()],
   nodeName(name,custom=false){if(custom)return 'div';const item=definitions.get(name);if(!item)throw new ErrorType('尚未支持的组件 '+name,{code:'VIEW_RENDER'});return item.nodeName;},
   create(element,node){const item=definitions.get(node.tag);if(item){owners.set(element,item);item.create?.(element,node);}},
+  activate(element,node){definition(element,node)?.activate?.(element,node);},
   created(element,node){definition(element,node)?.created?.(element,node);},
   patchAttributes(element,node,old){definition(element,node)?.attributes?.(element,node.attrs,old,node);},
   remove(element,node){const item=owners.get(element);owners.delete(element);item?.remove?.(element,node);}

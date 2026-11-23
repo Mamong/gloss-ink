@@ -40,6 +40,7 @@ const page = {
 if (catalogMode) {
   page.data = {...catalogFixture.data};
   page.events = [];
+  for(const [name,outcome]of [['catalogFunctionalSuccess','success'],['catalogFunctionalFailure','fail'],['catalogFunctionalCancel','cancel']])page[name]=event=>{page.functionalEvent={outcome,detail:event.detail};};
   page.catalogSubmit = event => {page.submitted = event.detail.value;};
   page.catalogReset = () => {page.resets = (page.resets || 0) + 1;};
   page.catalogInput = event => {page.typed = event.detail.value;};
@@ -47,10 +48,11 @@ if (catalogMode) {
   page.catalogChange = event => {page.events.push({id: event.target.id, detail: event.detail});};
 }
 const usingComponents = {page: {counter: 'counter'}, counter: {}, catalog: {}};
-const hostMessages = [], webViewRequests = [], webViews = new Map();
+const hostMessages = [], webViewRequests = [], functionalRequests = [], webViews = new Map();
 const browserPlatform = {release(ownerId) {
   for (const key of webViews.keys()) if (key.startsWith(ownerId + ':')) webViews.delete(key);
 }, request(owner, method, value) {
+  if(method==='functional.open'){functionalRequests.push({source:owner.source,...value});if(page.data.functionalOutcome!=='success')return Promise.reject(new core.ComponentError('Explicit injected service result',{code:page.data.functionalOutcome==='cancel'?'CANCELLED':'HOST_UNAVAILABLE'}));return Promise.resolve({proof:'standalone-injected-service'});}
   if (method === 'webview.update' || method === 'webview.remove') {
     // Explicit service probe; this catalog does not create an embedded browser.
     webViewRequests.push({ownerId: owner.id, method, value});
@@ -88,7 +90,7 @@ const backend = dom.createDomBackend({root: window, Error: core.ComponentError, 
   }});
 view = backend(descriptor.id, route);
 const first = view.show();
-window.acceptance = {hostMessages, webViewRequests, webViews, observations: catalogMode ? catalogFixture.observations : undefined, page, registry, descriptor, view, commits, detached, first,
+window.acceptance = {hostMessages, webViewRequests, webViews,functionalRequests, observations: catalogMode ? catalogFixture.observations : undefined, page, registry, descriptor, view, commits, detached, first,
   child: () => registry.select(descriptor.id, '#counter', false),
   update(patch) { Object.assign(page.data, patch); view.markChanges(patch); return view.render(); },
   destroy() { registry.destroy(descriptor.id); document.getElementById('weapp-root').replaceChildren(); }

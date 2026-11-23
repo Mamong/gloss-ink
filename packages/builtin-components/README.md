@@ -88,3 +88,5 @@ picker 以所属视图内容宽度640px为界：小屏使用底部滚动列，�
 selectionchange补齐首尾组件ID与anchor/focus偏移，保留原生重复选区通知，折叠通知只含isCollapsed/selectedString。editor公开Delta统一为customBlock:{blockId,editorId}，仍接收旧custom输入；editor-portal未挂载时停放在文档外，恢复时复用原节点。键盘附件投影明确按实际visibility与键盘几何控制，并从所属输入框继承字体/语言；隐藏原生cover投影的非零测量不视为屏上内容。picker单列change事件为字符串索引（内部/表单索引保持数值）；小屏按已采集参考采用11px选项、17px/1.4头部、48px行、240px视口及0.3s ease动画，安全区由--weapp-safe-area-bottom/原生safeAreaInsets或CSS env提供；大屏维持原控件。
 
 文档校正：selector.value属性/表单保持数值，change.detail.value使用官方PickerChange定义的字符串；确认未改值不发送change，不能把参考运行时的额外通知当作文档合同。地区选择器内部保留索引，公开值与表单值使用名称数组。
+
+`functional-page-navigator` 提供名称/参数/版本校验、鼠标与键盘激活、success/fail/cancel 回调、重复点击抑制和移除后迟到结果丢弃。宿主通过 BrowserServices.functionalPage 注入真实操作；组件包不实现身份、支付或微信后端。

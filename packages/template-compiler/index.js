@@ -88,13 +88,13 @@ function parse(source, file, diagnostic) {
   return roots;
 }
 function documents(source,file,diagnostic,settings={}) {
-  const cache=new Map(),active=new Set(),wxs=settings.wxs||wxsCompiler.createCompiler(settings.read||(()=>null),diagnostic);
+  const cache=new Map(),active=new Set(),wxs=settings.wxs||wxsCompiler.createCompiler(settings.read||(()=>null),diagnostic,settings.onWxsReference);
   function visit(file,source){
     if(active.has(file)){diagnostic('error','WXML_IMPORT_CYCLE',file,0,'模板引用循环');return null;}if(cache.has(file))return cache.get(file);
     if(cache.size>=128){diagnostic('error','WXML_IMPORT_LIMIT',file,0,'模板文件超过 128 个');return null;}
     active.add(file);const doc={file,nodes:parse(source,file,diagnostic),definitions:new Map(),imports:[]};cache.set(file,doc);
     function annotate(nodes){for(const node of nodes){node.file=file;annotate(node.children||[]);}}annotate(doc.nodes);
-    function reference(node){const attr=node.attrs.src;if(!attr||typeof attr.value!=='string'||attr.value.includes('{{')||/^(?:[a-z]+:|\/\/)/i.test(attr.value)||/[\\\0?#]/.test(attr.value)){diagnostic('error','WXML_IMPORT_PATH',file,node.offset,'模板引用需要静态的项目内 WXML 路径');return null;}const target=path.posix.normalize(attr.value.startsWith('/')?attr.value.slice(1):path.posix.join(path.posix.dirname(file),attr.value));if(target.startsWith('../')||!target.endsWith('.wxml')){diagnostic('error','WXML_IMPORT_PATH',file,attr.offset,'模板路径必须位于项目内且为 .wxml');return null;}if(!settings.read){diagnostic('error','WXML_IMPORT_PATH',file,attr.offset,'模板读取器未配置');return null;}const text=settings.read(target);return text===null?null:visit(target,text);}
+    function reference(node){const attr=node.attrs.src;if(!attr||typeof attr.value!=='string'||attr.value.includes('{{')||/^(?:[a-z]+:|\/\/)/i.test(attr.value)||/[\\\0?#]/.test(attr.value)){diagnostic('error','WXML_IMPORT_PATH',file,node.offset,'模板引用需要静态的项目内 WXML 路径');return null;}const target=path.posix.normalize(attr.value.startsWith('/')?attr.value.slice(1):path.posix.join(path.posix.dirname(file),attr.value));if(target.startsWith('../')||!target.endsWith('.wxml')){diagnostic('error','WXML_IMPORT_PATH',file,attr.offset,'模板路径必须位于项目内且为 .wxml');return null;}if(!settings.read){diagnostic('error','WXML_IMPORT_PATH',file,attr.offset,'模板读取器未配置');return null;}settings.onReference?.(file,target,attr.offset);const text=settings.read(target);return text===null?null:visit(target,text);}
     function expand(nodes,top){const result=[];for(const node of nodes){
       if(node.tag==='wxs'){if(!top)diagnostic('error','WXS_DECLARATION',file,node.offset,'当前WXS声明仅支持WXML顶层');else wxs.declaration(file,node);continue;}
       if(node.tag==='import'){if(!top||Object.keys(node.attrs).some(key=>key!=='src'))diagnostic('error','WXML_IMPORT',file,node.offset,'import 仅支持顶层静态 src');const target=reference(node);if(target)doc.imports.push(target);continue;}

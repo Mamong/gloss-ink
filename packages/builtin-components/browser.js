@@ -4,9 +4,12 @@ const createBuiltinRegistry=require('./registry');
 const createBrowserAttributes=require('./attributes');
 const patchProgress=require('./progress');
 const createMediaFrames=require('./media-frames');
+const createFunctionalPageNavigator=require('./functional-page-navigator');
 function createBrowserComponents(root,options={}){
  const {Error:ErrorType=Error,style=value=>String(value??''),emit:emitNative=()=>{},node:nodeFor=()=>undefined,interactive=()=>true}=options;
  const catalog=createBuiltinCatalog(),registry=createBuiltinRegistry({Error:ErrorType}),document=root.document;
+ const functionalPage=createFunctionalPageNavigator(root,options);
+ registry.register('functional-page-navigator',{nodeName:'div',...functionalPage});
  let applyAttributes;const mediaFrames=createMediaFrames(root,{...options,attributes:(...args)=>applyAttributes(...args)});
  function create(element,node){
     if(['canvas','video'].includes(node.tag)){mediaFrames.create(element,node);return;}
@@ -76,7 +79,7 @@ const colors={success:'#07c160',success_no_circle:'#09bb07',info:'#10aeff',warn:
  }
  const createTags=new Set(['image','slider','canvas','video']),createdTags=new Set(['navigator','button','switch','checkbox','radio']);
  const attributeTags=new Set(['scroll-view','progress','icon','input','textarea','switch','checkbox','radio','image','slider','canvas','video']);
- for(const [name,nodeName]of Object.entries(catalog.nodeNames))registry.register(name,{nodeName:['canvas','video'].includes(name)?'div':nodeName,...(createTags.has(name)?{create}:{}),...(createdTags.has(name)?{created}:{}),...(name==='progress'?{remove:element=>element.weappProgress?.release()}:{}),...(['canvas','video'].includes(name)?{remove:element=>mediaFrames.remove(element)}:{}),...(attributeTags.has(name)?{attributes}:{})});
+ for(const [name,nodeName]of Object.entries(catalog.nodeNames).filter(([name])=>name!=='functional-page-navigator'))registry.register(name,{nodeName:['canvas','video'].includes(name)?'div':nodeName,...(createTags.has(name)?{create}:{}),...(createdTags.has(name)?{created}:{}),...(name==='progress'?{remove:element=>element.weappProgress?.release()}:{}),...(['canvas','video'].includes(name)?{remove:element=>mediaFrames.remove(element)}:{}),...(attributeTags.has(name)?{attributes}:{})});
  applyAttributes=createBrowserAttributes({...options,root,registry});
  return Object.freeze({...registry,attributes:(element,old,node)=>['canvas','video'].includes(node.tag)?mediaFrames.attributes(element,old,node):applyAttributes(element,old,node)});
 }

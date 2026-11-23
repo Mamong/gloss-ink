@@ -109,7 +109,7 @@ function createInstanceRegistry(options) {
     const binding=value.binding,event=value.event;
     if(binding.handler==='@navigate'){
       if(!platform.navigate)fail('UNKNOWN_METHOD','当前环境不支持导航');
-      return platform.navigate(binding.args);
+      return platform.navigate(binding.args,{id:owner.id,kind:owner.kind,source:owner.source,page:record(owner.pageId).page,live:()=>records.has(owner.id)&&!owner.closing});
     }
     const target=instance(owner),callback=Object.hasOwn(target,binding.handler)?target[binding.handler]:null;
     if(typeof callback!=='function')fail('INVALID_ARGUMENT','找不到事件处理函数：'+binding.handler);
@@ -160,7 +160,7 @@ if(!plain(message)||message.version!==1||!token(message.ownerId)||typeof message
       case 'tree.commit':return topology(owner,value);
       case 'query':return copy(queryIds(owner,value.selector,!!value.all));
       case 'lifecycle':lifetime(owner,value.name,value.value);return {};
-      default:if(platform.request)return platform.request({id:owner.id,kind:owner.kind,page:record(owner.pageId).page,live:()=>records.has(owner.id)&&!owner.closing},message.method,value);fail('UNKNOWN_METHOD','未知实例端口方法');
+      default:if(platform.request)return platform.request({id:owner.id,kind:owner.kind,source:owner.source,page:record(owner.pageId).page,live:()=>records.has(owner.id)&&!owner.closing},message.method,value);fail('UNKNOWN_METHOD','未知实例端口方法');
     }
   }
   function pageRecords(id){const page=record(id);if(page.kind!=='page')fail('INSTANCE_SCOPE','视图重连仅支持页面根');return [...records.values()].filter(item=>item.pageId===id&&!item.closing);}

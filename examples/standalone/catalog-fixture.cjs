@@ -2,7 +2,7 @@
 // Every public catalog tag has an explicit browser observation. Structural tags
 // are checked through their children because they do not own a physical node.
 const nodes = {
-  'web-view': 'div', camera: 'div', 'keyboard-accessory': 'div', editor: 'div', 'editor-portal': 'div',
+  'functional-page-navigator':'div', 'web-view': 'div', camera: 'div', 'keyboard-accessory': 'div', editor: 'div', 'editor-portal': 'div',
   'page-meta': 'div', 'navigation-bar': 'div', view: 'div', text: 'span',
   button: 'button', input: 'input', textarea: 'textarea', image: 'img',
   'scroll-view': 'div', label: 'label', switch: 'input', checkbox: 'input',
@@ -19,6 +19,7 @@ observations.block = {selector: '#catalog-block-child', nodeName: 'span', physic
 observations['match-media'] = {selector: '#catalog-match-child', nodeName: 'span', physical: false};
 let template = `<page-meta id="catalog-page-meta" wx:if="{{catalogEnabled}}" root-font-size="{{fontSize}}px"><navigation-bar id="catalog-navigation-bar" title="Catalog {{phase}}"/></page-meta>
 <block wx:if="{{catalogEnabled}}">
+  <functional-page-navigator id="catalog-functional-page-navigator" name="loginAndGetUserInfo" args="{{functionalArgs}}" version="{{functionalVersion}}" bind:success="catalogFunctionalSuccess" bind:fail="catalogFunctionalFailure" bind:cancel="catalogFunctionalCancel"><button>Run injected functional service</button></functional-page-navigator>
   <view id="catalog-view"><text id="catalog-text">Catalog {{phase}}</text></view>
   <block><text id="catalog-block-child">Block {{phase}}</text></block>
   <match-media id="catalog-match-media" min-width="{{minimumWidth}}"><text id="catalog-match-child">Matched {{phase}}</text></match-media>
@@ -54,7 +55,7 @@ let template = `<page-meta id="catalog-page-meta" wx:if="{{catalogEnabled}}" roo
 // control's own state. Extra fixture elements are intentionally not catalog rows.
 template = template.replace(/(<[a-z-]+ id="catalog-([a-z-]+)")/g, (all, prefix, tag) =>
   nodes[tag] ? prefix + ' class="phase-{{phase}}"' : all);
-module.exports = {template, observations, data: {
+module.exports = {template, observations, data: {functionalArgs:{lang:'en'},functionalVersion:'release',functionalOutcome:'success',
   catalogEnabled: true, phase: 'initial', minimumWidth: 0, fontSize: 16,
   entry: 'initial entry', memo: 'initial memo', checked: false, amount: 20,
   choices: ['First', 'Second'], choice: 0, richText: '<b>Initial rich text</b>',

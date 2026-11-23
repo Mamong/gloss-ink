@@ -1,4 +1,4 @@
-// Generated from builtin-components/index.d.ts; SHA-256 fdd4bbce738f7aef9939b6b1d121d11b64db393b6c971dfdac6b550bb2125cad
+// Generated from builtin-components/index.d.ts; SHA-256 0b72d091d5b83026c8efcbe63ba5ebcdb266f5953d81778e6621bdf2e511db60
 // Regenerate with npm run types:component-ports
 export interface BuiltinCatalog {
   readonly tags: readonly string[];
@@ -13,6 +13,7 @@ export interface ViewNode {tag: string; attrs: Record<string, unknown>; dataset?
 export interface ErrorConstructor {new(message: string, options?: {code?: string; cause?: unknown}): Error}
 export interface BuiltinDefinition {
   nodeName: string;
+  activate?(element: HTMLElement, node: ViewNode): void;
   create?(element: HTMLElement, node: ViewNode): void;
   created?(element: HTMLElement, node: ViewNode): void;
   attributes?(element: HTMLElement, next: Record<string, unknown>, old: Record<string, unknown> | undefined, node: ViewNode): void;
@@ -24,6 +25,7 @@ export interface BuiltinRegistry {
   names(): string[];
   nodeName(name: string, custom?: boolean): string;
   create(element: HTMLElement, node: ViewNode): void;
+  activate(element: HTMLElement, node: ViewNode): void;
   created(element: HTMLElement, node: ViewNode): void;
   patchAttributes(element: HTMLElement, node: ViewNode, old?: Record<string, unknown>): void;
   remove(element: HTMLElement, node: ViewNode): void;
@@ -31,6 +33,7 @@ export interface BuiltinRegistry {
 export function createBuiltinRegistry(options?: {Error?: ErrorConstructor}): BuiltinRegistry;
 export interface BrowserServices<N extends ViewNode = ViewNode> {
   Error?: ErrorConstructor;
+  functionalPage?(value: {name: string; version: string; args: Record<string, unknown>}): Promise<Record<string, unknown>>;
   string?(value: unknown): string;
   style?(value: unknown, origin?: string): string;
   classNames?(value: unknown): string;
@@ -248,3 +251,5 @@ export function createWebViewRuntime(root: BrowserRoot, options: {
   visibility(value: boolean): unknown;
   dispose(): void;
 };
+
+export function createFunctionalPageNavigator<N extends ViewNode = ViewNode>(root: {setTimeout: typeof setTimeout; clearTimeout: typeof clearTimeout}, options?: BrowserServices<N>): Pick<BuiltinDefinition, "create" | "attributes" | "activate" | "remove">;
