@@ -54,3 +54,7 @@ Unchanged logical node indexes reuse only a matching `tree.commit` revision ackn
 ## rpx 单位策略
 
 统一采用 `layout-pixel-v1`：750rpx 对应当前内容视口宽度；每个非零 rpx 长度按绝对值向下取整，最少 1 CSS px，再恢复符号；0 为 0。DPR 不参与布局取整，px/% 不取整。CSS 结果保留视口变量，resize 时重新计算；数值属性使用相同的 `createRpxUnits().pixels()`。CSS 呈现需要浏览器支持 `round()`。
+
+## Deferred component injection
+
+Optional `componentPlaceholders` selects a built-in view or declared placeholder for the first render. The backend waits for the placeholder commit before requesting `component.inject` from its owning instance. Page-owned injection state deduplicates siblings, replaces placeholders after success, and cancels invalidation after destruction; module evaluation remains with the platform adapter.

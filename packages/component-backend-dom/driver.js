@@ -38,9 +38,45 @@ function createDomBackend(environment) {
   }
   const releasePageStyle=!placement&&config.pageResources?config.pageResources.acquire(config.pageEntries[route]):null;
   const usingMap={...config.usingComponents[route],...placement?.generics};
+  const lazyState=placement?.lazyState||{ready:new Set(),failed:new Set(),jobs:new Map(),views:new Set(),closed:false};
+  const pendingLazy=new Map();
+  function placeholderNodes(nodes){
+    return nodes.map(node=>{
+      const fallback=config.componentPlaceholders?.[route]?.[node.tag],source=usingMap[node.tag];
+      const children=placeholderNodes(node.children||[]);
+      if(!fallback||!source||lazyState.ready.has(source))return {...node,children};
+      if(!lazyState.failed.has(source))pendingLazy.set(source,()=>request('component.inject',{source}));
+      return {...node,tag:fallback,identity:node.identity+'/placeholder:'+source,children};
+    });
+  }
+  function injectAfterCommit(receipt){
+    if(!pendingLazy.size)return;
+    const entries=[...pendingLazy];pendingLazy.clear();
+    const work=Promise.resolve(receipt.done).then(()=>Promise.resolve()).then(()=>{
+      if(disposed||lazyState.closed)return;
+      return Promise.all(entries.map(([source,inject])=>{
+        if(lazyState.ready.has(source)||lazyState.failed.has(source))return;
+        if(lazyState.jobs.has(source))return lazyState.jobs.get(source);
+        const job=Promise.resolve().then(()=>{if(disposed||lazyState.closed)return;return inject();}).then(result=>{
+          if(disposed||lazyState.closed||!result)return;
+          if(result.ok===false){lazyState.failed.add(source);return;}
+          lazyState.ready.add(source);for(const invalidate of [...lazyState.views])invalidate();
+        },error=>{if(!disposed&&!lazyState.closed)lazyState.failed.add(source);throw error;}).finally(()=>lazyState.jobs.delete(source));
+        lazyState.jobs.set(source,job);return job;
+      }));
+    });
+    trackCommit?.(work);work.catch(()=>{});
+  }
+
   const virtual=!!placement?.virtual,pageRoute=placement?.pageRoute||route,styleRoot=placement?.styleRoot||document.head||document.body,ownedStyles=[];
   if(componentTools&&!placement)mount.setAttribute('data-weapp-owner',config.styleTokens[route]+' '+instanceId);
-  if(componentTools&&!placement){const shared=Object.values(config.sharedStyleRules||{}).flat().join('\n');if(shared)ownedStyles.push(componentTools.style(styleRoot,shared,config.styleTokens[route]));}
+  let sharedPageStyle;
+  function refreshSharedStyles(){
+    if(!componentTools||disposed)return;
+    if(!placement){const shared=Object.values(config.sharedStyleRules||{}).flat().join('\n');sharedPageStyle?.remove();sharedPageStyle=shared?componentTools.style(styleRoot,shared,config.styleTokens[route]):null;}
+    else if(placement.sharedStyle){const isolation=config.componentOptions?.[route]?.styleIsolation||'isolated';if(isolation!=='isolated')placement.sharedStyle.textContent=componentTools.css(Object.values(componentTools.merge(config.externalStyleRules[pageRoute],config.sharedStyleRules)).flat().join('\n'),instanceId,virtual);}
+  }
+
   const queryTools=config.selectorQuery();
   const components = new Map(), pendingRoots = new Set(), viewElements = new Map();
   let renderRoots = new Set(), renderedData = {}, childCommits = [];
@@ -195,7 +231,7 @@ function createDomBackend(environment) {
         else{css=document.createElement('style');externalStyle=document.createElement('style');css.nonce=document.querySelector?.('style[nonce]')?.nonce||document.querySelector?.('script[nonce]')?.nonce||'';externalStyle.nonce=css.nonce;css.textContent=config.componentStyles[id];shadow.append(css,externalStyle);}
         if(!isVirtual){container.className='weapp-component-root';shadow.append(container);}
         const parking=isVirtual?componentTools.range():element;if(isVirtual)parking.projection=true;
-        record={id,instanceId:descriptor.id,identity:next.identity,externalClasses:descriptor.externalClasses,element,virtual:isVirtual,parking,styles:[sharedStyle,css,externalStyle].filter(Boolean),view:createView(descriptor.id,id,{mount:container,pageMount:placement?.pageMount||mount,generics:descriptor.generics,virtual:isVirtual,styleRoot:shadow,externalStyle,sharedStyle,pageRoute,parking,eventParent:()=>elements.get(element),parentId:port.logic.id,visible:port.receiver.isVisible()})};
+        record={id,instanceId:descriptor.id,identity:next.identity,externalClasses:descriptor.externalClasses,element,virtual:isVirtual,parking,styles:[sharedStyle,css,externalStyle].filter(Boolean),view:createView(descriptor.id,id,{mount:container,pageMount:placement?.pageMount||mount,generics:descriptor.generics,virtual:isVirtual,styleRoot:shadow,externalStyle,sharedStyle,pageRoute,parking,eventParent:()=>elements.get(element),parentId:port.logic.id,visible:port.receiver.isVisible(),lazyState})};
         components.set(element,record);visual.changed(instanceId);
       } else {
         if(!environment.remote&&metrics?.localRenderExperiment===true){
@@ -290,7 +326,7 @@ function createDomBackend(environment) {
   function* renderDOM() {
     if (disposed) return;
     childCommits=[];template.wxs?.reset();
-    const {nodes:next,templateCalls}=evaluator.evaluate(renderedData,renderRoots);if(metrics){metrics.viewRenders=(metrics.viewRenders||0)+1;metrics.viewNodes=(metrics.viewNodes||0)+next.length;metrics.templateCalls=(metrics.templateCalls||0)+templateCalls;}
+    const evaluated=evaluator.evaluate(renderedData,renderRoots),next=config.componentPlaceholders?placeholderNodes(evaluated.nodes):evaluated.nodes,templateCalls=evaluated.templateCalls;if(metrics){metrics.viewRenders=(metrics.viewRenders||0)+1;metrics.viewNodes=(metrics.viewNodes||0)+next.length;metrics.templateCalls=(metrics.templateCalls||0)+templateCalls;}
     if(placement&&next.some(node=>['page-meta','navigation-bar'].includes(node.tag)))throw new ErrorType('页面配置节点只能用于页面根',{code:'INVALID_ARGUMENT'});pageMeta?.validate(next);yield* patchChildren(mount, previous, next); previous = next;const metaCommit=pageMeta?.update(next);if(metaCommit?.then)yield metaCommit;textInputs.flush(previous);keyboardAccessories?.flush();editorControls?.flush();nativeControls?.flush();interactiveControls?.flush();layerControls?.flush();refreshControls();a11y?.flush();cameraControls?.flush();
     yield* commitTree();
     for(const record of components.values()){
@@ -308,7 +344,7 @@ function createDomBackend(environment) {
   function render(){
     if(disposed)return;
     const forced=[...pendingRoots];pendingRoots.clear();dirty=false;
-    const receipt=port.logic.update(request('data'),forced);trackCommit?.(receipt.done);if(receipt.error)throw receipt.error;return receipt;
+    const receipt=port.logic.update(request('data'),forced);trackCommit?.(receipt.done);if(receipt.error)throw receipt.error;injectAfterCommit(receipt);return receipt;
   }
   function schedule(callback) {
     if(callback!==undefined&&(!Number.isSafeInteger(callback)||callback<1))throw new Error('视图回调令牌无效');
@@ -346,7 +382,7 @@ function createDomBackend(environment) {
   const interactive=()=>{if(!disposed){refreshCamera();pageMeta?.flush();textInputs.flush();keyboardAccessories?.flush();editorControls?.flush();nativeControls?.flush();interactiveControls?.flush();layerControls?.flush();for(const element of viewElements.values())if(element.weappDeferredLoad&&element.weappDeferredLoad===element.getAttribute?.('src')&&element.complete&&element.naturalWidth){element.weappDeferredLoad=null;emitNative(element,'load',{width:element.naturalWidth,height:element.naturalHeight});}}};const interactiveTarget=mount.virtualRange?placement?.parking||document:mount;interactiveTarget.addEventListener?.('now-page-interactive',interactive);
   const resized=()=>{if(!disposed){pageMeta?.resize();schedule();}};root.addEventListener?.('resize',resized);
   const releaseImages=root.__nowImageResources?.subscribe(()=>{if(!disposed)schedule();});
-  function destroy(){if(disposed)return;webViewControls?.dispose();videoControls?.dispose();mapControls?.dispose();cameraControls?.dispose();a11y?.dispose();pageMeta?.dispose();virtualLists?.dispose();for(const entry of remoteImages.values())entry.task?.abort?.();remoteImages.clear();root.removeEventListener?.('resize',resized);interactiveTarget.removeEventListener?.('now-page-interactive',interactive);keyboardAccessories?.dispose();editorControls?.dispose();textInputs.dispose();interactions.disposeOwner(instanceId);project([]);pickerControls?.dispose();nativeControls?.dispose();interactiveControls?.dispose();layerControls?.dispose();disposed=true;releasePageStyle?.();for(const style of ownedStyles)style.remove();releaseImages?.();callbacks=[];port.logic.destroy();return drive((function*(){for(const node of previous)yield* drop(node);components.clear();viewElements.clear();})());}
+  function destroy(){if(disposed)return;lazyState.views.delete(schedule);pendingLazy.clear();if(!placement)lazyState.closed=true;webViewControls?.dispose();videoControls?.dispose();mapControls?.dispose();cameraControls?.dispose();a11y?.dispose();pageMeta?.dispose();virtualLists?.dispose();for(const entry of remoteImages.values())entry.task?.abort?.();remoteImages.clear();root.removeEventListener?.('resize',resized);interactiveTarget.removeEventListener?.('now-page-interactive',interactive);keyboardAccessories?.dispose();editorControls?.dispose();textInputs.dispose();interactions.disposeOwner(instanceId);project([]);pickerControls?.dispose();nativeControls?.dispose();interactiveControls?.dispose();layerControls?.dispose();disposed=true;releasePageStyle?.();sharedPageStyle?.remove();for(const style of ownedStyles)style.remove();releaseImages?.();callbacks=[];port.logic.destroy();return drive((function*(){for(const node of previous)yield* drop(node);components.clear();viewElements.clear();})());}
   async function query(operations){
     const receipt=render();if(receipt&&!receipt.settled)await receipt.done;if(disposed)throw new ErrorType('视图已销毁',{code:'PAGE_UNLOADED'});
     const tools=queryTools,selector=config.componentSelector(message=>new ErrorType(message,{code:'INVALID_ARGUMENT'}));
@@ -354,12 +390,13 @@ function createDomBackend(environment) {
     let viewport=mount;for(let parent=mount;parent;parent=parent.parentElement||parent.getRootNode?.().host||parent.host){if((parent.className||'').split(/\s+/).includes('weapp-page')){viewport=parent;break;}}
     return tools.measure(root,mount,operations,value=>{const parts=selector.parse(value);return [...nodes.values()].filter(node=>!node.element.virtualRange&&selector.matchesNode(node,parts,nodes)).map(node=>node.element);},element=>{const attrs=elements.get(element)?.attrs||{},dataset={};for(const[key,value]of Object.entries(attrs))if(key.startsWith('data-')&&value!==undefined)dataset[key.slice(5).replace(/-([a-z])/g,(_match,char)=>char.toUpperCase())]=JSON.stringify(value);return{dataset};},viewport,{imageSource:canvasImageSource,contextMarker:environment.remote,...(environment.remote?{editorMarker:element=>({__nowEditorContext:{ownerId:instanceId,nodeId:elements.get(element).viewNodeId}})}:{}),...(environment.remote?{nodeMarker:element=>({__nowCanvasNode:{ownerId:instanceId,nodeId:elements.get(element).viewNodeId,width:Number((element.weappCanvas||element).width)||300,height:Number((element.weappCanvas||element).height)||150}})}:{})});
   }
-  if(componentTools&&placement?.sharedStyle){const isolation=config.componentOptions?.[route]?.styleIsolation||'isolated';if(isolation!=='isolated')placement.sharedStyle.textContent=componentTools.css(Object.values(componentTools.merge(config.externalStyleRules[pageRoute],config.sharedStyleRules)).flat().join('\n'),instanceId,virtual);}
-  const api={refreshCamera,camera:(method,value)=>cameraControls.execute(method,value),video:(method,value)=>video(method,value),map:(method,value)=>map(method,value),isIdle:()=>!disposed&&!dirty&&!scheduled&&!port.logic.inspect().pending&&[...components.values()].every(record=>record.view.isIdle()),editor:(nodeId,method,value)=>editorControls.execute(nodeId,method,value),canvasNode:nodeId=>{const found=viewElements.get(nodeId),element=found?.weappCanvas||found;if(disposed||!element||String(element.tagName).toUpperCase()!=='CANVAS')throw new ErrorType('画布节点已销毁',{code:'PAGE_UNLOADED'});return element;},back:()=>layerControls?.back()||false,project,query,render,schedule,pageLifetime,markChanges,setExternal,visibility,refreshControls,moved,
+  refreshSharedStyles();
+  const api={refreshSharedStyles,refreshCamera,camera:(method,value)=>cameraControls.execute(method,value),video:(method,value)=>video(method,value),map:(method,value)=>map(method,value),isIdle:()=>!disposed&&!dirty&&!scheduled&&!port.logic.inspect().pending&&[...components.values()].every(record=>record.view.isIdle()),editor:(nodeId,method,value)=>editorControls.execute(nodeId,method,value),canvasNode:nodeId=>{const found=viewElements.get(nodeId),element=found?.weappCanvas||found;if(disposed||!element||String(element.tagName).toUpperCase()!=='CANVAS')throw new ErrorType('画布节点已销毁',{code:'PAGE_UNLOADED'});return element;},back:()=>layerControls?.back()||false,project,query,render,schedule,pageLifetime,markChanges,setExternal,visibility,refreshControls,moved,
     show(){mount.hidden=false;visibility(true);const receipt=render();pageLifetime('show');if(root.scrollTo)root.scrollTo(scroll[0],scroll[1]);return receipt;},
     hide(){visibility(false);pageLifetime('hide');scroll=[root.scrollX||0,root.scrollY||0];},
     destroy
   };
+  lazyState.views.add(schedule);
   return environment.wrap ? environment.wrap(instanceId,api) : api;
   }
   return createView;

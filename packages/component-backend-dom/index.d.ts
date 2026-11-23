@@ -17,6 +17,7 @@ export type TemplateFactory = (lookup: (scope: Core.TemplateScope, key: string) 
   createWxs: WxsFactory | undefined) => Core.TemplateProgram;
 export interface DomBackendFactories {
   templates: Readonly<Record<string, TemplateFactory>>;
+  componentPlaceholders?: Readonly<Record<string, Readonly<Record<string, string>>>>;
   usingComponents: Readonly<Record<string, Readonly<Record<string, string>>>>;
   assets: Readonly<Record<string, string>>;
   componentOptions: Readonly<Record<string, {virtualHost?: boolean; styleIsolation?: 'isolated' | 'shared' | 'apply-shared'}>>;
@@ -74,6 +75,8 @@ export interface DomPlacement {
   eventParent?(): import('./view-types').DomEventNode | undefined;
   parentId?: string;
   visible?: boolean;
+  /** Page-owned deferred injection state, shared only with descendant views. */
+  lazyState?: {ready: Set<string>; failed: Set<string>; jobs: Map<string, Promise<unknown>>; views: Set<() => void>; closed: boolean};
 }
 export interface DomView {
   render(): Receipt | void;

@@ -4,13 +4,13 @@ const blocked=new Set(['__proto__','prototype','constructor','caller','callee','
 const globals=new Set(['module','exports','require','undefined','NaN','Infinity','Math','JSON','Object','Array','Number','String','Boolean','parseInt','parseFloat','isNaN','isFinite']);
 const builtins={Math:new Set(['PI','E','abs','ceil','floor','round','max','min','pow','sqrt','log','exp','sin','cos','tan','asin','acos','atan','atan2']),JSON:new Set(['parse','stringify']),Object:new Set(['keys']),Array:new Set(['isArray'])};
 const types=new Set(['Program','BlockStatement','VariableDeclaration','VariableDeclarator','FunctionDeclaration','FunctionExpression','Identifier','Literal','ExpressionStatement','ReturnStatement','IfStatement','ForStatement','ForInStatement','WhileStatement','DoWhileStatement','BreakStatement','ContinueStatement','EmptyStatement','CallExpression','MemberExpression','ArrayExpression','ObjectExpression','Property','BinaryExpression','LogicalExpression','UnaryExpression','ConditionalExpression','AssignmentExpression','UpdateExpression','SequenceExpression','SwitchStatement','SwitchCase']);
-function createCompiler(read,diagnostic){
+function createCompiler(read,diagnostic,onReference){
  const modules=Object.create(null),active=new Set(),scopes=Object.create(null);let total=0;
  function issue(code,file,offset,message){diagnostic('error',code,file,offset,message);}
  function resolve(from,request,offset,root=false){
   if(typeof request!=='string'||!request||request.includes('{{')||/[\\\0?#]/.test(request)||/^(?:[a-z]+:|\/\/)/i.test(request)||!request.endsWith('.wxs')||!root&&!/^\.\.?\//.test(request)){issue('WXS_MODULE_PATH',from,offset,'WXS引用需要静态、项目内的 .wxs 路径；require仅支持相对路径');return null;}
   const target=path.posix.normalize(request.startsWith('/')?request.slice(1):path.posix.join(path.posix.dirname(from),request));
-  if(target.startsWith('../')||target==='..'){issue('WXS_MODULE_PATH',from,offset,'WXS路径不能离开项目');return null;}return target;
+  if(target.startsWith('../')||target==='..'){issue('WXS_MODULE_PATH',from,offset,'WXS路径不能离开项目');return null;}onReference?.(from,target,offset);return target;
  }
  function module(id,source,file=id,base=0){
   if(active.has(id)){issue('WXS_MODULE_CYCLE',file,base,'WXS模块引用循环：'+id);return;}
