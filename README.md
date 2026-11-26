@@ -9,7 +9,7 @@
 | 包 | 目录 | 职责 |
 | --- | --- | --- |
 | `@tingtalk/component-engine` | [packages/component-engine](packages/component-engine) | 数据、Behavior、实例树、逻辑事件、模板求值和节点协调 |
-| `@tingtalk/builtin-components` | [packages/builtin-components](packages/builtin-components) | 41 个公开标签的目录、真实浏览器控制器及基础样式 |
+| `@tingtalk/builtin-components` | [packages/builtin-components](packages/builtin-components) | 42 个公开标签的目录、真实浏览器控制器及基础样式 |
 | `@tingtalk/component-backend` | [packages/component-backend](packages/component-backend) | 平台无关提交协议、回执、重置和事件绑定版本 |
 | `@tingtalk/component-backend-dom` | [packages/component-backend-dom](packages/component-backend-dom) | DOM 投影、事件、布局、查询和 Canvas |
 | `@tingtalk/template-compiler` | [packages/template-compiler](packages/template-compiler) | 构建期 WXML/受限 WXS 编译；纯浏览器 WXS runtime 子入口 |
@@ -53,9 +53,9 @@ npm run test:browser
 node scripts/check-standalone-components.cjs artifacts/standalone
 ```
 
-目录页逐项验证 41 个公开标签的创建、更新、移除和重建；组合页验证 slot、Shadow DOM 样式、原生输入/表单、keyed 重排及提交回调。扩展行为包含 Canvas 真实像素、弹层滚动锁、视口响应和页面字体/标题恢复。
+目录页逐项验证 42 个公开标签的创建、更新、移除和重建；组合页验证 slot、Shadow DOM 样式、原生输入/表单、keyed 重排及提交回调。扩展行为包含 Canvas 真实像素、弹层滚动锁、视口响应和页面字体/标题恢复。
 
-41 标签覆盖是生命周期基线。web-view 保持隐藏，通过显式注入的服务记录器验收控制器委托和生命周期，未加载网页容器。相机保持隐藏；键盘附件使用显式注入的宿主几何信息；editor-portal 检查停放节点；视频没有真实解码检查。没有声称全属性/事件、全部原生设备或 GlassEasel ABI 互换通过。详细边界见 [验收应用说明](examples/standalone/README.md)。
+42 标签覆盖是生命周期基线。web-view 保持隐藏，通过显式注入的服务记录器验收控制器委托和生命周期，未加载网页容器。相机保持隐藏；键盘附件使用显式注入的宿主几何信息；editor-portal 检查停放节点；视频没有真实解码检查。没有声称全属性/事件、全部原生设备或 GlassEasel ABI 互换通过。详细边界见 [验收应用说明](examples/standalone/README.md)。
 
 ## 声明与 CI
 
@@ -71,3 +71,17 @@ GitHub Actions 配置 Node 24/26 的单元/打包检查，以及安装 Chrome �
 ## License
 
 ISC，见 [LICENSE](LICENSE)。
+
+## 测试、脚本与 demo 的归属
+
+通用测试在本仓库的 `test/` 维护，分组清单在 `scripts/component-test-suites.json`；检查、打包与独立浏览器验收脚本在 `scripts/`，唯一独立组件 demo 在 `examples/standalone/`。
+
+```sh
+npm run test:core
+npm run test:backend
+npm run test:builtins
+```
+
+`npm test` 运行全部通用测试，三个分组便于定位问题；`npm run test:component-standalone` 在全新目录验收六包组合。Now SDK 维护错误适配、来源锁、源码装配、实例/Worker 和宿主接线测试，Now 产品维护自己的平台审计证据，不再各自维护一套独立组件 demo。
+
+完整维护边界、测试分组和新增用例流程见[验证归属说明](docs/verification-ownership.md)与[开发约定](CONTRIBUTING.md)。

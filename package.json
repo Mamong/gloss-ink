@@ -26,7 +26,10 @@
     "check:semantics": "node scripts/check-component-semantics.cjs --check",
     "test:semantics": "node --test test/component-semantics.test.js",
     "test:worker": "node --test test/component-worker.test.js",
-    "test:web-view": "node --test test/component-web-view.test.js"
+    "test:web-view": "node --test test/component-web-view.test.js",
+    "test:core": "node scripts/test-components.cjs core",
+    "test:backend": "node scripts/test-components.cjs backend",
+    "test:builtins": "node scripts/test-components.cjs builtins"
   },
   "devDependencies": {
     "acorn": "^8.19.0",

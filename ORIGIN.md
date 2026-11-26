@@ -1,5 +1,7 @@
 # 来源与迁移边界
 
+以下首轮及同日迁移内容是历史记录；五包、40/41 标签等数字保留当时含义。当前六包结构和验证入口以 [README](README.md) 与[验证归属说明](docs/verification-ownership.md)为准。
+
 Gloss Ink 于 2026-11-18 从 `Mamong/ting-talk-now` 的组件系统工作区提取。原路径为 `packages/now-weapp/src/{component-engine,builtin-components,component-backend-dom,template-compiler,stylesheet-compiler}`。
 
 原项目的基准提交是 `563b1cb`；组件独立化及其后续验收当时仍是未提交的工作区修改，所以基准提交本身不包含全部迁出源码。`docs/extraction-manifest.json` 记录实际提取时每个源文件的 SHA-256、对应目标和迁入版本哈希，不能仅凭基准提交重建本次输入。
@@ -19,3 +21,11 @@ Gloss Ink 于 2026-11-18 从 `Mamong/ting-talk-now` 的组件系统工作区提�
 同日新增独立编写的 Node Worker/MessagePort 验收用例，直接使用公开 component-engine 工厂，覆盖两种加载方式的 14 个场景（28 项测试）。测试后端和 RPC 只属于验收 fixture，没有作为生产传输实现加入任何运行包；运行包仍保持相同内容。说明与边界见 [Worker 验收](docs/component-worker.md)。
 
 web-view通用组件、DOM backend装配和模板校验从Now并行工作区按逐文件哈希提取，来源基准提交e77e240不包含这些未提交修改；捕获记录见`docs/web-view-2026-11-18/source-capture.json`。原生WKWebView、Web iframe、路由及网页JS桥继续由Now维护。
+
+## 2026-11-26 验证归属收口
+
+从 Now SDK 消费测试中继续迁入组件挂载/树缓存、picker、selection/editor portal、相机/地图/网页控制器，以及 editor、无障碍、键盘附件、页面元信息和虚拟列表回归。原有上游同类断言去重保留；迁入用例改为直接读取本仓库组件包，DOM 用例使用 jsdom，需要布局时显式控制测量。SDK 错误转换、来源锁、源码装配及导航/session 接线断言保留在 SDK。
+
+独立组件 demo 和六包安装/浏览器验收脚本统一维护于本仓库，消费 SDK/examples 不再携带第二套。新增 core/backend/builtins 分组入口，完整通用测试仍由 `npm test` 执行。
+
+本批本地 Node 测试 363/363、六包打包和独立 Chrome 42 标签验收通过。组件运行时目录、公开接口、包版本和初次提取的冻结证据未改；不能把本次本地结果当作远端 CI、真机或生产验证。提交和推送状态以 Git 记录为准。

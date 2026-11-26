@@ -45,3 +45,20 @@ test('packaged map controller owns its rendered state and releases it before rej
   assert.equal(layer.isConnected, false); assert.equal(element.__nowMapLayer, undefined); assert.equal(element.__nowMapState, undefined);
   assert.throws(() => controller.execute('getCenterLocation', {mapId: 'map'}), error => error.code === 'PAGE_UNLOADED');
 });
+
+test('back-to-top observes mutations even when registered before body exists', async () => {
+  const {JSDOM} = require('jsdom');
+  const dom = new JSDOM('<!doctype html><html><head></head><body></body></html>');
+  const root = dom.window, document = root.document, body = document.body;
+  body.remove();
+  const element = document.createElement('div');
+  let refreshes = 0;
+  const observer = root.MutationObserver;
+  root.MutationObserver = class extends observer { constructor(callback) { super(records => {refreshes++; callback(records);}); } };
+  const controller = ui.createBackToTop(root);
+  assert.doesNotThrow(() => controller.register(element, {props: () => ({'scroll-y': true}), live: () => true}));
+  document.documentElement.append(body); body.append(element); element.hidden = true;
+  await new Promise(resolve => root.setTimeout(resolve, 0));
+  assert.ok(refreshes > 0);
+  controller.remove(element); root.close();
+});

@@ -1,0 +1,36 @@
+{
+  "core": [
+    "component-engine-package.test.js",
+    "component-render-rules.test.js",
+    "component-semantics.test.js",
+    "navigation-scope.test.js"
+  ],
+  "backend": [
+    "component-backend-package.test.js",
+    "component-backend-ports.test.js",
+    "component-backend-protocol.test.js",
+    "component-toolchain-packages.test.js",
+    "component-worker.test.js",
+    "component-attach-cache.test.js",
+    "component-tree-cache.test.js"
+  ],
+  "builtins": [
+    "component-compatibility.test.js",
+    "component-content-forms.test.js",
+    "component-controller-packages.test.js",
+    "component-form-liveness.test.js",
+    "component-host-surfaces.test.js",
+    "component-input-selectors.test.js",
+    "component-media-editor.test.js",
+    "component-picker-interaction.test.js",
+    "component-progress.test.js",
+    "component-selection-portal.test.js",
+    "component-web-view.test.js",
+    "functional-page-navigator.test.js",
+    "editor.test.js",
+    "virtual-list.test.js",
+    "keyboard-accessory.test.js",
+    "accessibility.test.js",
+    "page-meta.test.js"
+  ]
+}
