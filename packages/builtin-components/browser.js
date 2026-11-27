@@ -51,7 +51,7 @@ const colors={success:'#07c160',success_no_circle:'#09bb07',info:'#10aeff',warn:
       svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');svg.innerHTML=shapes[type];glyph.append(svg);element.replaceChildren(glyph);element.setAttribute('role','img');element.setAttribute('aria-label',type);
     }
     if(['input','textarea'].includes(node.tag)){const maximum=next.maxlength==null?140:Number(next.maxlength);if(!Number.isSafeInteger(maximum)||maximum<-1)throw new ErrorType('maxlength需要-1或非负整数',{code:'INVALID_ARGUMENT'});if(maximum===-1)element.removeAttribute('maxlength');else element.setAttribute('maxlength',String(maximum));}
-    if(['switch','checkbox','radio'].includes(node.tag)){const color=next.color||({switch:next.type==='checkbox'?'#09bb07':'#07C160',checkbox:'#09BB07',radio:'#07c160'}[node.tag]);element.style.accentColor=color;element.style.setProperty?.('--weapp-control-color',color);if(node.tag==='switch')element.setAttribute('role','switch');}
+    if(['switch','checkbox','radio'].includes(node.tag)){const fallback={switch:next.type==='checkbox'?'#09bb07':'#07C160',checkbox:'#09BB07',radio:'#07c160'}[node.tag],color=next.color||'var(--weapp-choice-default-color,'+fallback+')';element.style.accentColor=color;element.style.setProperty?.('--weapp-control-color',color);if(node.tag==='switch')element.setAttribute('role','switch');}
     if (node.tag === 'input') {
       const type = next.password ? 'password' : ['digit', 'idcard'].includes(next.type) ? 'text' : next.type || 'text';
       if (element.type !== type) element.type = type;
@@ -72,7 +72,7 @@ const colors={success:'#07c160',success_no_circle:'#09bb07',info:'#10aeff',warn:
       const raw=Number(element.value||0);if(!Number.isFinite(raw))throw new ErrorType('slider.value需要有限数',{code:'INVALID_ARGUMENT'});const clamped=Math.max(min,Math.min(max,raw));element.value=String(Math.min(max,min+Math.round((clamped-min)/step)*step));
       const size=Number(next['block-size']??28);if(!Number.isInteger(size)||size<12||size>28)throw new ErrorType('slider.block-size需12–28整数',{code:'INVALID_ARGUMENT'});
       const safe=value=>{if(typeof value!=='string'||value.length>128||/[;{}<>]/.test(value)||/url\s*\(/i.test(value))throw new ErrorType('slider颜色无效',{code:'INVALID_ARGUMENT'});return value;};
-      range.style.setProperty?.('--slider-active',safe(next.activeColor??next['selected-color']??'#1aad19'));range.style.setProperty?.('--slider-background',safe(next.backgroundColor??next.color??'#e9e9e9'));range.style.setProperty?.('--slider-block',safe(next['block-color']??'#ffffff'));range.style.setProperty?.('--slider-size',size+'px');range.style.accentColor=safe(next.activeColor??next['selected-color']??'#1aad19');
+      range.style.setProperty?.('--slider-active',safe(next.activeColor??next['selected-color']??'#1aad19'));range.style.setProperty?.('--slider-background',safe(next.backgroundColor??next.color??'var(--weapp-slider-background,#e9e9e9)'));range.style.setProperty?.('--slider-block',safe(next['block-color']??'#ffffff'));range.style.setProperty?.('--slider-size',size+'px');range.style.accentColor=safe(next.activeColor??next['selected-color']??'#1aad19');
       for(const key of ['--slider-active','--slider-background','--slider-block','--slider-size'])element.style.setProperty(key,range.style.getPropertyValue(key));
       element.weappOutput.style.width=String(range.max).length*.5+'em';element.weappOutput.hidden=!next['show-value'];element.weappOutput.textContent=element.value;
     }

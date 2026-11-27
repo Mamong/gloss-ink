@@ -1,6 +1,7 @@
 function createKeyboardAccessoryRuntime(root, options) {
   'use strict';
   const document = root.document, owners = new Map(), records = new Map();
+  let themeObserver=null;
   let visible = true, realmActive = true, watching = false, disposed = false, syncing = false, scheduled = false;
   const fail = message => { throw new options.Error(message, {code:'INVALID_ARGUMENT'}); };
   function active(element) { return document.activeElement === element || element.getRootNode?.().activeElement === element; }
@@ -71,6 +72,8 @@ function createKeyboardAccessoryRuntime(root, options) {
         const allowed = visible && realmActive && portrait && info.height > 0 && owner.element.isConnected && owner.node && !owner.node.attrs.disabled && options.live(owner.node) && focused && items.length;
         if (!allowed) { changed = hide(owner) || changed; continue; }
         const overlay = container(owner), inherited = root.getComputedStyle?.(owner.element);
+        let theme;for(let node=owner.element;node;node=node.parentElement||node.getRootNode?.().host){const value=node.getAttribute?.('data-weui-theme');if(value==='light'||value==='dark'){theme=value;break;}}if(theme&&overlay.getAttribute('data-weui-theme')!==theme)overlay.setAttribute('data-weui-theme',theme);else if(!theme&&overlay.getAttribute('data-weui-theme')!==null)overlay.removeAttribute('data-weui-theme');
+        const themeScope=owner.element.getRootNode?.();if(themeScope?.host)themeObserver?.observe(themeScope,{attributes:true,subtree:true,attributeFilter:['data-weui-theme']});
         if (inherited) for (const name of ['fontFamily','fontSize','fontWeight','fontStyle','letterSpacing','color']) overlay.style[name] = inherited[name];
         let language = ''; for (let node = owner.element; node; node = node.parentElement || node.getRootNode?.().host) { const value = node.getAttribute?.('lang'); if (value !== null && value !== undefined) { language = value; break; } } overlay.lang = language;
         const scope = owner.element.getRootNode?.();
@@ -109,12 +112,14 @@ function createKeyboardAccessoryRuntime(root, options) {
   const focus = event => { if (event.target !== root && event.target !== document) return; realmActive = true; queue(); };
   function watch() {
     if (watching) return; watching = true; realmActive = true;
+    if(typeof root.MutationObserver==='function'&&document.documentElement){themeObserver=new root.MutationObserver(queue);themeObserver.observe(document.documentElement,{attributes:true,subtree:true,attributeFilter:['data-weui-theme']});}
     root.addEventListener?.('now-native-environment',queue); root.addEventListener?.('resize',queue); root.addEventListener?.('blur',blur); root.addEventListener?.('focus',focus);
     root.visualViewport?.addEventListener?.('resize',queue); root.visualViewport?.addEventListener?.('scroll',queue);
     document.addEventListener?.('pointerup',cancel); document.addEventListener?.('pointercancel',cancel);
   }
   function unwatch() {
     if (!watching) return; watching = false;
+    themeObserver?.disconnect();themeObserver=null;
     root.removeEventListener?.('now-native-environment',queue); root.removeEventListener?.('resize',queue); root.removeEventListener?.('blur',blur); root.removeEventListener?.('focus',focus);
     root.visualViewport?.removeEventListener?.('resize',queue); root.visualViewport?.removeEventListener?.('scroll',queue);
     document.removeEventListener?.('pointerup',cancel); document.removeEventListener?.('pointercancel',cancel);

@@ -88,3 +88,10 @@ test('recreating the last accessory starts fresh after an unwatched window focus
   f.root.dispatchEvent(new f.root.Event('focus'));
   const next=f.accessory(owner);f.runtime.flush();assert.equal(next.element.isConnected,true);
 });
+
+test('an open keyboard accessory follows its owner theme while keeping content and focus',async t=>{
+ const f=fixture(t);f.document.documentElement.setAttribute('data-weui-theme','light');f.mount.setAttribute('data-weui-theme','dark');const owner=f.input(),bar=f.accessory(owner);owner.element.style.color='rgb(20, 30, 40)';owner.element.value='preserve';owner.element.focus();await f.keyboard();const overlay=bar.element.parentElement;
+ assert.equal(overlay.getAttribute('data-weui-theme'),'dark');assert.equal(overlay.style.color,'rgb(20, 30, 40)');
+ f.mount.setAttribute('data-weui-theme','light');await new Promise(setImmediate);assert.equal(bar.element.parentElement,overlay);assert.equal(overlay.getAttribute('data-weui-theme'),'light');assert.equal(owner.element.value,'preserve');assert.equal(f.document.activeElement,owner.element);assert.equal(overlay.style.color,'rgb(20, 30, 40)');
+ f.runtime.dispose();assert.equal(overlay.isConnected,false);
+});

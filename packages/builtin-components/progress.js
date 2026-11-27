@@ -5,7 +5,7 @@ function patchProgress(element,attrs,ErrorType,emit,live=()=>true) {
  const percent=number(attrs.percent,0,0,100),stroke=number(attrs['stroke-width'],6,1,100),size=number(attrs['font-size'],16,1,100);
  for(const key of ['show-info','active'])if(attrs[key]!==undefined&&typeof attrs[key]!=='boolean')fail('progress布尔属性需要boolean');
  const color=(value,fallback)=>{if(value===undefined)return fallback;if(typeof value!=='string'||value.length>128||/[;{}<>]/.test(value)||/url\s*\(/i.test(value))fail('progress颜色无效');return value;};
- const activeColor=color(attrs.activeColor??attrs.color,'#09bb07'),background=color(attrs.backgroundColor,'#ebebeb');
+ const activeColor=color(attrs.activeColor??attrs.color,'#09bb07'),background=color(attrs.backgroundColor,'var(--weapp-progress-background,#ebebeb)');
  const mode=attrs['active-mode']??'backwards';if(!['backwards','forwards'].includes(mode))fail('progress.active-mode仅支持backwards或forwards');
  const duration=number(attrs.duration,500,0,10000),window=element.ownerDocument.defaultView;
  if(!element.weappProgress){const document=element.ownerDocument,track=document.createElement('div'),fill=document.createElement('div'),info=document.createElement('span');track.append(fill);element.append(track,info);element.weappProgress={track,fill,info};}

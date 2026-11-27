@@ -90,3 +90,23 @@ selectionchange补齐首尾组件ID与anchor/focus偏移，保留原生重复选
 文档校正：selector.value属性/表单保持数值，change.detail.value使用官方PickerChange定义的字符串；确认未改值不发送change，不能把参考运行时的额外通知当作文档合同。地区选择器内部保留索引，公开值与表单值使用名称数组。
 
 `functional-page-navigator` 提供名称/参数/版本校验、鼠标与键盘激活、success/fail/cancel 回调、重复点击抑制和移除后迟到结果丢弃。宿主通过 BrowserServices.functionalPage 注入真实操作；组件包不实现身份、支付或微信后端。
+
+## Component theme defaults
+
+Set `data-weui-theme="light"` or `"dark"` on the document root to select default component colors. The SDK sets this marker only from the application's effective DarkMode configuration. No component follows the browser preference independently.
+
+Dark defaults cover inherited text, buttons (including plain/loading/disabled), text placeholders, switches and selection controls, slider/progress tracks, picker masks and popups, swiper indicators, editor affordances, keyboard confirmation bars and page-container surfaces. Existing calibrated light geometry is unchanged. Explicit component colors, business styles and inline styles continue to take precedence. Theme selectors use `:where()` so the theme scope does not raise their specificity. Defaults painted from JavaScript use CSS variables so an existing component or open popup can change theme without recreation.
+
+Button default, warn, mini, custom and disabled colors follow the locked browser reference captured from WeChat base library 3.17.6. Plain buttons keep the reference's untyped default color. This is a browser reference calibration, not a pixel-equivalence claim for native devices.
+
+Input and textarea retain inherited text colors in both themes, including disabled fields. Their dark default placeholders follow the locked base-library 3.17.6 browser reference separately: input uses rgba(255,255,255,.3), while textarea retains #808080. Explicit placeholder-style and placeholder-class declarations keep their existing priority; theme changes do not recreate controls.
+
+Dark choice defaults follow the locked 3.17.6 browser reference: switch uses a translucent unchecked track and keeps its disabled opacity; checkbox/radio retain separate normal, disabled and disabled-checked backgrounds, borders and markers. Checkbox-style switches use the checkbox palette. Explicit color attributes continue through the existing control-color variable. Light defaults, geometry and interaction logic are unchanged.
+
+Slider and progress dark tracks are calibrated separately to the locked 3.17.6 browser reference: slider uses #393939 with #888 numeric labels, while progress retains #ebebeb. Existing CSS-variable defaults keep explicit backgroundColor/activeColor overrides and allow live theme changes without resetting values or progress animation state. Light styling and geometry are unchanged.
+
+Picker-view dark masks use the locked 3.17.6 browser reference: #2c2c2c fading to rgba(44,44,44,.7), with reversed lower gradients and rgba(255,255,255,.05) indicator lines. Default mask images live in the component stylesheet so mask-class/indicator-class rules and explicit style attributes keep normal CSS priority. Live theme changes preserve wheel columns, layers, selection, scroll position and focus. Light calibrated measurements remain unchanged.
+
+The remaining builtin theme audit covers all registered tags. Logical/layout components inherit the effective page theme; semantic icons, media artwork, transparent content and the video contrast surface retain their content colors. Editor placeholders use the reference dark opacity .6. Keyboard confirmation actions, default refresh affordances and the browser map fallback use theme variables while explicit application colors remain authoritative. Body-mounted picker/accessory overlays track the owning light/dark scope, retain draft/focus, and release their theme observers on close/disposal. The map palette describes the local fallback, not a native map acceptance claim.
+
+Swiper indicator defaults and page-container surfaces retain the locked base-library 3.17.6 browser colors in both themes: inactive indicators rgba(0,0,0,.3), active indicators black, and a white page-container panel with inherited text. Explicit indicator colors, custom panel styles and CSS-variable overrides retain their priority. This describes the fixed browser reference, not native WeChat client rendering.

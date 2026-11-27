@@ -145,7 +145,7 @@ function createInteractiveComponents(root, options) {
         Object.assign(layer.style,{display:'block',position:'absolute',pointerEvents:'none',left:(index*100/record.columns.length)+'%',right:'auto',width:(100/record.columns.length)+'%',top:type==='mask'?'0px':(height-size)/2+'px',bottom:'auto',height:(type==='mask'?height:size)+'px',transform:'none'});
         if(type==='mask'){
           layer.style.backgroundSize='100% '+Math.max(0,(height-size)/2)+'px';
-          if(!attrs['mask-style']){layer.style.backgroundImage='linear-gradient(var(--weapp-picker-mask-color,rgba(255,255,255,.95)),var(--weapp-picker-mask-edge,rgba(255,255,255,.6))),linear-gradient(0deg,var(--weapp-picker-mask-color,rgba(255,255,255,.95)),var(--weapp-picker-mask-edge,rgba(255,255,255,.6)))';layer.style.backgroundRepeat='no-repeat';layer.style.backgroundPosition='top, bottom';}
+          if(!attrs['mask-style']){layer.style.backgroundRepeat='no-repeat';layer.style.backgroundPosition='top, bottom';}
         }else layer.style.boxSizing='content-box';
         if(owner!==null)layer.setAttribute('data-weapp-owner',owner);
         record.element.append(layer);record.layers.push(layer);
