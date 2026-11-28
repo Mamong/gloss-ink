@@ -118,13 +118,13 @@ function createDomBackend(environment) {
     for (const part of path.split('/')) { if (!part || part === '.') continue; if (part === '..') { if (!output.length) return null; output.pop(); } else output.push(part); }
     return output.join('/');
   }
+  // Resource references are loaded by the browser, not by a request/file API.
   function remoteImage(url){
-    if(remoteImages.has(url))return remoteImages.get(url).data||'';
-    if(remoteImages.size>=16)throw new Error('每个视图最多16张远程图片');
-    const origin=/^https:\/\/[^/?#]+/.exec(url)?.[0];
-    if(!origin||origin.includes('@')||url.includes('#')||!config.remoteImageOrigins?.includes(origin)){remoteImages.set(url,{error:'远程图片来源未声明'});return '';}
-    const entry={};remoteImages.set(url,entry);
-    Promise.resolve(request('image.load',{url})).then(result=>{if(!disposed){entry.data=result.data;schedule();}},error=>{if(!disposed){entry.error=error.message||'远程图片加载失败';schedule();}});return '';
+    let parsed;
+    try{const URLType=typeof root.URL==='function'?root.URL:URL;parsed=new URLType(url);}catch(_){throw new Error('远程媒体资源地址无效');}
+    const host=parsed.hostname;
+    if(parsed.protocol!=='https:'||parsed.username||parsed.password||url.length>8192||!host.includes('.')||/^[\d.]+$/.test(host)||host.includes(':')||/(?:^|\.)(?:localhost|local|internal)$/.test(host))throw new Error('远程媒体资源需要公开HTTPS域名地址');
+    return parsed.href;
   }
   function asset(value,from=route) {
     const url = string(value); if(/^https:\/\//i.test(url))return remoteImage(url); if(/^(?:nowfile|nowsaved):\/\/[0-9a-f]{48}$/.test(url))return root.__nowImageResources?.get(url)||''; if (/^blob:/i.test(url)) return url; if (!url || url.startsWith('data:')) return url;

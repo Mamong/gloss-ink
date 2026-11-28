@@ -32,3 +32,12 @@ test('form reset preserves nested form and custom controller ownership boundarie
  const root=environment(t),document=root.document,outer=document.createElement('form'),inner=document.createElement('form'),field=document.createElement('input'),custom=document.createElement('div');field.value='nested';inner.append(field);outer.append(inner,custom);document.body.append(outer);const reset=[];const controller={formField:true,id:'custom',name:'custom',value:{count:2}};
  const runtime=serialized(ui.createFormRuntime)(root,Error,{component:element=>element===custom?controller:null,picker:{value:()=>0,reset(){}},resetField:(...args)=>reset.push(args),scope:'test'}),nodes={tag:'form',attrs:{},element:outer,children:[{tag:'form',attrs:{},element:inner,children:[{tag:'input',attrs:{name:'nested'},element:field,children:[]}]},{tag:'custom',attrs:{},element:custom,children:[]}]};runtime.sync([nodes]);runtime.detail(nodes,new root.Event('reset',{cancelable:true}));assert.equal(field.value,'nested');assert.equal(reset.length,1);assert.equal(reset[0][0],'custom');
 });
+
+
+test('rich-text images keep HTTPS resource references without a byte request and reject executable sources',t=>{
+ const root=environment(t),urls=[];
+ const runtime=serialized(ui.createNativeComponents)(root,{Error,live:()=>true,emit(){},asset:value=>{urls.push(value);return value;}}),element=root.document.createElement('span');root.document.body.append(element);runtime.create(element,'rich-text');
+ runtime.patch(element,{attrs:{nodes:[{name:'img',attrs:{src:'https://unlisted.example/first.png'}},{name:'img',attrs:{src:'javascript:alert(1)'}}]}});
+ assert.equal(element.querySelectorAll('img').length,1);assert.equal(element.querySelector('img').getAttribute('src'),'https://unlisted.example/first.png');assert.deepEqual(urls,['https://unlisted.example/first.png']);
+ runtime.patch(element,{attrs:{nodes:[{name:'img',attrs:{src:'https://other-cdn.example/second.png'}}]}});assert.equal(element.querySelectorAll('img').length,1);assert.equal(element.querySelector('img').getAttribute('src'),'https://other-cdn.example/second.png');runtime.dispose();
+});
