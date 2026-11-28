@@ -124,7 +124,7 @@ function createDomBackend(environment) {
     try{const URLType=typeof root.URL==='function'?root.URL:URL;parsed=new URLType(url);}catch(_){throw new Error('远程媒体资源地址无效');}
     const host=parsed.hostname;
     if(parsed.protocol!=='https:'||parsed.username||parsed.password||url.length>8192||!host.includes('.')||/^[\d.]+$/.test(host)||host.includes(':')||/(?:^|\.)(?:localhost|local|internal)$/.test(host))throw new Error('远程媒体资源需要公开HTTPS域名地址');
-    return parsed.href;
+    return root.__nowPreloadedImageResources?.get(parsed.href)||parsed.href;
   }
   function asset(value,from=route) {
     const url = string(value); if(/^https:\/\//i.test(url))return remoteImage(url); if(/^(?:nowfile|nowsaved):\/\/[0-9a-f]{48}$/.test(url))return root.__nowImageResources?.get(url)||''; if (/^blob:/i.test(url)) return url; if (!url || url.startsWith('data:')) return url;
